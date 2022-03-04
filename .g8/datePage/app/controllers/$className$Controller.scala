@@ -3,54 +3,79 @@ package controllers
 import controllers.actions._
 import forms.$className$FormProvider
 import javax.inject.Inject
-import models.Mode
-import navigation.Navigator
+import models.{Mode, DepartureId}
 import pages.$className$Page
+import navigation.Navigator
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import renderer.Renderer
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.$className$View
+import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class $className$Controller @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: $className$FormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: $className$View
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                       override val messagesApi: MessagesApi,
+                                       sessionRepository: SessionRepository,
+                                       navigator: Navigator,
+                                       identify: IdentifierAction,
+                                       getData: DataRetrievalActionProvider,
+                                       checkCancellationStatus: CheckCancellationStatusProvider,
+                                       requireData: DataRequiredAction,
+                                       formProvider: $className$FormProvider,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer
+)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
-  def form = formProvider()
+  private val form = formProvider()
+  private val template = "$className;format="decap"$.njk"
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(departureId: DepartureId, mode: Mode): Action[AnyContent] = (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get($className$Page) match {
-        case None => form
+      val preparedForm = request.userAnswers.get($className$Page(departureId)) match {
         case Some(value) => form.fill(value)
+        case None        => form
       }
 
-      Ok(view(preparedForm, mode))
+      val viewModel = DateInput.localDate(preparedForm("value"))
+
+      val json = Json.obj(
+        "form" -> preparedForm,
+        "mode" -> mode,
+        "lrn"  -> request.lrn,
+        "departureId" -> departureId,
+        "date" -> viewModel
+      )
+
+      renderer.render(template, json).map(Ok(_))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(departureId: DepartureId, mode: Mode): Action[AnyContent] = (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors =>  {
 
+          val viewModel = DateInput.localDate(formWithErrors("value"))
+
+          val json = Json.obj(
+            "form" -> formWithErrors,
+            "mode" -> mode,
+            "lrn"  -> request.lrn,
+            "departureId" -> departureId,
+            "date" -> viewModel
+          )
+
+          renderer.render(template, json).map(BadRequest(_))
+        },
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set($className$Page, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set($className$Page(departureId), value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage($className$Page, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage($className$Page(departureId), mode, updatedAnswers, departureId))
       )
   }
 }

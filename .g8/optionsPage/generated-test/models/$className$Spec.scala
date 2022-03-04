@@ -2,9 +2,9 @@ package models
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.OptionValues
 import play.api.libs.json.{JsError, JsString, Json}
 
@@ -14,7 +14,7 @@ class $className$Spec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
     "must deserialise valid values" in {
 
-      val gen = Gen.oneOf($className$.values.toSeq)
+      val gen = Gen.oneOf($className$.values)
 
       forAll(gen) {
         $className;format="decap"$ =>
@@ -36,7 +36,7 @@ class $className$Spec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
     "must serialise" in {
 
-      val gen = Gen.oneOf($className$.values.toSeq)
+      val gen = Gen.oneOf($className$.values)
 
       forAll(gen) {
         $className;format="decap"$ =>

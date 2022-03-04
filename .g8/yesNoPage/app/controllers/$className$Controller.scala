@@ -3,54 +3,79 @@ package controllers
 import controllers.actions._
 import forms.$className$FormProvider
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, DepartureId, UserAnswers}
 import navigation.Navigator
 import pages.$className$Page
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import renderer.Renderer
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.$className$View
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class $className;format="cap"$Controller @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         navigator: Navigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: $className$FormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: $className$View
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalActionProvider,
+    formProvider: $className$FormProvider,
+    requireData: DataRequiredAction,
+    checkCancellationStatus: CheckCancellationStatusProvider,
+    val controllerComponents: MessagesControllerComponents,
+    renderer: Renderer
+)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
-  val form = formProvider()
+  private val form = formProvider()
+  private val template = "$className;format="decap"$.njk"
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(departureId: DepartureId, mode: Mode): Action[AnyContent] =
+  (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get($className$Page) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+  val json = Json.obj(
+        "form"        -> form,
+        "lrn"         -> request.lrn,
+        "mode"        -> mode,
+        "departureId" -> departureId,
+        "radios"      -> Radios.yesNo(form("value"))
+      )
 
-      Ok(view(preparedForm, mode))
+      renderer.render(template, json).map(Ok(_))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(departureId: DepartureId, mode: Mode): Action[AnyContent] =
+  (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
     implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+      form.bindFromRequest()
+        .fold(
+        formWithErrors => {
 
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set($className$Page, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage($className$Page, mode, updatedAnswers))
+          val json = Json.obj(
+            "form"           -> formWithErrors,
+            "lrn"            -> request.lrn,
+            "mode"           -> mode,
+            "departureId"    -> departureId,
+            "radios"         -> Radios.yesNo(formWithErrors("value"))
+          )
+
+          renderer.render(template, json).map(BadRequest(_))
+        },
+
+      value => {
+          val userAnswers = request.userAnswers match {
+            case Some(value) => value
+            case None => UserAnswers(departureId, request.eoriNumber)
+            }
+        for {
+        updatedAnswers <- Future.fromTry(userAnswers.set($className$Page(departureId), value))
+        _ <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage($className$Page(departureId), mode, updatedAnswers, departureId))
+       }
       )
   }
 }

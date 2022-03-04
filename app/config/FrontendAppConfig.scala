@@ -1,40 +1,63 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.i18n.Lang
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject()(configuration: Configuration) {
 
-  val host: String    = configuration.get[String]("host")
-  val appName: String = configuration.get[String]("appName")
+  val contactHost: String                  = configuration.get[String]("contact-frontend.host")
+  val contactFormServiceIdentifier: String = "CTCTraders"
 
-  private val contactHost = configuration.get[String]("contact-frontend.host")
-  private val contactFormServiceIdentifier = "manage-transit-movements-cancellation-frontend"
+  val trackingConsentUrl: String = configuration.get[String]("microservice.services.tracking-consent-frontend.url")
+  val gtmContainer: String       = configuration.get[String]("microservice.services.tracking-consent-frontend.gtm.container")
 
-  def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${SafeRedirectUrl(host + request.uri).encodedUrl}"
+  val showPhaseBanner: Boolean        = configuration.get[Boolean]("banners.showPhase")
+  val userResearchUrl: String         = configuration.get[String]("urls.userResearch")
+  val showUserResearchBanner: Boolean = configuration.get[Boolean]("banners.showUserResearch")
 
-  val loginUrl: String         = configuration.get[String]("urls.login")
-  val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String       = configuration.get[String]("urls.signOut")
+  val betaFeedbackUnauthenticatedUrl = s"$contactHost/contact/beta-feedback-unauthenticated?service=$contactFormServiceIdentifier"
+  val signOutUrl: String             = configuration.get[String]("urls.logoutContinue") + configuration.get[String]("urls.feedback")
+  lazy val nctsEnquiriesUrl: String  = configuration.get[String]("urls.nctsEnquiries")
 
-  private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/manage-transit-movements-cancellation-frontend"
+  lazy val authUrl: String                = configuration.get[Service]("auth").baseUrl
+  lazy val loginUrl: String               = configuration.get[String]("urls.login")
+  lazy val loginContinueUrl: String       = configuration.get[String]("urls.loginContinue")
+  lazy val enrolmentKey: String           = configuration.get[String]("microservice.services.auth.enrolmentKey")
+  lazy val enrolmentProxyUrl: String                   = configuration.get[Service]("microservice.services.enrolment-store-proxy").fullServiceUrl
 
-  val languageTranslationEnabled: Boolean =
-    configuration.get[Boolean]("features.welsh-translation")
+  lazy val legacyEnrolmentKey: String           = configuration.get[String]("keys.legacy.enrolmentKey")
+  lazy val legacyEnrolmentIdentifierKey: String = configuration.get[String]("keys.legacy.enrolmentIdentifierKey")
+  lazy val newEnrolmentKey: String              = configuration.get[String]("keys.enrolmentKey")
+  lazy val newEnrolmentIdentifierKey: String    = configuration.get[String]("keys.enrolmentIdentifierKey")
+  lazy val eccEnrolmentSplashPage: String       = configuration.get[String]("urls.eccEnrolmentSplashPage")
 
-  def languageMap: Map[String, Lang] = Map(
-    "en" -> Lang("en"),
-    "cy" -> Lang("cy")
-  )
+  lazy val manageTransitMovementsUrl: String               = configuration.get[String]("urls.manageTransitMovementsFrontend")
+  lazy val manageTransitMovementsViewDeparturesUrl: String = s"$manageTransitMovementsUrl/view-departures"
+  lazy val serviceUrl                                      = s"$manageTransitMovementsUrl/what-do-you-want-to-do"
 
-  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
-  val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
+  lazy val departureBaseUrl: String = configuration.get[Service]("microservice.services.departures").baseUrl
+  lazy val departureUrl: String     = configuration.get[Service]("microservice.services.departures").fullServiceUrl
 
-  val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+  lazy val timeoutSeconds: String   = configuration.get[String]("session.timeoutSeconds")
+  lazy val countdownSeconds: String = configuration.get[String]("session.countdownSeconds")
+
+  lazy val languageTranslationEnabled: Boolean =
+    configuration.get[Boolean]("microservice.services.features.welsh-translation")
 }
