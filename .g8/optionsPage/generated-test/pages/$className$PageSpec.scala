@@ -1,16 +1,16 @@
 package pages
 
-import models.$className$
+import models.{$className$, DepartureId}
 import pages.behaviours.PageBehaviours
 
-class $className$Spec extends PageBehaviours {
+class $className$PageSpec(departure: DepartureId) extends PageBehaviours {
 
   "$className$Page" - {
 
-    beRetrievable[$className$]($className$Page)
+    beRetrievable[$className$]($className$Page(departure))
 
-    beSettable[$className$]($className$Page)
+    beSettable[$className$]($className$Page(departure))
 
-    beRemovable[$className$]($className$Page)
+    beRemovable[$className$]($className$Page(departure))
   }
 }

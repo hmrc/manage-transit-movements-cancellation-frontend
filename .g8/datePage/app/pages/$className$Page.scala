@@ -1,10 +1,11 @@
 package pages
 
-import java.time.LocalDate
+import models.DepartureId
 
+import java.time.LocalDate
 import play.api.libs.json.JsPath
 
-case object $className$Page extends QuestionPage[LocalDate] {
+case class $className$Page(departureId: DepartureId) extends QuestionPage[LocalDate] {
 
   override def path: JsPath = JsPath \ toString
 

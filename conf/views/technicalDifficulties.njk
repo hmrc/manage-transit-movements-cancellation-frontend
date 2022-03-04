@@ -1,0 +1,32 @@
+{% extends "includes/layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk"     import govukBackLink %}
+{% from "macros/title.njk"                         import title %}
+
+{% block pageTitle %}
+    {{ messages("technicalDifficulties.title") }}
+{% endblock %}
+
+{% block mainContent %}
+
+  {{ govukBackLink({
+    text: messages("site.back")
+  }) }}
+
+  <div class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-xl">{{ messages("technicalDifficulties.heading") }}</h1>
+
+        <p class="govuk-body">{{ messages("technicalDifficulties.tryAgain") }}</p>
+        <p class="govuk-body">{{ messages("technicalDifficulties.savedAnswers") }}</p>
+
+        <p class="govuk-body">{{ messages("technicalDifficulties.contact") }}
+            <a class="govuk-link" rel="noreferrer noopener" href={{contactUrl}} target="_blank">{{ messages("technicalDifficulties.contact.link") }}</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
