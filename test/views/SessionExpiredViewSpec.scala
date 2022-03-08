@@ -28,5 +28,5 @@ class SessionExpiredViewSpec extends SingleViewSpec("session-expired.njk", hasSi
 
     assertPageHasButtonWithHref(doc, "submit", "/manage-transit-movements/what-do-you-want-to-do")
   }
-  
+
 }

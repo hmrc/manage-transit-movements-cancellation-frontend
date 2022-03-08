@@ -23,24 +23,73 @@ import cats.syntax.all._
 import scala.xml.NodeSeq
 
 case class PrincipalTraderDetails(
-                                 name: Option[String],
-                                 streetAndNumber: Option[String],
-                                 postCode: Option[String],
-                                 city: Option[String],
-                                 countryCode: Option[String],
-                                 nadLang: Option[String],
-                                 principalEori: Option[String],
-                                 holderEori: Option[String]
-                                 ) {
+  name: Option[String],
+  streetAndNumber: Option[String],
+  postCode: Option[String],
+  city: Option[String],
+  countryCode: Option[String],
+  nadLang: Option[String],
+  principalEori: Option[String],
+  holderEori: Option[String]
+) {
+
   def toXml: NodeSeq = <TRAPRIPC1>
-    {name.map(value => <NamPC17>{value}</NamPC17>).getOrElse(NodeSeq.Empty)}
-    {streetAndNumber.map(value => <StrAndNumPC122>{value}</StrAndNumPC122>).getOrElse(NodeSeq.Empty)}
-    {postCode.map(value => <PosCodPC123>{value}</PosCodPC123>).getOrElse(NodeSeq.Empty)}
-    {city.map(value => <CitPC124>{value}</CitPC124>).getOrElse(NodeSeq.Empty)}
-    {countryCode.map(value => <CouPC125>{value}</CouPC125>).getOrElse(NodeSeq.Empty)}
-    {nadLang.map(value => <NADLNGPC>{value}</NADLNGPC>).getOrElse(NodeSeq.Empty)}
-    {principalEori.map(value => <TINPC159>{value}</TINPC159>).getOrElse(NodeSeq.Empty)}
-    {holderEori.map(value => <HITPC126>{value}</HITPC126>).getOrElse(NodeSeq.Empty)}
+    {
+    name
+      .map(
+        value => <NamPC17>{value}</NamPC17>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    streetAndNumber
+      .map(
+        value => <StrAndNumPC122>{value}</StrAndNumPC122>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    postCode
+      .map(
+        value => <PosCodPC123>{value}</PosCodPC123>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    city
+      .map(
+        value => <CitPC124>{value}</CitPC124>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    countryCode
+      .map(
+        value => <CouPC125>{value}</CouPC125>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    nadLang
+      .map(
+        value => <NADLNGPC>{value}</NADLNGPC>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    principalEori
+      .map(
+        value => <TINPC159>{value}</TINPC159>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
+    {
+    holderEori
+      .map(
+        value => <HITPC126>{value}</HITPC126>
+      )
+      .getOrElse(NodeSeq.Empty)
+  }
   </TRAPRIPC1>
 }
 
@@ -55,6 +104,6 @@ object PrincipalTraderDetails {
     (__ \ "NADLNGPC").read[String].optional,
     (__ \ "TINPC159").read[String].optional,
     (__ \ "HITPC126").read[String].optional
-    ).mapN(apply)
+  ).mapN(apply)
 
 }

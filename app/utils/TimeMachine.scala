@@ -23,6 +23,6 @@ trait TimeMachine {
   def today(): LocalDate
 }
 
-class DefaultTimeMachine @Inject()(clock: Clock) extends TimeMachine {
+class DefaultTimeMachine @Inject() (clock: Clock) extends TimeMachine {
   override def today(): LocalDate = LocalDate.now(clock)
 }

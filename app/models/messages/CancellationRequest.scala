@@ -16,23 +16,23 @@
 
 package models.messages
 
-import models.response.{MRNAllocatedRootLevel, MRNAllocatedMessage, PrincipalTraderDetails}
+import models.response.{MRNAllocatedMessage, MRNAllocatedRootLevel, PrincipalTraderDetails}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.xml.NodeSeq
 
 case class CancellationRequest(
-                                rootLevel: MRNAllocatedRootLevel,
-                                movementReferenceNumber: String,
-                                dateOfCancellation: LocalDate,
-                                cancellationReason: String,
-                                principal: PrincipalTraderDetails,
-                                departureOffice: String
-                              ) {
+  rootLevel: MRNAllocatedRootLevel,
+  movementReferenceNumber: String,
+  dateOfCancellation: LocalDate,
+  cancellationReason: String,
+  principal: PrincipalTraderDetails,
+  departureOffice: String
+) {
 
-  private val dateFormatter: DateTimeFormatter         = DateTimeFormatter.ofPattern("yyyyMMdd")
-  def toXml: NodeSeq = <CC014A>
+  private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+  def toXml: NodeSeq                           = <CC014A>
     {rootLevel.toXml}
     <HEAHEA>
       <DocNumHEA5>{movementReferenceNumber}</DocNumHEA5>
@@ -47,6 +47,7 @@ case class CancellationRequest(
 }
 
 object CancellationRequest {
+
   def apply(cancellationReason: String, dateOfCancellation: LocalDate, mrnAllocatedMessage: MRNAllocatedMessage): CancellationRequest =
     new CancellationRequest(
       rootLevel = mrnAllocatedMessage.rootLevel,

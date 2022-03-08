@@ -22,9 +22,8 @@ import pages.Page
 import play.api.mvc.Call
 import javax.inject.Inject
 
-class FakeNavigator @Inject()(desiredRoute: Call, appConfig: FrontendAppConfig) extends Navigator(appConfig) {
+class FakeNavigator @Inject() (desiredRoute: Call, appConfig: FrontendAppConfig) extends Navigator(appConfig) {
 
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, departureId: DepartureId): Call = desiredRoute
-
 
 }

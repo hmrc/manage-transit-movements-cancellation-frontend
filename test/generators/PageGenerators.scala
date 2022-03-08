@@ -26,6 +26,7 @@ trait PageGenerators {
 
   implicit lazy val arbitraryCancellationReasonPage: Arbitrary[CancellationReasonPage] =
     Arbitrary(CancellationReasonPage(DepartureId(1)))
+
   implicit lazy val arbitraryConfirmCancellationPage: Arbitrary[ConfirmCancellationPage] =
     Arbitrary(ConfirmCancellationPage(DepartureId(1)))
 }

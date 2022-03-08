@@ -53,7 +53,8 @@ class DataRetrievalActionSpec extends SpecBase with GuiceOneAppPerSuite with Gen
 
     actionProvider(departureId)
       .invokeBlock(
-        AuthorisedRequest(FakeRequest(GET, "/").asInstanceOf[Request[AnyContent]], EoriNumber(""), LocalReferenceNumber("")), {
+        AuthorisedRequest(FakeRequest(GET, "/").asInstanceOf[Request[AnyContent]], EoriNumber(""), LocalReferenceNumber("")),
+        {
           request: OptionalDataRequest[AnyContent] =>
             f(request)
             Future.successful(Results.Ok)

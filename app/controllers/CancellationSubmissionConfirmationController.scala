@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class CancellationSubmissionConfirmationController @Inject()(
+class CancellationSubmissionConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   departureMovementConnector: DepartureMovementConnector,

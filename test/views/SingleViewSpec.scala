@@ -36,7 +36,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 abstract class SingleViewSpec(protected val viewUnderTest: String, hasSignOutLink: Boolean = true)
-  extends SpecBase with ViewSpecAssertions with NunjucksSupport with GuiceOneAppPerSuite {
+    extends SpecBase
+    with ViewSpecAssertions
+    with NunjucksSupport
+    with GuiceOneAppPerSuite {
 
   require(viewUnderTest.endsWith(".njk"), "Expected view with file extension of `.njk`")
 
@@ -103,7 +106,7 @@ abstract class SingleViewSpec(protected val viewUnderTest: String, hasSignOutLin
 
   "must append service to feedback link" in {
     val doc: Document = renderDocument().futureValue
-    val link = doc.getElementsByClass("govuk-phase-banner__text").head.getElementsByClass("govuk-link").head
+    val link          = doc.getElementsByClass("govuk-phase-banner__text").head.getElementsByClass("govuk-link").head
     link.attr("href") must include("?service=CTCTraders")
   }
 

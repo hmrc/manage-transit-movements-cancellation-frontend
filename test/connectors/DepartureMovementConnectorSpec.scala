@@ -59,12 +59,11 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
   "DeparturesMovementConnector" - {
     "getDepartures" - {
       "must return a successful future response" in {
-        val expectedResult = {
+        val expectedResult =
           ResponseDeparture(
             LocalReferenceNumber("lrn"),
             DepartureSubmitted
           )
-        }
 
         server.stubFor(
           get(urlEqualTo(s"/$startUrl/movements/departures/${departureId.index}"))
@@ -96,7 +95,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
       "must return a successful future response" in {
         val messagesResponseJson = Json.obj(
           "departureId" -> 23,
-          "messages" -> Json.obj("IE015" -> "theFirstUrl", "IE028" -> "theSecondUrl")
+          "messages"    -> Json.obj("IE015" -> "theFirstUrl", "IE028" -> "theSecondUrl")
         )
 
         val expectedResult = MessageSummary(
@@ -119,7 +118,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
       "must return Left MalformedBody if messages json is malformed" in {
         val messagesResponseJson = Json.obj(
           "depurId" -> 23,
-          "mees" -> Json.obj("IE015" -> "theFirstUrl", "IE028" -> "theSecondUrl")
+          "mees"    -> Json.obj("IE015" -> "theFirstUrl", "IE028" -> "theSecondUrl")
         )
 
         server.stubFor(
@@ -192,10 +191,10 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
       "must return a successful future response" in {
         val messagesResponseJson = Json.obj(
-          "dateTime" -> LocalDateTime.now().toString,
-          "messageType" -> "IE028",
+          "dateTime"             -> LocalDateTime.now().toString,
+          "messageType"          -> "IE028",
           "messageCorrelationId" -> 2,
-          "message" -> mrnAllocatedMessage.toString()
+          "message"              -> mrnAllocatedMessage.toString()
         )
 
         val expectedResult = MRNAllocatedMessage(
@@ -239,10 +238,10 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
       "must return Left MalformedBody if messages json is malformed" in {
         val messagesResponseJson = Json.obj(
-          "dateTime" -> LocalDateTime.now().toString,
-          "messageType" -> "IE028",
+          "dateTime"             -> LocalDateTime.now().toString,
+          "messageType"          -> "IE028",
           "messageCorrelationId" -> 2,
-          "mage" -> mrnAllocatedMessage.toString()
+          "mage"                 -> mrnAllocatedMessage.toString()
         )
 
         val url = s"/$startUrl/movements/departures/${departureId.index}/messages/2"
@@ -277,7 +276,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
     }
     "submitCancellation" - {
 
-      val cancellationRequest: CancellationRequest = {
+      val cancellationRequest: CancellationRequest =
         CancellationRequest(
           MRNAllocatedRootLevel(
             "SynIdeMES1",
@@ -307,7 +306,6 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
           PrincipalTraderDetails(Some("name"), Some("street"), Some("xx11xx"), Some("city"), Some("GB"), Some("EN"), Some("eori"), Some("holder tir")),
           "123456"
         )
-      }
 
       "must return a successful future response" in {
 
