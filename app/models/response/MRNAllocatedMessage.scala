@@ -17,35 +17,39 @@
 package models.response
 
 import cats.syntax.all._
-import com.lucidchart.open.xtract.{XmlReader, __}
+import com.lucidchart.open.xtract.{__, XmlReader}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import utils.NodeSeqFormat
 
 import scala.xml.NodeSeq
 
-
 case class MRNAllocatedMessage(
-                                rootLevel: MRNAllocatedRootLevel,
-                                movementReferenceNumber: String,
-                                principalTraderDetails: PrincipalTraderDetails,
-                                customsOfficeReference: String
-                              )
+  rootLevel: MRNAllocatedRootLevel,
+  movementReferenceNumber: String,
+  principalTraderDetails: PrincipalTraderDetails,
+  customsOfficeReference: String
+)
 
 object MRNAllocatedMessage extends NodeSeqFormat {
+
   implicit val xmlReader: XmlReader[MRNAllocatedMessage] = (
     __.read[MRNAllocatedRootLevel],
     (__ \ "HEAHEA" \ "DocNumHEA5").read[String],
     (__ \ "TRAPRIPC1").read[PrincipalTraderDetails],
     (__ \ "CUSOFFDEPEPT" \ "RefNumEPT1").read[String]
-    ).mapN(apply)
+  ).mapN(apply)
 
-  implicit val reads: Reads[MRNAllocatedMessage] = (json: JsValue) => for {
-    mrnMessage <- (json \ "message")
-      .validate[NodeSeq]
-      .flatMap(one => XmlReader.of[MRNAllocatedMessage].read(one).toOption match {
-        case Some(value) => JsSuccess(value)
-        case None =>
-          JsError("MRNAllocatedMessage could not be parsed from the xml")
-      })
-  } yield mrnMessage
+  implicit val reads: Reads[MRNAllocatedMessage] = (json: JsValue) =>
+    for {
+      mrnMessage <- (json \ "message")
+        .validate[NodeSeq]
+        .flatMap(
+          one =>
+            XmlReader.of[MRNAllocatedMessage].read(one).toOption match {
+              case Some(value) => JsSuccess(value)
+              case None =>
+                JsError("MRNAllocatedMessage could not be parsed from the xml")
+            }
+        )
+    } yield mrnMessage
 }

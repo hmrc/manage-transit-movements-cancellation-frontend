@@ -133,7 +133,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockNunjucksRendere
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      val request        = FakeRequest(POST, cancellationReasonRoute)
+      val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", "answer"))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor     = ArgumentCaptor.forClass(classOf[JsObject])

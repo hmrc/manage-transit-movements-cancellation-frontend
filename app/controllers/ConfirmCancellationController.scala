@@ -32,7 +32,7 @@ import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmCancellationController @Inject()(
+class ConfirmCancellationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   sessionRepository: SessionRepository,

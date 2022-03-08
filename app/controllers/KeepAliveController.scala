@@ -24,10 +24,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class KeepAliveController @Inject()(
+class KeepAliveController @Inject() (
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents
-) extends FrontendBaseController with I18nSupport {
+) extends FrontendBaseController
+    with I18nSupport {
 
   def keepAlive: Action[AnyContent] =
     identify.async {

@@ -57,7 +57,7 @@ class MRNAllocatedMessageSpec extends AnyFreeSpec with Matchers with OptionValue
           </CUSOFFDEPEPT>
         </CC028B>
 
-        val expectedModel =  MRNAllocatedMessage(
+        val expectedModel = MRNAllocatedMessage(
           MRNAllocatedRootLevel(
             "SynIdeMES1",
             "SynVerNumMES2",
@@ -130,7 +130,7 @@ class MRNAllocatedMessageSpec extends AnyFreeSpec with Matchers with OptionValue
           </CUSOFFDEPEPT>
         </CC028B>
 
-        val expectedModel =  MRNAllocatedMessage(
+        val expectedModel = MRNAllocatedMessage(
           MRNAllocatedRootLevel(
             "SynIdeMES1",
             "SynVerNumMES2",
@@ -232,7 +232,7 @@ class MRNAllocatedMessageSpec extends AnyFreeSpec with Matchers with OptionValue
           </CUSOFFDEPEPT>
         </CC028B>
 
-        val expectedModel =  MRNAllocatedMessage(
+        val expectedModel = MRNAllocatedMessage(
           MRNAllocatedRootLevel(
             "SynIdeMES1",
             "SynVerNumMES2",
@@ -260,12 +260,15 @@ class MRNAllocatedMessageSpec extends AnyFreeSpec with Matchers with OptionValue
           "AB12345C"
         )
 
-        Json.obj(
-          "dateTime" -> LocalDateTime.now().toString,
-          "messageType" -> "IE028",
-          "messageCorrelationId" -> 2,
-          "message" -> xml.toString()
-        ).asOpt[MRNAllocatedMessage].value mustBe expectedModel
+        Json
+          .obj(
+            "dateTime"             -> LocalDateTime.now().toString,
+            "messageType"          -> "IE028",
+            "messageCorrelationId" -> 2,
+            "message"              -> xml.toString()
+          )
+          .asOpt[MRNAllocatedMessage]
+          .value mustBe expectedModel
       }
       "should fail if json fields are malformed" in {
         val xml = <CC028B>
@@ -310,13 +313,14 @@ class MRNAllocatedMessageSpec extends AnyFreeSpec with Matchers with OptionValue
           </CUSOFFDEPEPT>
         </CC028B>
 
-
-        Json.obj(
-          "dateTime" -> LocalDateTime.now().toString,
-          "messageType" -> "IE028",
-          "messageCorrelationId" -> 2,
-          "meage" -> xml.toString()
-        ).asOpt[MRNAllocatedMessage] mustBe None
+        Json
+          .obj(
+            "dateTime"             -> LocalDateTime.now().toString,
+            "messageType"          -> "IE028",
+            "messageCorrelationId" -> 2,
+            "meage"                -> xml.toString()
+          )
+          .asOpt[MRNAllocatedMessage] mustBe None
       }
       "should fail if xml mandatory fields are not present" in {
         val xml = <CC028B>
@@ -341,13 +345,14 @@ class MRNAllocatedMessageSpec extends AnyFreeSpec with Matchers with OptionValue
           </CUSOFFDEPEPT>
         </CC028B>
 
-
-        Json.obj(
-          "dateTime" -> LocalDateTime.now().toString,
-          "messageType" -> "IE028",
-          "messageCorrelationId" -> 2,
-          "meage" -> xml.toString()
-        ).asOpt[MRNAllocatedMessage] mustBe None
+        Json
+          .obj(
+            "dateTime"             -> LocalDateTime.now().toString,
+            "messageType"          -> "IE028",
+            "messageCorrelationId" -> 2,
+            "meage"                -> xml.toString()
+          )
+          .asOpt[MRNAllocatedMessage] mustBe None
       }
     }
   }

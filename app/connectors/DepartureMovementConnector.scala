@@ -28,9 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-
-
-class DepartureMovementConnector @Inject()(val appConfig: FrontendAppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
+class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
 
   private val channel: String = "web"
 
@@ -56,20 +54,23 @@ class DepartureMovementConnector @Inject()(val appConfig: FrontendAppConfig, htt
   }
 
   def getMrnAllocatedMessage(departureId: DepartureId, messageUrl: String)(implicit hc: HeaderCarrier): Future[ConnectorResponse[MRNAllocatedMessage]] = {
-    val header     = hc.withExtraHeaders(ChannelHeader(channel))
+    val header = hc.withExtraHeaders(ChannelHeader(channel))
 
     http.GET[ConnectorResponse[MRNAllocatedMessage]](appConfig.departureBaseUrl + messageUrl)(connectorResponseHttpReads(departureId, logger), header, ec)
   }
 
   def submitCancellation(
-                          departureId: DepartureId, cancellationRequest: CancellationRequest
-                        )(implicit hc: HeaderCarrier): Future[ConnectorResponse[HttpResponse]] = {
+    departureId: DepartureId,
+    cancellationRequest: CancellationRequest
+  )(implicit hc: HeaderCarrier): Future[ConnectorResponse[HttpResponse]] = {
     val serviceUrl = s"${appConfig.departureUrl}/movements/departures/${departureId.index}/messages"
-    val header     = hc
+    val header = hc
       .withExtraHeaders(ChannelHeader(channel), ContentTypeHeader("application/xml"))
 
     http.POSTString[ConnectorResponse[HttpResponse]](serviceUrl, cancellationRequest.toXml.toString())(
-      connectorResponseDefaultReads(departureId, logger), header, implicitly
+      connectorResponseDefaultReads(departureId, logger),
+      header,
+      implicitly
     )
   }
 

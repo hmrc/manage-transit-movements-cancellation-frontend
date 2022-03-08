@@ -23,35 +23,39 @@ import play.api.libs.json.{JsError, JsSuccess, Reads}
 import uk.gov.hmrc.http.HttpReads.is2xx
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-package object connectors extends Logging{
+package object connectors extends Logging {
 
   type ConnectorResponse[T] = Either[ConnectorErrorResponse, T]
 
   implicit val httpReads: HttpReads[HttpResponse] =
     new HttpReads[HttpResponse] {
+
       override def read(method: String, url: String, response: HttpResponse): HttpResponse =
         response
     }
 
   def connectorResponseHttpReads[T](departureId: DepartureId, logger: Logger)(implicit reads: Reads[T]): HttpReads[ConnectorResponse[T]] =
-    (_: String, url: String, response: HttpResponse) => response.status match {
-      case OK => response.json.validate[T] match {
-        case JsSuccess(value, _) => Right(value)
-        case JsError(_) =>
-          logger.error(s"Body cannot be parsed into model, invalid body for url: $url and  departure id: ${departureId.index}")
-          Left(MalformedBody)
+    (_: String, url: String, response: HttpResponse) =>
+      response.status match {
+        case OK =>
+          response.json.validate[T] match {
+            case JsSuccess(value, _) => Right(value)
+            case JsError(_) =>
+              logger.error(s"Body cannot be parsed into model, invalid body for url: $url and  departure id: ${departureId.index}")
+              Left(MalformedBody)
+          }
+        case status =>
+          logger.warn(s"receive invalid status for url $url and departureId ${departureId.index}")
+          Left(InvalidStatus(status))
       }
-      case status =>
-        logger.warn(s"receive invalid status for url $url and departureId ${departureId.index}")
-        Left(InvalidStatus(status))
-    }
 
   def connectorResponseDefaultReads(departureId: DepartureId, logger: Logger): HttpReads[ConnectorResponse[HttpResponse]] =
-    (_: String, url: String, response: HttpResponse) => response.status match {
-      case status if is2xx(status) => Right(response)
-      case status =>
-        logger.warn(s"receive invalid status for url $url and departureId ${departureId.index}")
-        Left(InvalidStatus(status))
-    }
+    (_: String, url: String, response: HttpResponse) =>
+      response.status match {
+        case status if is2xx(status) => Right(response)
+        case status =>
+          logger.warn(s"receive invalid status for url $url and departureId ${departureId.index}")
+          Left(InvalidStatus(status))
+      }
 
 }

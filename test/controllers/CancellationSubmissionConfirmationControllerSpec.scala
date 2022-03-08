@@ -39,12 +39,11 @@ class CancellationSubmissionConfirmationControllerSpec extends SpecBase with Moc
 
   def onwardRoute: Call = Call("GET", "/foo")
 
-  private val mockDepartureResponse: ResponseDeparture = {
+  private val mockDepartureResponse: ResponseDeparture =
     ResponseDeparture(
       LocalReferenceNumber("lrn"),
       DepartureSubmitted
     )
-  }
 
   "CancellationSubmissionConfirmation Controller" - {
 

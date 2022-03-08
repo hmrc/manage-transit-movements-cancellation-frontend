@@ -109,11 +109,10 @@ trait ViewSpecAssertions extends Matchers {
   def assertPageHasNoSignOutLink(doc: Document): Assertion =
     doc.getElementsByClass("hmrc-sign-out-nav__link").isEmpty mustBe true
 
-  def assertAttributeValueForElement(element: Element, attribute: String, attributeValue: String): Assertion = {
+  def assertAttributeValueForElement(element: Element, attribute: String, attributeValue: String): Assertion =
     assert(element.attr(attribute) == attributeValue)
-  }
 
-  def assertPageHasButtonWithHref(doc: Document, id : String,url : String): Unit = {
+  def assertPageHasButtonWithHref(doc: Document, id: String, url: String): Unit = {
     val element = doc.getElementById(id)
     assertAttributeValueForElement(
       element,

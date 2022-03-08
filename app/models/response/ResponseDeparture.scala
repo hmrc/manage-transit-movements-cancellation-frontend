@@ -17,12 +17,13 @@
 package models.response
 
 import models.{DepartureStatus, LocalReferenceNumber}
-import play.api.libs.json.{Reads, __}
+import play.api.libs.json.{__, Reads}
 
 case class ResponseDeparture(localReferenceNumber: LocalReferenceNumber, status: DepartureStatus)
 import play.api.libs.functional.syntax._
 
 object ResponseDeparture {
+
   implicit val reads: Reads[ResponseDeparture] = (
     (__ \ "referenceNumber").read[LocalReferenceNumber] and
       (__ \ "status").read[DepartureStatus]

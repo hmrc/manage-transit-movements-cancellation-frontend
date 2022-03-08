@@ -32,8 +32,9 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckCancellationStatusProvider @Inject()(departureMovementConnector: DepartureMovementConnector, renderer: Renderer, appConfig: FrontendAppConfig)(
-  implicit ec: ExecutionContext) {
+class CheckCancellationStatusProvider @Inject() (departureMovementConnector: DepartureMovementConnector, renderer: Renderer, appConfig: FrontendAppConfig)(
+  implicit ec: ExecutionContext
+) {
 
   def apply(departureId: DepartureId): ActionRefiner[IdentifierRequest, AuthorisedRequest] =
     new CancellationStatusAction(departureId, departureMovementConnector, renderer, appConfig)
@@ -48,11 +49,8 @@ class CancellationStatusAction(
 )(implicit protected val executionContext: ExecutionContext)
     extends ActionRefiner[IdentifierRequest, AuthorisedRequest] {
 
-  final val validStatus: Seq[DepartureStatus] = Seq(GuaranteeNotValid,
-      MrnAllocated,
-      NoReleaseForTransit,
-      ControlDecisionNotification,
-      DeclarationCancellationRequestNegativeAcknowledgement)
+  final val validStatus: Seq[DepartureStatus] =
+    Seq(GuaranteeNotValid, MrnAllocated, NoReleaseForTransit, ControlDecisionNotification, DeclarationCancellationRequestNegativeAcknowledgement)
 
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, AuthorisedRequest[A]]] = {
 
@@ -64,8 +62,11 @@ class CancellationStatusAction(
           .render("canNotCancel.njk",
                   Json.obj(
                     "departureList" -> s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-                  ))(request)
-          .map(html => Left(BadRequest(html)))
+                  )
+          )(request)
+          .map(
+            html => Left(BadRequest(html))
+          )
 
       case Some(responseDeparture: ResponseDeparture) if validStatus.contains(responseDeparture.status) =>
         Future.successful(Right(AuthorisedRequest(request.request, request.eoriNumber, responseDeparture.localReferenceNumber)))
@@ -75,8 +76,11 @@ class CancellationStatusAction(
           .render("declarationNotFound.njk",
                   Json.obj(
                     "departureList" -> s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-                  ))(request)
-          .map(html => Left(NotFound(html)))
+                  )
+          )(request)
+          .map(
+            html => Left(NotFound(html))
+          )
 
     }
   }

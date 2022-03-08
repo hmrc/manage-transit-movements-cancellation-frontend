@@ -20,7 +20,7 @@ sealed trait DepartureStatus
 
 object DepartureStatus extends Enumerable.Implicits {
 
- case object DepartureSubmitted extends DepartureStatus
+  case object DepartureSubmitted extends DepartureStatus
 
   case object PositiveAcknowledgement extends DepartureStatus
 
@@ -63,5 +63,9 @@ object DepartureStatus extends Enumerable.Implicits {
   )
 
   implicit val enumerable: Enumerable[DepartureStatus] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(
+      values.map(
+        v => v.toString -> v
+      ): _*
+    )
 }

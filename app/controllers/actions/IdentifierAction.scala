@@ -37,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
 
-class AuthenticatedIdentifierAction @Inject()(
+class AuthenticatedIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   val parser: BodyParsers.Default,
@@ -80,8 +80,8 @@ class AuthenticatedIdentifierAction @Inject()(
   }
 
   private def checkForGroupEnrolment[A](maybeGroupId: Option[String], config: FrontendAppConfig)(implicit
-                                                                                                 hc: HeaderCarrier,
-                                                                                                 request: Request[A]
+    hc: HeaderCarrier,
+    request: Request[A]
   ): Future[Result] =
     maybeGroupId match {
       case Some(groupId) =>
@@ -100,7 +100,7 @@ class AuthenticatedIdentifierAction @Inject()(
     }
 }
 
-class SessionIdentifierAction @Inject()(
+class SessionIdentifierAction @Inject() (
   config: FrontendAppConfig,
   val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)

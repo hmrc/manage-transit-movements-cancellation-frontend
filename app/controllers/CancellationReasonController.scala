@@ -33,7 +33,7 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CancellationReasonController @Inject()(
+class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   checkCancellationStatus: CheckCancellationStatusProvider,
@@ -81,20 +81,24 @@ class CancellationReasonController @Inject()(
               )
               renderer.render(template, json).map(BadRequest(_))
             },
-            value => {
+            value =>
               Future
                 .fromTry(request.userAnswers.set(CancellationReasonPage(departureId), value))
-                .flatMap(updatedAnswers =>
-                  cancellationSubmissionService.submitCancellation(updatedAnswers).flatMap {
-                    case Right(_) => Future.successful(Redirect(navigator.nextPage(CancellationReasonPage(departureId), mode, updatedAnswers, departureId)))
-                    case Left(_) => {
-                      val json = Json.obj(
-                        "contactUrl" -> appConfig.nctsEnquiriesUrl
-                      )
-                      renderer.render("technicalDifficulties.njk", json).map(content => InternalServerError(content))
+                .flatMap(
+                  updatedAnswers =>
+                    cancellationSubmissionService.submitCancellation(updatedAnswers).flatMap {
+                      case Right(_) => Future.successful(Redirect(navigator.nextPage(CancellationReasonPage(departureId), mode, updatedAnswers, departureId)))
+                      case Left(_) =>
+                        val json = Json.obj(
+                          "contactUrl" -> appConfig.nctsEnquiriesUrl
+                        )
+                        renderer
+                          .render("technicalDifficulties.njk", json)
+                          .map(
+                            content => InternalServerError(content)
+                          )
                     }
-                })
-            }
+                )
           )
 
     }

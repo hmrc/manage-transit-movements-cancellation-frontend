@@ -39,14 +39,14 @@ import scala.concurrent.Future
 
 class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures with TryValues {
 
-  override implicit val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(300, Millis))
+  implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(300, Millis))
 
   trait Setup {
     val mockDepartureConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
-    val date = LocalDate.now()
-    lazy val service = new CancellationSubmissionService(mockDepartureConnector, () => date)
-    val departureId: DepartureId = DepartureId(1)
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    val date                                               = LocalDate.now()
+    lazy val service                                       = new CancellationSubmissionService(mockDepartureConnector, () => date)
+    val departureId: DepartureId                           = DepartureId(1)
+    implicit val hc: HeaderCarrier                         = HeaderCarrier()
 
     val mrnAllocatedMessage = <CC028B>
       <SynIdeMES1>SynIdeMES1</SynIdeMES1>
@@ -106,7 +106,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
         Some("ComAgrIdMES17"),
         Some("TesIndMES18"),
         "MesIdeMES19",
-          Some("ComAccRefMES21"),
+        Some("ComAccRefMES21"),
         Some("MesSeqNumMES22"),
         Some("FirAndLasTraMES23")
       ),

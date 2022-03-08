@@ -40,10 +40,10 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with MockNunjucksRendererApp with NunjucksSupport  with ScalaCheckPropertyChecks {
+class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with MockNunjucksRendererApp with NunjucksSupport with ScalaCheckPropertyChecks {
 
   val mockConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
-  val validStatus: Seq[DepartureStatus] = Seq(GuaranteeNotValid, MrnAllocated, NoReleaseForTransit, ControlDecisionNotification)
+  val validStatus: Seq[DepartureStatus]         = Seq(GuaranteeNotValid, MrnAllocated, NoReleaseForTransit, ControlDecisionNotification)
 
   val renderer: Renderer = app.injector.instanceOf[Renderer]
 
@@ -60,19 +60,18 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
       val gen = Gen.oneOf(validStatus)
       forAll(gen) {
         departureStatus =>
-          val mockDepartureResponse: ResponseDeparture = {
+          val mockDepartureResponse: ResponseDeparture =
             ResponseDeparture(
               LocalReferenceNumber("lrn"),
               departureStatus
             )
-          }
 
           when(mockRenderer.render(any(), any())(any()))
             .thenReturn(Future.successful(Html("")))
 
           when(mockConnector.getDeparture(any())(any())).thenReturn(Future.successful(Some(mockDepartureResponse)))
 
-          val checkCancellationStatusProvider = (new CheckCancellationStatusProvider(mockConnector, renderer, frontendAppConfig)(implicitly)) (DepartureId(1))
+          val checkCancellationStatusProvider = (new CheckCancellationStatusProvider(mockConnector, renderer, frontendAppConfig)(implicitly))(DepartureId(1))
 
           val testRequest = IdentifierRequest(FakeRequest(GET, "/"), EoriNumber("eori"))
 
@@ -85,30 +84,29 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
     }
 
     "will get a 400 and will load the cannot cancel page when the departure status is invalid" in {
-      val mockDepartureResponse: ResponseDeparture = {
+      val mockDepartureResponse: ResponseDeparture =
         ResponseDeparture(
           LocalReferenceNumber("lrn"),
           WriteOffNotification
         )
-      }
 
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
 
       when(mockConnector.getDeparture(any())(any())).thenReturn(Future.successful(Some(mockDepartureResponse)))
 
-      val checkCancellationStatusProvider = (new CheckCancellationStatusProvider(mockConnector, renderer, frontendAppConfig)(implicitly)) (DepartureId(1))
+      val checkCancellationStatusProvider = (new CheckCancellationStatusProvider(mockConnector, renderer, frontendAppConfig)(implicitly))(DepartureId(1))
 
       val testRequest = IdentifierRequest(FakeRequest(GET, "/"), EoriNumber("eori"))
 
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val jsonCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result: Future[Result] = checkCancellationStatusProvider.invokeBlock(testRequest, fakeOkResult)
 
       status(result) mustEqual BAD_REQUEST
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-      contentAsString(result) must not be ("fake ok result value")
+      contentAsString(result) must not be "fake ok result value"
       templateCaptor.getValue mustEqual "canNotCancel.njk"
     }
 
@@ -119,18 +117,18 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
 
       when(mockConnector.getDeparture(any())(any())).thenReturn(Future.successful(None))
 
-      val checkCancellationStatusProvider = (new CheckCancellationStatusProvider(mockConnector, renderer, frontendAppConfig)(implicitly)) (DepartureId(1))
+      val checkCancellationStatusProvider = (new CheckCancellationStatusProvider(mockConnector, renderer, frontendAppConfig)(implicitly))(DepartureId(1))
 
       val testRequest = IdentifierRequest(FakeRequest(GET, "/"), EoriNumber("eori"))
 
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val jsonCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result: Future[Result] = checkCancellationStatusProvider.invokeBlock(testRequest, fakeOkResult)
 
       status(result) mustEqual NOT_FOUND
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-      contentAsString(result) must not be ("fake ok result value")
+      contentAsString(result) must not be "fake ok result value"
       templateCaptor.getValue mustEqual "declarationNotFound.njk"
     }
 

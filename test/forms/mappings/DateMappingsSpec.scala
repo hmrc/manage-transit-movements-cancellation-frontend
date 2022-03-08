@@ -28,10 +28,10 @@ class DateMappingsSpec extends SpecBase with ScalaCheckPropertyChecks with Gener
 
   val form = Form(
     "value" -> localDate(
-      requiredKey    = "error.required",
+      requiredKey = "error.required",
       allRequiredKey = "error.required.all",
       twoRequiredKey = "error.required.two",
-      invalidKey     = "error.invalid"
+      invalidKey = "error.invalid"
     )
   )
 
