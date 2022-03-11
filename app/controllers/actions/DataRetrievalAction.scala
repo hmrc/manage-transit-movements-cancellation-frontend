@@ -44,7 +44,7 @@ class DataRetrievalAction(
 ) extends ActionTransformer[AuthorisedRequest, OptionalDataRequest] {
 
   override protected def transform[A](request: AuthorisedRequest[A]): Future[OptionalDataRequest[A]] =
-    sessionRepository.get(departureId, request.eoriNumber).map {
+    sessionRepository.get(departureId).map {
       userAnswers =>
         OptionalDataRequest(request.request, request.eoriNumber, request.lrn, userAnswers)
     }

@@ -16,6 +16,7 @@ lazy val root = (project in file("."))
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
+  .settings(inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings): _*)
   .settings(DefaultBuildSettings.scalaSettings: _*)
   .settings(DefaultBuildSettings.defaultSettings(): _*)
   .settings(SbtDistributablesPlugin.publishingSettings: _*)
@@ -76,8 +77,7 @@ lazy val testSettings: Seq[Def.Setting[_]] = Seq(
     baseDirectory.value / "test" / "resources"
   ),
   javaOptions ++= Seq(
-    "-Dconfig.resource=test.application.conf",
-    "-Dconfig.logger=logback-test.xml"
+    "-Dconfig.resource=test.application.conf"
   )
 )
 
@@ -89,7 +89,6 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   parallelExecution := false,
   fork              := true,
   javaOptions ++= Seq(
-    "-Dconfig.resource=it.application.conf",
-    "-Dlogger.resource=logback-it.xml"
+    "-Dconfig.resource=it.application.conf"
   )
 )

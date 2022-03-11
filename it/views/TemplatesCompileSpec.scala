@@ -29,12 +29,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import renderer.Renderer
 
-class TemplatesCompileSpec
-  extends AnyFreeSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience
-    with GuiceOneAppPerSuite {
+class TemplatesCompileSpec extends AnyFreeSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
   def getListOfFiles(dir: String): List[File] = {
     val d = new File(dir)
@@ -58,9 +53,9 @@ class TemplatesCompileSpec
     templates.map {
       filename =>
         note(s"Render $filename...")
-        val path = filename.toPath
+        val path            = filename.toPath
         val pathInsideViews = path.subpath(2, path.getNameCount)
-        val result = renderer.render(pathInsideViews.toString, Json.obj())
+        val result          = renderer.render(pathInsideViews.toString, Json.obj())
         result.futureValue mustBe an[Html]
     }
   }
