@@ -16,96 +16,58 @@
 
 package repositories
 
-import models.{DepartureId, EoriNumber, UserAnswers}
-import play.api.Configuration
-import play.api.libs.json._
-import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.api.bson.BSONDocument
-import reactivemongo.api.bson.collection.BSONSerializationPack
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.play.json.collection.Helpers.idWrites
-import reactivemongo.play.json.collection.JSONCollection
+import config.FrontendAppConfig
+import models.{DepartureId, UserAnswers}
+import org.mongodb.scala.model._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import java.time.LocalDateTime
-import javax.inject.Inject
+import java.util.concurrent.TimeUnit
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-class DefaultSessionRepository @Inject() (
-  mongo: ReactiveMongoApi,
-  config: Configuration
+@Singleton
+class SessionRepository @Inject() (
+  mongoComponent: MongoComponent,
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
-    extends SessionRepository {
+    extends PlayMongoRepository[UserAnswers](
+      mongoComponent = mongoComponent,
+      collectionName = "user-answers",
+      domainFormat = UserAnswers.format,
+      indexes = SessionRepository.indexes(appConfig)
+    ) {
 
-  private val collectionName: String = "user-answers"
+  def get(departureId: DepartureId): Future[Option[UserAnswers]] = {
+    val filter = Filters.eq("_id", departureId.index)
+    val update = Updates.set("lastUpdated", LocalDateTime.now())
 
-  private val cacheTtl = config.get[Int]("mongodb.timeToLiveInSeconds")
-
-  private def collection: Future[JSONCollection] =
-    mongo.database.map(_.collection[JSONCollection](collectionName))
-
-  private val lastUpdatedIndex = Index.apply(BSONSerializationPack)(
-    key = Seq("lastUpdated" -> IndexType.Ascending),
-    name = Some("user-answers-last-updated-index"),
-    unique = true,
-    background = false,
-    dropDups = false,
-    sparse = false,
-    version = None,
-    partialFilter = None,
-    options = BSONDocument("expireAfterSeconds" -> cacheTtl),
-    expireAfterSeconds = Some(cacheTtl),
-    storageEngine = None,
-    weights = None,
-    defaultLanguage = None,
-    languageOverride = None,
-    textIndexVersion = None,
-    sphereIndexVersion = None,
-    bits = None,
-    min = None,
-    max = None,
-    bucketSize = None,
-    collation = None,
-    wildcardProjection = None
-  )
-
-  val started: Future[Unit] =
     collection
-      .flatMap {
-        _.indexesManager.ensure(lastUpdatedIndex)
-      }
-      .map(
-        _ => ()
-      )
+      .findOneAndUpdate(filter, update, FindOneAndUpdateOptions().upsert(false))
+      .toFutureOption()
+  }
 
-  override def get(departureId: DepartureId, eoriNumber: EoriNumber): Future[Option[UserAnswers]] =
-    collection.flatMap(_.find(Json.obj("_id" -> departureId), None).one[UserAnswers])
+  def set(userAnswers: UserAnswers): Future[Boolean] = {
+    val filter             = Filters.eq("_id", userAnswers.id.index)
+    val updatedUserAnswers = userAnswers.copy(lastUpdated = LocalDateTime.now())
 
-  override def set(userAnswers: UserAnswers): Future[Boolean] = {
-
-    val selector = Json.obj(
-      "_id" -> userAnswers.id
-    )
-
-    val modifier = Json.obj(
-      "$set" -> (userAnswers copy (lastUpdated = LocalDateTime.now))
-    )
-
-    collection.flatMap {
-      _.update(ordered = false)
-        .one(selector, modifier, upsert = true)
-        .map {
-          lastError =>
-            lastError.ok
-        }
-    }
+    collection
+      .replaceOne(filter, updatedUserAnswers, ReplaceOptions().upsert(true))
+      .toFuture()
+      .map(_.wasAcknowledged())
   }
 }
 
-trait SessionRepository {
+object SessionRepository {
 
-  val started: Future[Unit]
+  def indexes(appConfig: FrontendAppConfig): Seq[IndexModel] = {
+    val userAnswersLastUpdatedIndex: IndexModel = IndexModel(
+      keys = Indexes.ascending("lastUpdated"),
+      indexOptions = IndexOptions().name("user-answers-last-updated-index").expireAfter(appConfig.cacheTtl, TimeUnit.SECONDS)
+    )
 
-  def get(departureId: DepartureId, eoriNumber: EoriNumber): Future[Option[UserAnswers]]
+    Seq(userAnswersLastUpdatedIndex)
+  }
 
-  def set(userAnswers: UserAnswers): Future[Boolean]
 }

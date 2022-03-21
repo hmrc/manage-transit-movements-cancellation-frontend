@@ -16,47 +16,45 @@
 
 package repositories
 
+import config.FrontendAppConfig
 import models.{DepartureId, EoriNumber, UserAnswers}
+import org.mongodb.scala.model.Filters
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
-import reactivemongo.play.json.collection.JSONCollection
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SessionRepositorySpec extends AnyFreeSpec
-  with Matchers
-  with ScalaFutures
-  with IntegrationPatience
-  with BeforeAndAfterEach
-  with GuiceOneAppPerSuite
-  with OptionValues
-  with MongoSuite {
+class SessionRepositorySpec
+    extends AnyFreeSpec
+    with Matchers
+    with ScalaFutures
+    with IntegrationPatience
+    with BeforeAndAfterEach
+    with GuiceOneAppPerSuite
+    with OptionValues
+    with DefaultPlayMongoRepositorySupport[UserAnswers] {
 
-  private val service = app.injector.instanceOf[SessionRepository]
+  private val config: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
-  private val userAnswer1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"), Json.obj("foo" -> "bar"))
-  private val userAnswer2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"), Json.obj("bar" -> "foo"))
+  override protected def repository = new SessionRepository(mongoComponent, config)
+
+  private lazy val userAnswers1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"))
+  private lazy val userAnswers2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"))
+  private lazy val userAnswers3 = UserAnswers(DepartureId(2), EoriNumber("EoriNumber3"))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    database.flatMap {
-      db =>
-        val jsonCollection = db.collection[JSONCollection]("user-answers")
-
-        jsonCollection
-          .insert(ordered = false)
-          .many(Seq(userAnswer1, userAnswer2))
-    }.futureValue
+    insert(userAnswers1).futureValue
+    insert(userAnswers2).futureValue
   }
 
-  override def afterEach(): Unit = {
-    super.afterEach()
-    database.flatMap(_.drop())
-  }
+  private def findOne(userAnswers: UserAnswers): Option[UserAnswers] =
+    find(Filters.eq("_id", userAnswers.id.index)).futureValue.headOption
 
   "SessionRepository" - {
 
@@ -64,16 +62,16 @@ class SessionRepositorySpec extends AnyFreeSpec
 
       "must return UserAnswers when given a DepartureId" in {
 
-        val result = service.get(DepartureId(0), EoriNumber("EoriNumber1")).futureValue
+        val result = repository.get(userAnswers1.id).futureValue
 
-        result.value.id mustBe userAnswer1.id
-        result.value.eoriNumber mustBe userAnswer1.eoriNumber
-        result.value.data mustBe userAnswer1.data
+        result.value.id mustBe userAnswers1.id
+        result.value.eoriNumber mustBe userAnswers1.eoriNumber
+        result.value.data mustBe userAnswers1.data
       }
 
       "must return None when no UserAnswers match DepartureId" in {
 
-        val result = service.get(DepartureId(3), EoriNumber("EoriNumber1")).futureValue
+        val result = repository.get(userAnswers3.id).futureValue
 
         result mustBe None
       }
@@ -83,17 +81,33 @@ class SessionRepositorySpec extends AnyFreeSpec
 
       "must create new document when given valid UserAnswers" in {
 
-        val userAnswer = UserAnswers(DepartureId(3), EoriNumber("EoriNumber3"), Json.obj("foo" -> "bar"))
+        findOne(userAnswers3) must not be defined
 
-        val setResult = service.set(userAnswer).futureValue
-
-        val getResult = service.get(DepartureId(3), EoriNumber("EoriNumber3")).futureValue.value
-
+        val setResult = repository.set(userAnswers3).futureValue
 
         setResult mustBe true
-        getResult.id mustBe userAnswer.id
-        getResult.eoriNumber mustBe userAnswer.eoriNumber
-        getResult.data mustBe userAnswer.data
+
+        val getResult = findOne(userAnswers3).get
+
+        getResult.id mustBe userAnswers3.id
+        getResult.eoriNumber mustBe userAnswers3.eoriNumber
+        getResult.data mustBe userAnswers3.data
+      }
+
+      "must update document when it already exists" in {
+
+        val firstGet = findOne(userAnswers1).get
+
+        val setResult = repository.set(userAnswers1.copy(data = Json.obj("foo" -> "bar"))).futureValue
+
+        setResult mustBe true
+
+        val secondGet = findOne(userAnswers1).get
+
+        firstGet.id mustBe secondGet.id
+        firstGet.eoriNumber mustBe secondGet.eoriNumber
+        firstGet.data mustNot equal(secondGet.data)
+        firstGet.lastUpdated isBefore secondGet.lastUpdated mustBe true
       }
     }
   }
