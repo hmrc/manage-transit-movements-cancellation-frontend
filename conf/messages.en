@@ -1,6 +1,10 @@
+service.name = Manage your transit movements
+
 site.day.capitalized = Day
 site.month.capitalized = Month
 site.year.capitalized = Year
+
+this.section.is = The local reference number is
 
 site.back = Back
 site.delete = Remove
@@ -59,7 +63,7 @@ technicalDifficulties.heading = Sorry, there is a problem with the service
 technicalDifficulties.tryAgain = Try again later.
 technicalDifficulties.savedAnswers = We saved your answers. They will be available for up to 28 days.
 technicalDifficulties.contact = You can
-technicalDifficulties.contact.link = contact the New Computerised Transit System helpdesk if you need to speak to someone about your transit movement(opens in a new tab).
+technicalDifficulties.contact.link = contact the New Computerised Transit System helpdesk if you need to speak to someone about your transit movement (opens in a new tab)
 
 confirmCancellation.title = Are you sure you want to cancel this departure declaration?
 confirmCancellation.heading = Are you sure you want to cancel this departure declaration?
@@ -89,7 +93,7 @@ cancellationSubmissionConfirmation.linkText = View departure declarations
 
 canNotCancel.title = You cannot cancel this departure declaration
 canNotCancel.heading = You cannot cancel this departure declaration
-canNotCancel.declarationNotFound = There is no departure declaration with these details.
+canNotCancel.declarationNotFound = There is no departure declaration with these details. If you still need to cancel this departure declaration, you must
 canNotCancel.message =  If you still need to cancel this departure declaration, you must
 canNotCancel.contactLink = contact the New Computerised Transit System (NCTS) Helpdesk (opens in a new tab)
 canNotCancel.linkText = Back to departure declarations

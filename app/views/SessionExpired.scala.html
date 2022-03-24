@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package controllers
+@import views.html.components.{Button, Heading}
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+@this(
+        main_template: MainTemplate,
+        heading: Heading,
+        button: Button
+)
 
-class SessionExpiredControllerSpec extends SpecBase {
+@(signInUrl: String)(implicit request: Request[_], messages: Messages)
 
-  "Session Expired Controller" - {
+@main_template(
+    title = messages("session_expired.title"),
+    showBackLink = true
+) {
 
-    "must return OK and the correct view for a GET" in {
+    @heading(messages("session_expired.heading"))
 
-      val application = applicationBuilder(userAnswers = None).build()
+    <p class="govuk-body">@messages("session_expired.guidance")</p>
 
-      val request = FakeRequest(GET, routes.SessionExpiredController.onPageLoad().url)
-
-      val result = route(application, request).value
-
-      status(result) mustEqual OK
-    }
-  }
+    @button(attributes = Map("id" -> "submit"), href = Some(signInUrl))
 }

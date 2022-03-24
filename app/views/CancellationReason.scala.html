@@ -1,0 +1,49 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{DepartureId, LocalReferenceNumber}
+@import views.html.components.{Button, ErrorSummary, InputTextArea}
+@import views.html.components.InputCharacterCount
+
+@this(
+ mainTemplate: MainTemplate,
+ formHelper: FormWithCSRF,
+ button: Button,
+ inputCharacterCount: InputCharacterCount,
+ errorSummary: ErrorSummary
+)
+
+@(form: Form[String], departureId: DepartureId, lrn: LocalReferenceNumber, maxLength: Int)(implicit request: Request[_], messages: Messages)
+
+@mainTemplate(
+    title = messages("cancellationReason.title"),
+    showBackLink = true
+) {
+
+ @formHelper(action = routes.CancellationReasonController.onSubmit(departureId), 'autoComplete -> "off") {
+
+ @errorSummary(form.errors)
+
+ @inputCharacterCount(
+     field = form("value"),
+     label = messages("cancellationReason.title"),
+     maxLength = Some(maxLength),
+     caption = Some(lrn.value)
+ )
+
+  @button(attributes = Map("id" -> "submit"))
+ }
+}

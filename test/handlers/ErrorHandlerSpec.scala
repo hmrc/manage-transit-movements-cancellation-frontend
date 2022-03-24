@@ -16,11 +16,8 @@
 
 package handlers
 
-import base.{MockNunjucksRendererApp, SpecBase}
+import base.SpecBase
 import matchers.JsonMatchers
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
@@ -28,67 +25,45 @@ import play.api.libs.typedmap.TypedMap
 import play.api.mvc.request.{RemoteConnection, RequestTarget}
 import play.api.mvc.{Headers, RequestHeader, Result}
 import play.api.test.Helpers._
-import play.twirl.api.Html
 
 import scala.concurrent.Future
 
 // scalastyle:off magic.number
-class ErrorHandlerSpec extends SpecBase with JsonMatchers with MockNunjucksRendererApp with OptionValues {
+class ErrorHandlerSpec extends SpecBase with JsonMatchers with OptionValues {
 
   private lazy val handler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
 
-  "must render NotFound page when given a 404" in {
-
-    when(mockRenderer.render(any(), any())(any()))
-      .thenReturn(Future.successful(Html("")))
+  "must redirect to NotFound page when given a 404" in {
 
     val result: Future[Result] = handler.onClientError(new FakeRequestHeader, 404)
 
-    val templateCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-
-    verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-    status(result) mustBe NOT_FOUND
-    templateCaptor.getValue mustEqual "notFound.njk"
+    status(result) mustBe SEE_OTHER
+    redirectLocation(result).value mustBe controllers.routes.ErrorController.notFound().url
   }
 
-  "must render BadRequest page when given a client error (400-499)" in {
+  "must redirect to BadRequest page when given a client error (400-499)" in {
 
     forAll(Gen.choose(400, 499).suchThat(_ != 404)) {
       clientErrorCode =>
         beforeEach()
 
-        when(mockRenderer.render(any(), any())(any()))
-          .thenReturn(Future.successful(Html("")))
-
         val result: Future[Result] = handler.onClientError(new FakeRequestHeader, clientErrorCode)
 
-        val templateCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-        status(result) mustBe clientErrorCode
-        templateCaptor.getValue mustEqual "badRequest.njk"
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.ErrorController.badRequest().url
     }
   }
 
-  "must render TechnicalDifficulties page when given any other error" in {
+  "must redirect to TechnicalDifficulties page when given any other error" in {
 
     forAll(Gen.choose(500, 599)) {
-      clientErrorCode =>
+      serverErrorCode =>
         beforeEach()
 
-        when(mockRenderer.render(any(), any())(any()))
-          .thenReturn(Future.successful(Html("")))
+        val result: Future[Result] = handler.onClientError(new FakeRequestHeader, serverErrorCode)
 
-        val result: Future[Result] = handler.onClientError(new FakeRequestHeader, clientErrorCode)
-
-        val templateCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-        status(result) mustBe clientErrorCode
-        templateCaptor.getValue mustEqual "technicalDifficulties.njk"
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.ErrorController.technicalDifficulties().url
     }
   }
 

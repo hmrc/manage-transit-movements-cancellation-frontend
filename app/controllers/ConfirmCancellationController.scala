@@ -22,12 +22,10 @@ import models.{DepartureId, Mode, UserAnswers}
 import navigation.Navigator
 import pages.ConfirmCancellationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import views.html.ConfirmCancellation
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,27 +39,17 @@ class ConfirmCancellationController @Inject() (
   navigator: Navigator,
   getData: DataRetrievalActionProvider,
   val controllerComponents: MessagesControllerComponents,
-  renderer: Renderer
+  view: ConfirmCancellation
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with NunjucksSupport {
+    with I18nSupport {
 
-  private val form     = formProvider()
-  private val template = "confirmCancellation.njk"
+  private val form = formProvider()
 
-  def onPageLoad(departureId: DepartureId, mode: Mode): Action[AnyContent] =
+  def onPageLoad(departureId: DepartureId): Action[AnyContent] =
     (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
       implicit request =>
-        val json = Json.obj(
-          "form"        -> form,
-          "lrn"         -> request.lrn,
-          "departureId" -> departureId,
-          "radios"      -> Radios.yesNo(form("value")),
-          "onSubmitUrl" -> routes.ConfirmCancellationController.onSubmit(departureId).url
-        )
-
-        renderer.render(template, json).map(Ok(_))
+        Future.successful(Ok(view(form, departureId, request.lrn)))
     }
 
   def onSubmit(departureId: DepartureId, mode: Mode): Action[AnyContent] =
@@ -70,17 +58,7 @@ class ConfirmCancellationController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => {
-
-              val json = Json.obj(
-                "form"        -> formWithErrors,
-                "lrn"         -> request.lrn,
-                "departureId" -> departureId,
-                "radios"      -> Radios.yesNo(formWithErrors("value")),
-                "onSubmitUrl" -> routes.ConfirmCancellationController.onSubmit(departureId).url
-              )
-              renderer.render(template, json).map(BadRequest(_))
-            },
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
             value => {
               val userAnswers = request.userAnswers match {
                 case Some(value) => value
@@ -92,6 +70,5 @@ class ConfirmCancellationController @Inject() (
               } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), mode, updatedAnswers, departureId))
             }
           )
-
     }
 }

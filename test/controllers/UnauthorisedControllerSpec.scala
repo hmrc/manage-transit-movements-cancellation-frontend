@@ -16,24 +16,15 @@
 
 package controllers
 
-import base.{MockNunjucksRendererApp, SpecBase}
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 
-import scala.concurrent.Future
-
-class UnauthorisedControllerSpec extends SpecBase with MockNunjucksRendererApp {
+class UnauthorisedControllerSpec extends SpecBase {
 
   "Unauthorised Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -42,14 +33,6 @@ class UnauthorisedControllerSpec extends SpecBase with MockNunjucksRendererApp {
       val result = route(application, request).value
 
       status(result) mustEqual OK
-
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-      templateCaptor.getValue mustEqual "unauthorised.njk"
-
-      application.stop()
     }
   }
 }

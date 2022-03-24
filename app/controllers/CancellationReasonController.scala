@@ -19,16 +19,15 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions._
 import forms.CancellationReasonFormProvider
+import models.Constants.commentMaxLength
 import models.{DepartureId, Mode}
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.CancellationSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.{CancellationReason, TechnicalDifficulties}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,26 +42,19 @@ class CancellationReasonController @Inject() (
   formProvider: CancellationReasonFormProvider,
   cancellationSubmissionService: CancellationSubmissionService,
   val controllerComponents: MessagesControllerComponents,
-  renderer: Renderer,
-  appConfig: FrontendAppConfig
+  appConfig: FrontendAppConfig,
+  view: CancellationReason,
+  technicalDifficulties: TechnicalDifficulties
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with NunjucksSupport {
+    with I18nSupport {
 
-  private val form     = formProvider()
-  private val template = "cancellationReason.njk"
+  private val form = formProvider()
 
-  def onPageLoad(departureId: DepartureId, mode: Mode): Action[AnyContent] =
+  def onPageLoad(departureId: DepartureId): Action[AnyContent] =
     (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
       implicit request =>
-        val json = Json.obj(
-          "form"        -> form,
-          "lrn"         -> request.lrn,
-          "departureId" -> departureId,
-          "onSubmitUrl" -> routes.CancellationReasonController.onSubmit(departureId).url
-        )
-        renderer.render(template, json).map(Ok(_))
+        Future.successful(Ok(view(form, departureId, request.lrn, commentMaxLength)))
     }
 
   def onSubmit(departureId: DepartureId, mode: Mode): Action[AnyContent] =
@@ -72,15 +64,7 @@ class CancellationReasonController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => {
-              val json = Json.obj(
-                "form"        -> formWithErrors,
-                "lrn"         -> request.lrn,
-                "departureId" -> departureId,
-                "onSubmitUrl" -> routes.CancellationReasonController.onSubmit(departureId).url
-              )
-              renderer.render(template, json).map(BadRequest(_))
-            },
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn, commentMaxLength))),
             value =>
               Future
                 .fromTry(request.userAnswers.set(CancellationReasonPage(departureId), value))
@@ -88,18 +72,9 @@ class CancellationReasonController @Inject() (
                   updatedAnswers =>
                     cancellationSubmissionService.submitCancellation(updatedAnswers).flatMap {
                       case Right(_) => Future.successful(Redirect(navigator.nextPage(CancellationReasonPage(departureId), mode, updatedAnswers, departureId)))
-                      case Left(_) =>
-                        val json = Json.obj(
-                          "contactUrl" -> appConfig.nctsEnquiriesUrl
-                        )
-                        renderer
-                          .render("technicalDifficulties.njk", json)
-                          .map(
-                            content => InternalServerError(content)
-                          )
+                      case Left(_)  => Future.successful(InternalServerError(technicalDifficulties(appConfig.contactHost)))
                     }
                 )
           )
-
     }
 }

@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package controllers
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+@this(govukButton : GovukButton)
 
-class SessionExpiredControllerSpec extends SpecBase {
+@(
+messageKey: String = "site.continue",
+isStartButton: Boolean = false,
+isPrintButton: Boolean = false,
+attributes: Map[String, String] = Map.empty,
+href: Option[String] = None
+)(implicit messages: Messages)
 
-  "Session Expired Controller" - {
-
-    "must return OK and the correct view for a GET" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      val request = FakeRequest(GET, routes.SessionExpiredController.onPageLoad().url)
-
-      val result = route(application, request).value
-
-      status(result) mustEqual OK
-    }
-  }
-}
+@govukButton(Button(
+ isStartButton = isStartButton,
+ content = Text(messages(messageKey)),
+ attributes = attributes,
+ href = href
+))

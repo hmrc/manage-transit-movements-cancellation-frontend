@@ -20,21 +20,20 @@ import config.FrontendAppConfig
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.SessionExpired
+import views.html.CanNotCancel
 
 import javax.inject.Inject
 
-class SessionExpiredController @Inject() (
+class CanNotCancelController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  config: FrontendAppConfig,
-  view: SessionExpired
+  view: CanNotCancel,
+  appConfig: FrontendAppConfig
 ) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      val signInUrl = s"${config.manageTransitMovementsUrl}/what-do-you-want-to-do"
-
-      Ok(view(signInUrl)).withNewSession
+      val departuresListUrl = s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
+      BadRequest(view(departuresListUrl))
   }
 }
