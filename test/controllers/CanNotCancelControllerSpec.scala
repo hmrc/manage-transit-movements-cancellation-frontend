@@ -20,19 +20,19 @@ import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-class SessionExpiredControllerSpec extends SpecBase {
+class CanNotCancelControllerSpec extends SpecBase {
 
-  "Session Expired Controller" - {
+  "CanNotCancel Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return 400 for a GET" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
-      val request = FakeRequest(GET, routes.SessionExpiredController.onPageLoad().url)
+      val request = FakeRequest(GET, routes.CanNotCancelController.onPageLoad().url)
 
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      status(result) mustEqual BAD_REQUEST
     }
   }
 }

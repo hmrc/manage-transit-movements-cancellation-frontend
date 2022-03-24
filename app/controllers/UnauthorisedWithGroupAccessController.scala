@@ -16,23 +16,19 @@
 
 package controllers
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.UnauthorisedGroupAccess
 
-class SessionExpiredControllerSpec extends SpecBase {
+import javax.inject.Inject
 
-  "Session Expired Controller" - {
+class UnauthorisedWithGroupAccessController @Inject() (val controllerComponents: MessagesControllerComponents, view: UnauthorisedGroupAccess)
+    extends FrontendBaseController
+    with I18nSupport {
 
-    "must return OK and the correct view for a GET" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      val request = FakeRequest(GET, routes.SessionExpiredController.onPageLoad().url)
-
-      val result = route(application, request).value
-
-      status(result) mustEqual OK
-    }
+  def onPageLoad(): Action[AnyContent] = Action {
+    implicit request =>
+      Unauthorized(view())
   }
 }

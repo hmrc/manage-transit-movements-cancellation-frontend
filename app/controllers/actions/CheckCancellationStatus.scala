@@ -16,36 +16,31 @@
 
 package controllers.actions
 
-import config.FrontendAppConfig
 import connectors.DepartureMovementConnector
 import models.DepartureStatus._
 import models.requests.{AuthorisedRequest, IdentifierRequest}
 import models.response.ResponseDeparture
 import models.{DepartureId, DepartureStatus}
-import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc.{ActionRefiner, Result}
-import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckCancellationStatusProvider @Inject() (departureMovementConnector: DepartureMovementConnector, renderer: Renderer, appConfig: FrontendAppConfig)(
-  implicit ec: ExecutionContext
-) {
+class CheckCancellationStatusProvider @Inject() (
+  departureMovementConnector: DepartureMovementConnector
+)(implicit ec: ExecutionContext) {
 
   def apply(departureId: DepartureId): ActionRefiner[IdentifierRequest, AuthorisedRequest] =
-    new CancellationStatusAction(departureId, departureMovementConnector, renderer, appConfig)
+    new CancellationStatusAction(departureId, departureMovementConnector)
 
 }
 
 class CancellationStatusAction(
   departureId: DepartureId,
-  departureMovementConnector: DepartureMovementConnector,
-  renderer: Renderer,
-  appConfig: FrontendAppConfig
+  departureMovementConnector: DepartureMovementConnector
 )(implicit protected val executionContext: ExecutionContext)
     extends ActionRefiner[IdentifierRequest, AuthorisedRequest] {
 
@@ -56,31 +51,15 @@ class CancellationStatusAction(
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    departureMovementConnector.getDeparture(departureId).flatMap {
+    departureMovementConnector.getDeparture(departureId).map {
       case Some(responseDeparture: ResponseDeparture) if !validStatus.contains(responseDeparture.status) =>
-        renderer
-          .render("canNotCancel.njk",
-                  Json.obj(
-                    "departureList" -> s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-                  )
-          )(request)
-          .map(
-            html => Left(BadRequest(html))
-          )
+        Left(Redirect(controllers.routes.CanNotCancelController.onPageLoad()))
 
       case Some(responseDeparture: ResponseDeparture) if validStatus.contains(responseDeparture.status) =>
-        Future.successful(Right(AuthorisedRequest(request.request, request.eoriNumber, responseDeparture.localReferenceNumber)))
+        Right(AuthorisedRequest(request.request, request.eoriNumber, responseDeparture.localReferenceNumber))
 
       case None =>
-        renderer
-          .render("declarationNotFound.njk",
-                  Json.obj(
-                    "departureList" -> s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-                  )
-          )(request)
-          .map(
-            html => Left(NotFound(html))
-          )
+        Left(Redirect(controllers.routes.DeclarationNotFoundController.onPageLoad()))
 
     }
   }

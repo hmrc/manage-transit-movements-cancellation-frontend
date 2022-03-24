@@ -20,19 +20,19 @@ import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-class SessionExpiredControllerSpec extends SpecBase {
+class DeclarationNotFoundControllerSpec extends SpecBase {
 
-  "Session Expired Controller" - {
+  "DeclarationNotFound Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return 404 for a GET" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
-      val request = FakeRequest(GET, routes.SessionExpiredController.onPageLoad().url)
+      val request = FakeRequest(GET, routes.DeclarationNotFoundController.onPageLoad().url)
 
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      status(result) mustEqual NOT_FOUND
     }
   }
 }

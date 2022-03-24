@@ -25,7 +25,6 @@ import models.EoriNumber.prefixGBIfMissing
 import models.requests.IdentifierRequest
 import play.api.mvc.Results._
 import play.api.mvc._
-import renderer.Renderer
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -41,8 +40,7 @@ class AuthenticatedIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   val parser: BodyParsers.Default,
-  enrolmentStoreConnector: EnrolmentStoreConnector,
-  renderer: Renderer
+  enrolmentStoreConnector: EnrolmentStoreConnector
 )(implicit val executionContext: ExecutionContext)
     extends IdentifierAction
     with AuthorisedFunctions {
@@ -69,7 +67,7 @@ class AuthenticatedIdentifierAction @Inject() (
                   block(IdentifierRequest(request, EoriNumber(prefixGBIfMissing(eoriNumber.value))))
                 case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
               }
-            case None => checkForGroupEnrolment(maybeGroupId, config)(hc, request)
+            case None => checkForGroupEnrolment(maybeGroupId, config)(hc)
           }
       }
   } recover {
@@ -80,8 +78,7 @@ class AuthenticatedIdentifierAction @Inject() (
   }
 
   private def checkForGroupEnrolment[A](maybeGroupId: Option[String], config: FrontendAppConfig)(implicit
-    hc: HeaderCarrier,
-    request: Request[A]
+    hc: HeaderCarrier
   ): Future[Result] =
     maybeGroupId match {
       case Some(groupId) =>
@@ -89,22 +86,20 @@ class AuthenticatedIdentifierAction @Inject() (
           newGroupEnrolment <- enrolmentStoreConnector.checkGroupEnrolments(groupId, config.newEnrolmentKey)
           legacyGroupEnrolment <-
             if (newGroupEnrolment) { Future.successful(newGroupEnrolment) }
-            else { enrolmentStoreConnector.checkGroupEnrolments(groupId, config.legacyEnrolmentKey) }
+            else {
+              enrolmentStoreConnector.checkGroupEnrolments(groupId, config.legacyEnrolmentKey)
+            }
         } yield newGroupEnrolment || legacyGroupEnrolment
 
-        hasGroupEnrolment flatMap {
-          case true  => renderer.render("unauthorisedWithGroupAccess.njk").map(Unauthorized(_))
-          case false => Future.successful(Redirect(config.eccEnrolmentSplashPage))
+        hasGroupEnrolment.map {
+          case true  => Redirect(controllers.routes.UnauthorisedWithGroupAccessController.onPageLoad())
+          case false => Redirect(config.eccEnrolmentSplashPage)
         }
       case _ => Future.successful(Redirect(config.eccEnrolmentSplashPage))
     }
 }
 
-class SessionIdentifierAction @Inject() (
-  config: FrontendAppConfig,
-  val parser: BodyParsers.Default
-)(implicit val executionContext: ExecutionContext)
-    extends IdentifierAction {
+class SessionIdentifierAction @Inject() (val parser: BodyParsers.Default)(implicit val executionContext: ExecutionContext) extends IdentifierAction {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 

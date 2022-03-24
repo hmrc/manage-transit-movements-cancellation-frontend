@@ -55,8 +55,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val departureBaseUrl: String = configuration.get[Service]("microservice.services.departures").baseUrl
   lazy val departureUrl: String     = configuration.get[Service]("microservice.services.departures").fullServiceUrl
 
-  lazy val timeoutSeconds: String   = configuration.get[String]("session.timeoutSeconds")
-  lazy val countdownSeconds: String = configuration.get[String]("session.countdownSeconds")
+  lazy val timeoutSeconds: Int   = configuration.get[Int]("session.timeoutSeconds")
+  lazy val countdownSeconds: Int = configuration.get[Int]("session.countdownSeconds")
 
   lazy val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("microservice.services.features.welsh-translation")

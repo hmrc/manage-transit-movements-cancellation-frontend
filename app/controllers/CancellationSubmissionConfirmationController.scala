@@ -22,10 +22,9 @@ import controllers.actions._
 import models.DepartureId
 import models.response.ResponseDeparture
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.{CanNotCancel, CancellationSubmissionConfirmation}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -36,25 +35,21 @@ class CancellationSubmissionConfirmationController @Inject() (
   departureMovementConnector: DepartureMovementConnector,
   val controllerComponents: MessagesControllerComponents,
   appConfig: FrontendAppConfig,
-  renderer: Renderer
+  confirmationView: CancellationSubmissionConfirmation,
+  canNotCancelView: CanNotCancel
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(departureId: DepartureId): Action[AnyContent] = identify.async {
     implicit request =>
-      departureMovementConnector.getDeparture(departureId).flatMap {
+      val departureListUrl = s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
+
+      departureMovementConnector.getDeparture(departureId).map {
         case Some(responseDeparture: ResponseDeparture) =>
-          val json = Json.obj(
-            "lrn"           -> responseDeparture.localReferenceNumber,
-            "departureList" -> s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-          )
-          renderer.render("cancellationSubmissionConfirmation.njk", json).map(Ok(_))
+          Ok(confirmationView(departureListUrl, responseDeparture.localReferenceNumber))
         case None =>
-          val json = Json.obj(
-            "departureId" -> departureId
-          )
-          renderer.render("canNotCancel.njk", json).map(NotFound(_))
+          NotFound(canNotCancelView(departureListUrl))
       }
   }
 }
