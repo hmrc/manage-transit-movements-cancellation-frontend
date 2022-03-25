@@ -1,5 +1,3 @@
-document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
-
 // Find first ancestor of el with tagName
 // or undefined if not found
 function upTo(el, tagName) {
@@ -19,9 +17,6 @@ function upTo(el, tagName) {
     return null;
   }
 
-// initialise GovUK lib
-GOVUKFrontend.initAll();
-
 // back link
 var backLink = document.querySelector('.govuk-back-link');
 if(backLink){
@@ -32,7 +27,6 @@ if(backLink){
         }
     });
 }
-
 
 // Introduce direct skip link control, to work around voiceover failing of hash links
 // https://bugs.webkit.org/show_bug.cgi?id=179011

@@ -36,10 +36,6 @@ language.english = English
 language.change.english = Change the language to English
 language.switcher = Language switcher
 
-phaseBanner.1 = This is a new service – your
-phaseBanner.2 = feedback
-phaseBanner.3 = will help us to improve it.
-
 checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
 

@@ -16,6 +16,7 @@
 
 @import config.FrontendAppConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.{Footer, FooterItem, Meta}
 @import resources._
@@ -23,18 +24,19 @@
 
 @this(
         appConfig: FrontendAppConfig,
-        govukLayout: GovukLayout,
+        hmrcLayout: HmrcLayout,
         hmrcHead: HmrcHead,
         hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
         hmrcTimeoutDialog: HmrcTimeoutDialog,
-        hmrcStandardHeader: HmrcStandardHeader,
         standardBetaBanner: StandardBetaBanner,
         hmrcScripts: HmrcScripts,
         stylesheets: Stylesheets,
+        javascripts: Javascripts,
         govukBackLink: GovukBackLink,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
         hmrcFooter: HmrcFooter
 )
+
 @(title: String,
         sidebarLinks: Option[Html] = None,
         contentHeader: Option[Html] = None,
@@ -75,50 +77,16 @@
     @hmrcReportTechnicalIssueHelper()
 }
 
-@phaseBannerContent = {
-    @messages("phaseBanner.1") <a class="govuk-link" href="@(appConfig.betaFeedbackUnauthenticatedUrl)">@messages("phaseBanner.2")</a> @messages("phaseBanner.3")
-}
-
-@govukLayout(
+@hmrcLayout(
     pageTitle = Some(breadCrumbTitle(title)),
-    headBlock = Some(hmrcHead(
+    additionalHeadBlock = Some(hmrcHead(
         headBlock = Some(headScripts)
     )),
-    headerBlock = Some(hmrcStandardHeader(
-        serviceUrl = Some(appConfig.loginContinueUrl),
-        signOutUrl = if(canSignOut) Some(appConfig.signOutUrl) else None,
-        phaseBanner = Some(PhaseBanner(
-            tag = Some(Tag(content = Text("BETA"))),
-            content = HtmlContent(phaseBannerContent)
-        ))
-    )),
+    userResearchBannerUrl = if (appConfig.showUserResearchBanner) Some(appConfig.userResearchUrl) else None,
+    serviceUrl = Some(appConfig.loginContinueUrl),
+    signOutUrl = if(canSignOut) Some(appConfig.signOutUrl) else None,
+    phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUnauthenticatedUrl)),
     beforeContentBlock = Some(beforeContentBlock),
-    scriptsBlock = Some(hmrcScripts()),
-    footerBlock = Some(hmrcFooter(Footer(
-        meta = Some(Meta(
-          visuallyHiddenTitle = Some(messages("footer.links.support_links")),
-          items = Some(Seq(
-            FooterItem(
-              href = Some("/help/cookies"),
-              text = Some(messages("footer.links.cookies"))
-            ),
-            FooterItem(
-              href = Some("/accessibility-statement/manage-transit-movements"),
-              text = Some(messages("footer.links.accessibility"))
-            ),
-            FooterItem(
-              href = Some("/help/privacy"),
-              text = Some(messages("footer.links.privacy"))
-            ),
-            FooterItem(
-              href = Some("/help/terms-and-conditions"),
-              text = Some(messages("footer.links.terms"))
-            ),
-            FooterItem(
-              href = Some("https://www.gov.uk/help"),
-              text = Some(messages("footer.links.help"))
-            )
-          ))
-        ))
-    )))
+    nonce = CSPNonce.get,
+    additionalScriptsBlock = Some(hmrcScripts(nonce = CSPNonce.get, scriptsBlock = Some(javascripts())))
 )(mainContentWithGetHelp)
