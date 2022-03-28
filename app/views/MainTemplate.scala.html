@@ -23,29 +23,23 @@
 @import views.ViewUtils._
 
 @this(
-        appConfig: FrontendAppConfig,
-        hmrcLayout: HmrcLayout,
-        hmrcHead: HmrcHead,
-        hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
-        hmrcTimeoutDialog: HmrcTimeoutDialog,
-        standardBetaBanner: StandardBetaBanner,
-        hmrcScripts: HmrcScripts,
-        stylesheets: Stylesheets,
-        javascripts: Javascripts,
-        govukBackLink: GovukBackLink,
-        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        hmrcFooter: HmrcFooter
+    appConfig: FrontendAppConfig,
+    hmrcLayout: HmrcLayout,
+    hmrcHead: HmrcHead,
+    hmrcTimeoutDialog: HmrcTimeoutDialog,
+    standardBetaBanner: StandardBetaBanner,
+    hmrcScripts: HmrcScripts,
+    stylesheets: Stylesheets,
+    javascripts: Javascripts,
+    govukBackLink: GovukBackLink,
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
 )
 
-@(title: String,
-        sidebarLinks: Option[Html] = None,
-        contentHeader: Option[Html] = None,
-        bodyClasses: Option[String] = None,
-        mainClass: Option[String] = None,
-        scriptElem: Option[Html] = None,
-        timeoutEnabled: Boolean = true,
-        canSignOut: Boolean = true,
-        showBackLink: Boolean = false
+@(
+    title: String,
+    timeoutEnabled: Boolean = true,
+    canSignOut: Boolean = true,
+    showBackLink: Boolean = false
 )(mainContent: Html)(implicit request: Request[_], messages: Messages)
 
 @headScripts = {
@@ -77,16 +71,21 @@
     @hmrcReportTechnicalIssueHelper()
 }
 
+@nonce = @{
+    CSPNonce.get
+}
+
 @hmrcLayout(
-    pageTitle = Some(breadCrumbTitle(title)),
+    pageTitle = Some(breadCrumbTitle(title, mainContent)),
     additionalHeadBlock = Some(hmrcHead(
         headBlock = Some(headScripts)
     )),
     userResearchBannerUrl = if (appConfig.showUserResearchBanner) Some(appConfig.userResearchUrl) else None,
+    serviceName = Some(messages("site.service_name")),
     serviceUrl = Some(appConfig.loginContinueUrl),
-    signOutUrl = if(canSignOut) Some(appConfig.signOutUrl) else None,
+    signOutUrl = if (canSignOut) Some(appConfig.signOutUrl) else None,
     phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUnauthenticatedUrl)),
     beforeContentBlock = Some(beforeContentBlock),
-    nonce = CSPNonce.get,
-    additionalScriptsBlock = Some(hmrcScripts(nonce = CSPNonce.get, scriptsBlock = Some(javascripts())))
+    nonce = nonce,
+    additionalScriptsBlock = Some(hmrcScripts(nonce = nonce, scriptsBlock = Some(javascripts())))
 )(mainContentWithGetHelp)

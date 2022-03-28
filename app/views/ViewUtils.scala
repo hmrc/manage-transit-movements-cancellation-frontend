@@ -17,6 +17,7 @@
 package views
 
 import play.api.i18n.Messages
+import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.implicits.{RichCharacterCountSupport, RichRadiosSupport, RichTextareaSupport}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -25,8 +26,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.textarea.Textarea
 
 object ViewUtils {
 
-  def breadCrumbTitle(title: String)(implicit messages: Messages): String =
-    s"$title - ${messages("service.name")} - GOV.UK"
+  def breadCrumbTitle(title: String, mainContent: Html)(implicit messages: Messages): String =
+    (if (mainContent.body.contains("govuk-error-summary")) s"${messages("error.title.prefix")} " else "") +
+      s"$title - ${messages("site.service_name")} - GOV.UK"
 
   // TODO refactor this maybe? Going to need this for every ViewModel type going forward
 

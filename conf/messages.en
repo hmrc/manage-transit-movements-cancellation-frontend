@@ -1,5 +1,3 @@
-service.name = Manage your transit movements
-
 site.day.capitalized = Day
 site.month.capitalized = Month
 site.year.capitalized = Year

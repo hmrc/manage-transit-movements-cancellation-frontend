@@ -22,7 +22,6 @@ import connectors.responses.{InvalidStatus, MalformedBody}
 import generators.Generators
 import helper.WireMockServerHandler
 import models.DepartureStatus.DepartureSubmitted
-import models.LocalReferenceNumber
 import models.messages.CancellationRequest
 import models.response._
 import org.scalacheck.Gen
@@ -61,7 +60,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
       "must return a successful future response" in {
         val expectedResult =
           ResponseDeparture(
-            LocalReferenceNumber("lrn"),
+            lrn,
             DepartureSubmitted
           )
 

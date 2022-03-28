@@ -42,15 +42,13 @@ trait SpecBase
     with BeforeAndAfterEach
     with MockApplicationBuilder {
 
-  val departureId = DepartureId(1)
+  val departureId: DepartureId = DepartureId(1)
 
-  def emptyUserAnswers = UserAnswers(departureId, eoriNumber, Json.obj())
+  def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj())
 
   def injector: Injector = app.injector
 
-  val configKey = "config"
-
-  val eoriNumber = EoriNumber("eoriNumber")
+  val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
 
   def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
 

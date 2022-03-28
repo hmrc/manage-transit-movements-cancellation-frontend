@@ -19,7 +19,6 @@ package controllers
 import base.SpecBase
 import connectors.DepartureMovementConnector
 import models.DepartureStatus.DepartureSubmitted
-import models.LocalReferenceNumber
 import models.response.ResponseDeparture
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -37,7 +36,7 @@ class CancellationSubmissionConfirmationControllerSpec extends SpecBase with Moc
 
   private val mockDepartureResponse: ResponseDeparture =
     ResponseDeparture(
-      LocalReferenceNumber("lrn"),
+      lrn,
       DepartureSubmitted
     )
 
