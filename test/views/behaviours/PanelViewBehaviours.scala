@@ -14,28 +14,29 @@
  * limitations under the License.
  */
 
-package views
+package views.behaviours
 
-import play.twirl.api.HtmlFormat
-import views.behaviours.ViewBehaviours
-import views.html.SessionExpired
+trait PanelViewBehaviours extends ViewBehaviours {
 
-class SessionExpiredSpec extends ViewBehaviours {
+  def pageWithPanel(content: String): Unit =
+    "page with panel" - {
 
-  private val signInUrl = "url"
+      "when rendered" - {
 
-  override def view: HtmlFormat.Appendable =
-    injector.instanceOf[SessionExpired].apply(signInUrl)(fakeRequest, messages)
+        "must have a panel" in {
+          assertRenderedByCssSelector(doc, ".govuk-panel")
+        }
 
-  override val prefix: String = "session_expired"
+        "must have a body" in {
+          assertRenderedByCssSelector(doc, ".govuk-panel__body")
 
-  override val hasSignOutLink: Boolean = false
+          val text = getElementBySelector(doc, "govuk-panel__body").text()
 
-  behave like pageWithHeading
+          text mustBe content
+        }
 
-  behave like pageWithTitle
+      }
 
-  "must render sign in button" in {
-    assertPageContainsButton(doc, "Sign in", signInUrl)
-  }
+    }
+
 }

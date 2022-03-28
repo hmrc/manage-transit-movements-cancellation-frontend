@@ -32,6 +32,10 @@ class CancellationReasonSpec extends FormViewSpec[String] {
 
   override val prefix: String = "cancellationReason"
 
+  behave like pageWithHeading
+
+  behave like pageWithTitle
+
   "must render caption" in {
     assertPageContainsCaption(doc, s"The local reference number is $lrn")
   }
