@@ -31,6 +31,9 @@ trait ViewSpecAssertions {
     elem
   }
 
+  def getElementBySelector(doc: Document, selector: String): Element =
+    doc.getElementsByClass(selector).first()
+
   def getByElementTestIdSelector(doc: Document, id: String): Seq[Element] =
     doc.select(s"[data-testid=$id]").asScala
 

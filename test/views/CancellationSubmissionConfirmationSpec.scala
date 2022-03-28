@@ -17,25 +17,21 @@
 package views
 
 import play.twirl.api.HtmlFormat
-import views.behaviours.ViewBehaviours
-import views.html.SessionExpired
+import views.behaviours.PanelViewBehaviours
+import views.html.CancellationSubmissionConfirmation
 
-class SessionExpiredSpec extends ViewBehaviours {
-
-  private val signInUrl = "url"
+class CancellationSubmissionConfirmationSpec extends PanelViewBehaviours {
 
   override def view: HtmlFormat.Appendable =
-    injector.instanceOf[SessionExpired].apply(signInUrl)(fakeRequest, messages)
+    injector.instanceOf[CancellationSubmissionConfirmation].apply("/navigate-to-departures", lrn)(fakeRequest, messages)
 
-  override val prefix: String = "session_expired"
-
-  override val hasSignOutLink: Boolean = false
+  override val prefix: String = "cancellationSubmissionConfirmation"
 
   behave like pageWithHeading
 
   behave like pageWithTitle
 
-  "must render sign in button" in {
-    assertPageContainsButton(doc, "Sign in", signInUrl)
-  }
+  behave like pageWithPanel(
+    content = s"for local reference number $lrn"
+  )
 }
