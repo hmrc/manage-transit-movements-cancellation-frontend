@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package views.base
+package views.behaviours
 
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import play.twirl.api.HtmlFormat
-import views.behaviours.ViewBehaviours
 
-trait FormViewSpec[T] extends ViewBehaviours {
+trait QuestionViewBehaviours[T] extends ViewBehaviours {
 
   def form: Form[T]
 
@@ -29,9 +28,12 @@ trait FormViewSpec[T] extends ViewBehaviours {
 
   override def view: HtmlFormat.Appendable = applyView(form)
 
-  private lazy val formWithError: Form[T]               = form.withError(FormError("", ""))
+  val errorKey: String     = "value"
+  val errorMessage: String = "error"
+
+  private lazy val formWithError: Form[T]               = form.withError(FormError(errorKey, errorMessage))
   private lazy val viewWithError: HtmlFormat.Appendable = applyView(formWithError)
-  private lazy val docWithError: Document               = parseView(viewWithError)
+  lazy val docWithError: Document                       = parseView(viewWithError)
 
   "page title" - {
 

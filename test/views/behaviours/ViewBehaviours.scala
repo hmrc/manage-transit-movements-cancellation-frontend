@@ -22,6 +22,56 @@ import org.jsoup.nodes.Document
 import play.twirl.api.HtmlFormat
 import views.base.ViewSpecAssertions
 
+trait ViewBehaviours extends ViewSpec {
+
+  def pageWithTitle(): Unit =
+    "must render title" in {
+      val title = doc.title()
+      title mustBe s"${messages(s"$prefix.title")} - Manage your transit movements - GOV.UK"
+    }
+
+  def pageWithHeading(): Unit =
+    "must render heading" in {
+      assertPageContainsHeading(doc, messages(s"$prefix.heading"))
+    }
+
+  def pageWithCaption(expectedText: String): Unit =
+    "must render caption" in {
+      assertPageContainsCaption(doc, expectedText)
+    }
+
+  def pageWithHint(expectedText: String): Unit =
+    "must render hint" in {
+      assertPageContainsHint(doc, expectedText)
+    }
+
+  def pageWithContinueButton(): Unit =
+    "must render continue button" in {
+      assertPageContainsSubmitButton(doc, "Continue")
+    }
+
+  def pageWithLink(id: String, expectedText: String, expectedHref: String): Unit =
+    s"must render link with id $id" in {
+      assertPageContainsLink(doc, id, expectedText, expectedHref)
+    }
+
+  def pageWithBackLink(): Unit =
+    "must render back link" in {
+      assertPageContainsBackLink(doc)
+    }
+
+  def pageWithoutBackLink(): Unit =
+    "must not render back link" in {
+      assertPageDoesNotContainBackLink(doc)
+    }
+
+  def pageWithContent(tag: String, expectedText: String): Unit =
+    s"must render $tag with text $expectedText" in {
+      assertPageContainsTagWithExpectedText(doc, tag, expectedText)
+    }
+
+}
+
 private[behaviours] trait ViewSpec extends SpecBase with ViewSpecAssertions {
 
   def view: HtmlFormat.Appendable
@@ -58,20 +108,7 @@ private[behaviours] trait ViewSpec extends SpecBase with ViewSpecAssertions {
     val link = doc.getElementsByClass("govuk-phase-banner__text").first().getElementsByClass("govuk-link").first()
     link.attr("href") must include("?service=CTCTraders")
   }
-}
 
-trait ViewBehaviours extends ViewSpec {
-
-  def pageWithTitle(): Unit =
-    "must render title" in {
-
-      val title = doc.title()
-      title mustBe s"${messages(s"$prefix.title")} - Manage your transit movements - GOV.UK"
-    }
-
-  def pageWithHeading(): Unit =
-    "must render heading" in {
-      assertPageContainsHeading(doc, messages(s"$prefix.heading"))
-    }
-
+  // TODO - test that accessibility link href is correct
+  // TODO - rename views to add View
 }
