@@ -110,7 +110,7 @@ trait ViewSpecAssertions {
   }
 
   def assertPageHasNoSignOutLink(doc: Document): Assertion =
-    doc.getElementsByClass("hmrc-sign-out-nav__link").isEmpty mustBe true
+    assert(doc.getElementsByClass("hmrc-sign-out-nav__link").isEmpty)
 
   def assertAttributeValueForElement(element: Element, attribute: String, attributeValue: String): Assertion =
     assert(element.attr(attribute) == attributeValue)
@@ -141,4 +141,20 @@ trait ViewSpecAssertions {
     val heading = doc.getElementsByTag("h1").first
     heading.text must include(expectedText)
   }
+
+  def assertPageContainsLink(doc: Document, id: String, expectedText: String, expectedHref: String, className: String = "govuk-link"): Assertion = {
+    val link = doc.getElementById(id)
+    link.text() mustBe expectedText
+    link.attr("href") mustBe expectedHref
+    assert(link.hasClass(className))
+  }
+
+  def assertPageContainsBackLink(doc: Document): Assertion =
+    assertPageContainsLink(doc, "back-link", "Back", "javascript:history.back()", "govuk-back-link")
+
+  def assertPageDoesNotContainBackLink(doc: Document): Assertion =
+    assert(doc.getElementsByClass("govuk-back-link").isEmpty)
+
+  def assertPageContainsTagWithExpectedText(doc: Document, tag: String, expectedText: String): Assertion =
+    assert(doc.getElementsByTag(tag).asScala.exists(_.text() == expectedText))
 }

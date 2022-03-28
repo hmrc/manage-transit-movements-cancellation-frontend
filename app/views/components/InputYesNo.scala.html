@@ -30,13 +30,15 @@
 
 @govukRadios(Radios(
     classes = "govuk-radios--inline",
-    hint = if(hint.isDefined) Some(Hint(content = Text(hint.get))) else None,
+    hint = if (hint.isDefined) Some(Hint(content = Text(hint.get))) else None,
     items = Seq(
         RadioItem(
+            id = Some(s"${field.id}-yes"),
             value = Some("true"),
             content = Text(messages("site.yes"))
         ),
         RadioItem(
+            id = Some(s"${field.id}-no"),
             value = Some("false"),
             content = Text(messages("site.no"))
         )
