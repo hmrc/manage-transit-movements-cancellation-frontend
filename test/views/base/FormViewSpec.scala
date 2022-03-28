@@ -16,32 +16,34 @@
 
 package views.base
 
+import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import play.twirl.api.HtmlFormat
 
 trait FormViewSpec[T] extends ViewSpec {
 
   def form: Form[T]
-  lazy val formWithError: Form[T] = form.withError(FormError("", ""))
 
   def applyView(form: Form[T]): HtmlFormat.Appendable
-  override def view: HtmlFormat.Appendable      = applyView(form)
-  lazy val viewWithError: HtmlFormat.Appendable = applyView(formWithError)
 
-  val prefix: String
+  override def view: HtmlFormat.Appendable = applyView(form)
+
+  private lazy val formWithError: Form[T]               = form.withError(FormError("", ""))
+  private lazy val viewWithError: HtmlFormat.Appendable = applyView(formWithError)
+  private lazy val docWithError: Document               = parseView(viewWithError)
 
   "page title" - {
 
     "when there are no form errors" - {
       "must not render error prefix" in {
-        val title = doc().title()
+        val title = doc.title()
         title mustBe s"${messages(s"$prefix.title")} - Manage your transit movements - GOV.UK"
       }
     }
 
     "when there are form errors" - {
       "must render error prefix" in {
-        val title = doc(viewWithError).title()
+        val title = docWithError.title()
         title mustBe s"Error: ${messages(s"$prefix.title")} - Manage your transit movements - GOV.UK"
       }
     }

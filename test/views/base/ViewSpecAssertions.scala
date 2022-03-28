@@ -112,12 +112,30 @@ trait ViewSpecAssertions {
   def assertAttributeValueForElement(element: Element, attribute: String, attributeValue: String): Assertion =
     assert(element.attr(attribute) == attributeValue)
 
-  def assertPageHasButtonWithHref(doc: Document, id: String, url: String): Unit = {
-    val element = doc.getElementById(id)
-    assertAttributeValueForElement(
-      element,
-      "href",
-      url
-    )
+  def assertPageContainsButton(doc: Document, expectedText: String, expectedHref: String): Unit = {
+    val button = doc.getElementsByClass("govuk-button").first()
+    button.text() mustBe expectedText
+    button.attr("href") mustBe expectedHref
+  }
+
+  def assertPageContainsCaption(doc: Document, expectedText: String): Assertion = {
+    val caption = doc.getElementsByClass("govuk-caption-xl").first()
+    caption.text() mustBe expectedText
+  }
+
+  def assertPageContainsHint(doc: Document, expectedText: String): Assertion = {
+    val hint = doc.getElementsByClass("govuk-hint").first()
+    hint.text() mustBe expectedText
+  }
+
+  def assertPageContainsSubmitButton(doc: Document, expectedText: String): Assertion = {
+    val button = doc.getElementsByClass("govuk-button").first()
+    button.id() mustBe "submit"
+    button.text() mustBe expectedText
+  }
+
+  def assertPageContainsHeading(doc: Document, expectedText: String): Assertion = {
+    val heading = doc.getElementsByTag("h1").first
+    heading.text must include(expectedText)
   }
 }

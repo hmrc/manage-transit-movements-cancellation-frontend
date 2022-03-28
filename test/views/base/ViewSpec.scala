@@ -25,34 +25,40 @@ trait ViewSpec extends SpecBase with ViewSpecAssertions {
 
   def view: HtmlFormat.Appendable
 
-  def doc(html: HtmlFormat.Appendable = view): Document = Jsoup.parse(html.toString())
+  def parseView(view: HtmlFormat.Appendable): Document = Jsoup.parse(view.toString())
 
-//  implicit def request: FakeRequest[AnyContentAsEmpty.type] = fakeRequest
+  lazy val doc: Document = parseView(view)
+
+  val prefix: String
 
   val hasSignOutLink: Boolean = true
+
+  "must render heading" in {
+    assertPageContainsHeading(doc, messages(s"$prefix.heading"))
+  }
 
   if (hasSignOutLink) {
     "must render sign out link in header" in {
       assertPageHasSignOutLink(
-        doc = doc(),
+        doc = doc,
         expectedText = "Sign out",
         expectedHref = "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/manage-transit-departures"
       )
     }
   } else {
     "must not render sign out link in header" in {
-      assertPageHasNoSignOutLink(doc())
+      assertPageHasNoSignOutLink(doc)
     }
   }
 
   "must render service name link in header" in {
-    val link = doc().getElementsByClass("hmrc-header__service-name--linked")
+    val link = doc.getElementsByClass("hmrc-header__service-name--linked")
     link.text() mustBe "Manage your transit movements"
     link.attr("href") mustBe "http://localhost:10122/manage-transit-movements/cancellation"
   }
 
   "must append service to feedback link" in {
-    val link = doc().getElementsByClass("govuk-phase-banner__text").first().getElementsByClass("govuk-link").first()
+    val link = doc.getElementsByClass("govuk-phase-banner__text").first().getElementsByClass("govuk-link").first()
     link.attr("href") must include("?service=CTCTraders")
   }
 }

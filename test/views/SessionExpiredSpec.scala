@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.components.{Button, Heading}
+package views
 
-@this(
-        main_template: MainTemplate,
-        heading: Heading,
-        button: Button
-)
+import play.twirl.api.HtmlFormat
+import views.base.ViewSpec
+import views.html.SessionExpired
 
-@(signInUrl: String)(implicit request: Request[_], messages: Messages)
+class SessionExpiredSpec extends ViewSpec {
 
-@main_template(
-    title = messages("session_expired.title"),
-    showBackLink = true,
-    canSignOut = false
-) {
+  private val signInUrl = "url"
 
-    @heading(messages("session_expired.heading"))
+  override def view: HtmlFormat.Appendable =
+    injector.instanceOf[SessionExpired].apply(signInUrl)(fakeRequest, messages)
 
-    <p class="govuk-body">@messages("session_expired.guidance")</p>
+  override val prefix: String = "session_expired"
 
-    @button(messageKey = "session_expired.button", attributes = Map("id" -> "submit"), href = Some(signInUrl))
+  override val hasSignOutLink: Boolean = false
+
+  "must render sign in button" in {
+    assertPageContainsButton(doc, "Sign in", signInUrl)
+  }
 }

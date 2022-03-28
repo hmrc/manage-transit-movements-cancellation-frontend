@@ -28,7 +28,19 @@ class CancellationReasonSpec extends FormViewSpec[String] {
   override def form: Form[String] = new CancellationReasonFormProvider()()
 
   override def applyView(form: Form[String]): HtmlFormat.Appendable =
-    app.injector.instanceOf[CancellationReason].apply(form, departureId, lrn, commentMaxLength)(fakeRequest, messages)
+    injector.instanceOf[CancellationReason].apply(form, departureId, lrn, commentMaxLength)(fakeRequest, messages)
 
   override val prefix: String = "cancellationReason"
+
+  "must render caption" in {
+    assertPageContainsCaption(doc, s"The local reference number is $lrn")
+  }
+
+  "must render hint" in {
+    assertPageContainsHint(doc, s"You can enter up to $commentMaxLength characters")
+  }
+
+  "must render continue button" in {
+    assertPageContainsSubmitButton(doc, "Continue")
+  }
 }
