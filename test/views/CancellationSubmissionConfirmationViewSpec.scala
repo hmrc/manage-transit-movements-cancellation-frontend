@@ -29,17 +29,17 @@ class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
 
   override val prefix: String = "cancellationSubmissionConfirmation"
 
+  behave like pageWithoutBackLink
+
   behave like pageWithHeading
 
   behave like pageWithPanel(
     body = s"for local reference number $lrn"
   )
 
-  behave like pageWithoutBackLink()
-
-  behave like pageWithLink("manage-transit-movements", "View departure declarations", url)
-
   behave like pageWithContent("h2", "What happens next")
 
   behave like pageWithContent("p", "You will get a decision on this request in a few minutes.")
+
+  behave like pageWithLink("manage-transit-movements", "View departure declarations", url)
 }

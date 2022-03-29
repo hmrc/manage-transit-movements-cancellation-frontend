@@ -41,10 +41,14 @@ trait CharacterCountViewBehaviours extends QuestionViewBehaviours[String] {
           assertNotRenderedById(doc, "error-summary_header")
         }
       }
-//
-//      "when rendered with a value" - {
-//        behave like answeredYesNoPage(answer = false)
-//      }
+
+      "when rendered with a valid value" - {
+        val docWithValidValue = parseView(applyView(form.fill("answer")))
+
+        "must not render an error summary" in {
+          assertNotRenderedById(docWithValidValue, "error-summary_header")
+        }
+      }
 
       "when rendered with an error" - {
 

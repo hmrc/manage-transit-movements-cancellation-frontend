@@ -31,11 +31,11 @@ class ConfirmCancellationViewSpec extends YesNoViewBehaviours {
 
   override val prefix: String = "confirmCancellation"
 
+  behave like pageWithBackLink
+
   behave like pageWithHeading
 
   behave like yesNoPage()
 
   behave like pageWithSubmitButton("Continue")
-
-  behave like pageWithBackLink()
 }
