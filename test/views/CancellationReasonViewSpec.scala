@@ -16,24 +16,27 @@
 
 package views
 
-import forms.ConfirmCancellationFormProvider
+import forms.CancellationReasonFormProvider
+import models.Constants.commentMaxLength
 import play.api.data.Form
 import play.twirl.api.HtmlFormat
-import views.behaviours.YesNoViewBehaviours
-import views.html.ConfirmCancellation
+import views.behaviours.QuestionViewBehaviours
+import views.html.CancellationReasonView
 
-class ConfirmCancellationSpec extends YesNoViewBehaviours {
+class CancellationReasonViewSpec extends QuestionViewBehaviours[String] {
 
-  override def form: Form[Boolean] = new ConfirmCancellationFormProvider()()
+  override def form: Form[String] = new CancellationReasonFormProvider()()
 
-  override def applyView(form: Form[Boolean]): HtmlFormat.Appendable =
-    injector.instanceOf[ConfirmCancellation].apply(form, departureId, lrn)(fakeRequest, messages)
+  override def applyView(form: Form[String]): HtmlFormat.Appendable =
+    injector.instanceOf[CancellationReasonView].apply(form, departureId, lrn, commentMaxLength)(fakeRequest, messages)
 
-  override val prefix: String = "confirmCancellation"
+  override val prefix: String = "cancellationReason"
 
   behave like pageWithHeading
 
-  behave like yesNoPage()
+  behave like pageWithCaption(s"The local reference number is $lrn")
+
+  behave like pageWithHint(s"You can enter up to $commentMaxLength characters")
 
   behave like pageWithContinueButton()
 

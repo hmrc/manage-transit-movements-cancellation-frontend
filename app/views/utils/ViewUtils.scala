@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views
+package views.utils
 
 import play.api.i18n.Messages
 import play.twirl.api.Html

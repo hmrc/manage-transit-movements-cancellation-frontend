@@ -27,7 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CancellationSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.{CancellationReason, TechnicalDifficulties}
+import views.html.{CancellationReasonView, TechnicalDifficultiesView}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,8 +43,8 @@ class CancellationReasonController @Inject() (
   cancellationSubmissionService: CancellationSubmissionService,
   val controllerComponents: MessagesControllerComponents,
   appConfig: FrontendAppConfig,
-  view: CancellationReason,
-  technicalDifficulties: TechnicalDifficulties
+  view: CancellationReasonView,
+  technicalDifficulties: TechnicalDifficultiesView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {

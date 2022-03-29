@@ -34,17 +34,17 @@ trait YesNoViewBehaviours extends QuestionViewBehaviours[Boolean] {
           }
         }
 
-        "contain an input for the value" in {
+        "must contain an input for the value" in {
           assertRenderedById(doc, "value-yes")
           assertRenderedById(doc, "value-no")
         }
 
-        "have no values checked when rendered with no form" in {
+        "must have no values checked when rendered with no form" in {
           assert(!doc.getElementById("value-yes").hasAttr("checked"))
           assert(!doc.getElementById("value-no").hasAttr("checked"))
         }
 
-        "not render an error summary" in {
+        "must not render an error summary" in {
           assertNotRenderedById(doc, "error-summary_header")
         }
       }
@@ -74,12 +74,12 @@ trait YesNoViewBehaviours extends QuestionViewBehaviours[Boolean] {
 
     val doc = parseView(applyView(form.fill(answer)))
 
-    "have only the correct value checked" in {
+    "must have only the correct value checked" in {
       assert(doc.getElementById("value-yes").hasAttr("checked") == answer)
       assert(doc.getElementById("value-no").hasAttr("checked") != answer)
     }
 
-    "not render an error summary" in {
+    "must not render an error summary" in {
       assertNotRenderedById(doc, "error-summary_header")
     }
   }

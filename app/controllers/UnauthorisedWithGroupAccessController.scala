@@ -19,11 +19,11 @@ package controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.UnauthorisedGroupAccess
+import views.html.UnauthorisedGroupAccessView
 
 import javax.inject.Inject
 
-class UnauthorisedWithGroupAccessController @Inject() (val controllerComponents: MessagesControllerComponents, view: UnauthorisedGroupAccess)
+class UnauthorisedWithGroupAccessController @Inject() (val controllerComponents: MessagesControllerComponents, view: UnauthorisedGroupAccessView)
     extends FrontendBaseController
     with I18nSupport {
 
