@@ -41,13 +41,24 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     "must render sign out link in header" in {
       val link = getElementByClass(doc, "hmrc-sign-out-nav__link")
       assertElementContainsText(link, "Sign out")
-      assertElementContainsHref(link,
-                                "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/manage-transit-departures"
+      assertElementContainsHref(
+        link,
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/manage-transit-departures"
       )
+    }
+
+    "must render timeout dialog" in {
+      val metas = getElementsByTag(doc, "meta")
+      assertElementExists(metas, _.attr("name") == "hmrc-timeout-dialog")
     }
   } else {
     "must not render sign out link in header" in {
       assertElementDoesNotExist(doc, "hmrc-sign-out-nav__link")
+    }
+
+    "must not render timeout dialog" in {
+      val metas = getElementsByTag(doc, "meta")
+      assertElementDoesNotExist(metas, _.attr("name") == "hmrc-timeout-dialog")
     }
   }
 
