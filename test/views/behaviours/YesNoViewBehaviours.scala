@@ -19,17 +19,18 @@ package views.behaviours
 trait YesNoViewBehaviours extends QuestionViewBehaviours[Boolean] {
 
   def yesNoPage(hintTextPrefix: Option[String] = None, args: Seq[String] = Nil): Unit =
-    "behave like a page with a Yes/No question" - {
+    "page with a Yes/No question" - {
       "when rendered" - {
 
         "must contain a legend for the question" in {
-          val legends = doc.getElementsByTag("legend")
+          val legends = getElementsByTag(doc, "legend")
           legends.size mustBe 1
-          legends.first.text must include(messages(s"$prefix.heading", args: _*))
+          assertElementIncludesText(legends.first(), messages(s"$prefix.heading", args: _*))
 
           hintTextPrefix.map {
-            pref =>
-              doc.getElementsByClass("govuk-hint").first.text must include(messages(s"$pref.hint"))
+            prefix =>
+              val hint = getElementByClass(doc, "govuk-hint")
+              assertElementIncludesText(hint, messages(s"$prefix.hint"))
           }
         }
 
@@ -64,7 +65,7 @@ trait YesNoViewBehaviours extends QuestionViewBehaviours[Boolean] {
 
         "must show an error in the value field's label" in {
           val errorSpan = docWithError.getElementsByClass("govuk-error-message").first
-          errorSpan.text mustBe s"""${messages("error.title.prefix")} ${messages(errorMessage)}"""
+          assertElementContainsText(errorSpan, s"${messages("error.title.prefix")} ${messages(errorMessage)}")
         }
       }
     }

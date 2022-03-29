@@ -33,9 +33,5 @@ class SessionExpiredSpec extends ViewBehaviours {
 
   behave like pageWithHeading
 
-  behave like pageWithTitle
-
-  "must render sign in button" in {
-    assertPageContainsButton(doc, "Sign in", signInUrl)
-  }
+  behave like pageWithButton("Sign in", signInUrl)
 }

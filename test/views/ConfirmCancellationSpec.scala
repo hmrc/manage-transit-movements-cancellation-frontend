@@ -33,8 +33,6 @@ class ConfirmCancellationSpec extends YesNoViewBehaviours {
 
   behave like pageWithHeading
 
-  behave like pageWithTitle
-
   behave like yesNoPage()
 
   behave like pageWithContinueButton()

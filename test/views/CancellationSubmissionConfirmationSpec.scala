@@ -31,10 +31,8 @@ class CancellationSubmissionConfirmationSpec extends PanelViewBehaviours {
 
   behave like pageWithHeading
 
-  behave like pageWithTitle
-
   behave like pageWithPanel(
-    content = s"for local reference number $lrn"
+    body = s"for local reference number $lrn"
   )
 
   behave like pageWithoutBackLink()
@@ -44,5 +42,4 @@ class CancellationSubmissionConfirmationSpec extends PanelViewBehaviours {
   behave like pageWithContent("h2", "What happens next")
 
   behave like pageWithContent("p", "You will get a decision on this request in a few minutes.")
-
 }
