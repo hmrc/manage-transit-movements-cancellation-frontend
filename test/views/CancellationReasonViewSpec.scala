@@ -20,10 +20,10 @@ import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
 import play.api.data.Form
 import play.twirl.api.HtmlFormat
-import views.behaviours.QuestionViewBehaviours
+import views.behaviours.CharacterCountViewBehaviours
 import views.html.CancellationReasonView
 
-class CancellationReasonViewSpec extends QuestionViewBehaviours[String] {
+class CancellationReasonViewSpec extends CharacterCountViewBehaviours {
 
   override def form: Form[String] = new CancellationReasonFormProvider()()
 
@@ -32,13 +32,17 @@ class CancellationReasonViewSpec extends QuestionViewBehaviours[String] {
 
   override val prefix: String = "cancellationReason"
 
+  private lazy val onSubmit: String = controllers.routes.CancellationReasonController.onSubmit(departureId).url
+
   behave like pageWithHeading
 
   behave like pageWithCaption(s"The local reference number is $lrn")
 
+  behave like pageWithCharacterCount
+
   behave like pageWithHint(s"You can enter up to $commentMaxLength characters")
 
-  behave like pageWithContinueButton()
+  behave like pageWithSubmitButton(onSubmit)
 
   behave like pageWithBackLink()
 }

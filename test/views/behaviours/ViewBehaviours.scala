@@ -76,6 +76,10 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     getElementHref(link) must include("http://localhost:12346/accessibility-statement/manage-transit-movements?referrerUrl=")
   }
 
+  "must not render language toggle" in {
+    assertElementDoesNotExist(doc, "hmrc-language-select")
+  }
+
   def pageWithHeading(): Unit =
     "must render heading" in {
       val heading = getElementByTag(doc, "h1")
@@ -98,6 +102,13 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     "must render continue button" in {
       val button = getElementByClass(doc, "govuk-button")
       assertElementContainsText(button, "Continue")
+      assertElementContainsId(button, "submit")
+    }
+
+  def pageWithSubmitButton(expectedHref: String): Unit =
+    "must render a submit button" in {
+      val button = getElementByClass(doc, "govuk-button")
+      assertElementContainsText(button, "Submit")
       assertElementContainsId(button, "submit")
     }
 
