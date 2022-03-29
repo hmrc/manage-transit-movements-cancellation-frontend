@@ -33,17 +33,17 @@
     showBackLink = true
 ) {
 
- @formHelper(action = routes.CancellationReasonController.onSubmit(departureId), 'autoComplete -> "off") {
+  @formHelper(action = routes.CancellationReasonController.onSubmit(departureId), 'autoComplete -> "off") {
 
- @errorSummary(form.errors)
+  @errorSummary(form.errors)
 
- @inputCharacterCount(
-     field = form("value"),
-     label = messages("cancellationReason.title"),
-     maxLength = Some(maxLength),
-     caption = Some(lrn.value)
- )
+  @inputCharacterCount(
+      field = form("value"),
+      label = messages("cancellationReason.title"),
+      maxLength = Some(maxLength),
+      caption = Some(lrn.value)
+  )
 
-  @button(attributes = Map("id" -> "submit"))
+  @button(messageKey = "site.submit", attributes = Map("id" -> "submit"))
  }
 }
