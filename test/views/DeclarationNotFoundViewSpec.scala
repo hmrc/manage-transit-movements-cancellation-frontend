@@ -34,9 +34,9 @@ class DeclarationNotFoundViewSpec extends ViewBehaviours {
 
   behave like pageWithHeading
 
-  behave like pageWithContent(
+  behave like pageWithPartialContent(
     "p",
-    "There is no departure declaration with these details. If you still need to cancel this departure declaration, you must"
+    "There is no departure declaration with these details. If you still need to cancel this departure declaration, you must "
   )
 
   behave like pageWithLink(

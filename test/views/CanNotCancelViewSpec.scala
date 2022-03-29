@@ -34,9 +34,9 @@ class CanNotCancelViewSpec extends ViewBehaviours {
 
   behave like pageWithHeading
 
-  behave like pageWithContent(
+  behave like pageWithPartialContent(
     "p",
-    "If you still need to cancel this departure declaration, you must"
+    "If you still need to cancel this departure declaration, you must "
   )
 
   behave like pageWithLink(
