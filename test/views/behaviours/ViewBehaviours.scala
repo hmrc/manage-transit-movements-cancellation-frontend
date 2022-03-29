@@ -142,8 +142,14 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     }
 
   def pageWithContent(tag: String, expectedText: String): Unit =
+    pageWithContent(tag, expectedText, _ equals _)
+
+  def pageWithPartialContent(tag: String, expectedText: String): Unit =
+    pageWithContent(tag, expectedText, _ contains _)
+
+  private def pageWithContent(tag: String, expectedText: String, condition: (String, String) => Boolean): Unit =
     s"must render $tag with text $expectedText" in {
       val elements = getElementsByTag(doc, tag)
-      assertElementExists(elements, _.text().contains(expectedText))
+      assertElementExists(elements, element => condition(element.text, expectedText))
     }
 }
