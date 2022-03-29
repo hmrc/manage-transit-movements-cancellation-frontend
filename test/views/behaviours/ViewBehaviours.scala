@@ -18,7 +18,8 @@ package views.behaviours
 
 import base.SpecBase
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Document, Element}
+import org.scalatest.Assertion
 import play.twirl.api.HtmlFormat
 import views.base.ViewSpecAssertions
 
@@ -98,25 +99,21 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
       assertElementContainsText(hint, expectedText)
     }
 
-  def pageWithContinueButton(): Unit =
-    "must render continue button" in {
-      val button = getElementByClass(doc, "govuk-button")
-      assertElementContainsText(button, "Continue")
-      assertElementContainsId(button, "submit")
-    }
-
-  def pageWithSubmitButton(expectedHref: String): Unit =
-    "must render a submit button" in {
-      val button = getElementByClass(doc, "govuk-button")
-      assertElementContainsText(button, "Submit")
-      assertElementContainsId(button, "submit")
+  def pageWithSubmitButton(expectedText: String): Unit =
+    pageWithButton(expectedText) {
+      button => assertElementContainsId(button, "submit")
     }
 
   def pageWithButton(expectedText: String, expectedHref: String): Unit =
+    pageWithButton(expectedText) {
+      button => assertElementContainsHref(button, expectedHref)
+    }
+
+  private def pageWithButton(expectedText: String)(additionalAssertions: Element => Assertion*): Unit =
     s"must render $expectedText button" in {
       val button = getElementByClass(doc, "govuk-button")
       assertElementContainsText(button, expectedText)
-      assertElementContainsHref(button, expectedHref)
+      additionalAssertions.map(_(button))
     }
 
   def pageWithLink(id: String, expectedText: String, expectedHref: String): Unit =

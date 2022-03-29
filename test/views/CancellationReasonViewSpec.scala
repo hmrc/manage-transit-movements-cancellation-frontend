@@ -32,8 +32,6 @@ class CancellationReasonViewSpec extends CharacterCountViewBehaviours {
 
   override val prefix: String = "cancellationReason"
 
-  private lazy val onSubmit: String = controllers.routes.CancellationReasonController.onSubmit(departureId).url
-
   behave like pageWithHeading
 
   behave like pageWithCaption(s"The local reference number is $lrn")
@@ -42,7 +40,7 @@ class CancellationReasonViewSpec extends CharacterCountViewBehaviours {
 
   behave like pageWithHint(s"You can enter up to $commentMaxLength characters")
 
-  behave like pageWithSubmitButton(onSubmit)
+  behave like pageWithSubmitButton("Submit")
 
   behave like pageWithBackLink()
 }
