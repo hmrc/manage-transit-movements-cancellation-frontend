@@ -18,9 +18,10 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject() (configuration: Configuration, service: ServicesConfig) {
 
   val contactHost: String                  = configuration.get[String]("contact-frontend.host")
   val contactFormServiceIdentifier: String = "CTCTraders"
@@ -33,14 +34,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val betaFeedbackUnauthenticatedUrl = s"$contactHost/contact/beta-feedback-unauthenticated?service=$contactFormServiceIdentifier"
   val signOutUrl: String             = configuration.get[String]("urls.logoutContinue") + configuration.get[String]("urls.feedback")
-  lazy val nctsEnquiriesUrl: String  = configuration.get[String]("urls.nctsEnquiries")
   lazy val nctsHelpdeskUrl: String   = configuration.get[String]("urls.nctsHelpdesk")
 
-  lazy val authUrl: String           = configuration.get[Service]("auth").baseUrl
+  lazy val authUrl: String           = service.baseUrl("auth")
   lazy val loginUrl: String          = configuration.get[String]("urls.login")
   lazy val loginContinueUrl: String  = configuration.get[String]("urls.loginContinue")
   lazy val enrolmentKey: String      = configuration.get[String]("microservice.services.auth.enrolmentKey")
-  lazy val enrolmentProxyUrl: String = configuration.get[Service]("microservice.services.enrolment-store-proxy").fullServiceUrl
+  lazy val enrolmentProxyUrl: String = service.baseUrl("enrolment-store-proxy") + "/enrolment-store-proxy"
 
   lazy val legacyEnrolmentKey: String           = configuration.get[String]("keys.legacy.enrolmentKey")
   lazy val legacyEnrolmentIdentifierKey: String = configuration.get[String]("keys.legacy.enrolmentIdentifierKey")
@@ -50,16 +50,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   lazy val manageTransitMovementsUrl: String               = configuration.get[String]("urls.manageTransitMovementsFrontend")
   lazy val manageTransitMovementsViewDeparturesUrl: String = s"$manageTransitMovementsUrl/view-departures"
-  lazy val serviceUrl                                      = s"$manageTransitMovementsUrl/what-do-you-want-to-do"
 
-  lazy val departureBaseUrl: String = configuration.get[Service]("microservice.services.departures").baseUrl
-  lazy val departureUrl: String     = configuration.get[Service]("microservice.services.departures").fullServiceUrl
+  lazy val departureBaseUrl: String = service.baseUrl("departures")
+  lazy val departureUrl: String     = departureBaseUrl + "/transits-movements-trader-at-departure"
 
   lazy val timeoutSeconds: Int   = configuration.get[Int]("session.timeoutSeconds")
   lazy val countdownSeconds: Int = configuration.get[Int]("session.countdownSeconds")
-
-  lazy val languageTranslationEnabled: Boolean =
-    configuration.get[Boolean]("microservice.services.features.welsh-translation")
 
   lazy val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 }
