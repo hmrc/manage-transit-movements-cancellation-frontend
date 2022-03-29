@@ -18,7 +18,7 @@ package views.behaviours
 
 trait CharacterCountViewBehaviours extends QuestionViewBehaviours[String] {
 
-  def pageWithCharacterCount(): Unit =
+  def pageWithCharacterCount(maxLength: Int): Unit =
     "page with a character count question" - {
 
       "when rendered" - {
@@ -28,8 +28,13 @@ trait CharacterCountViewBehaviours extends QuestionViewBehaviours[String] {
         }
 
         "must bind a data module" in {
-          val module = doc.getElementsByAttribute("data-module").first()
-          module.`val`() mustBe "govuk-character-count"
+          val module = getElementByClass(doc, "govuk-character-count").attr("data-module")
+          module mustBe "govuk-character-count"
+        }
+
+        s"must set a max length of $maxLength" in {
+          val module = getElementByClass(doc, "govuk-character-count").attr("data-maxlength")
+          module mustBe maxLength.toString
         }
 
         "must not render an error summary" in {

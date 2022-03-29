@@ -36,7 +36,7 @@ class CancellationReasonViewSpec extends CharacterCountViewBehaviours {
 
   behave like pageWithCaption(s"The local reference number is $lrn")
 
-  behave like pageWithCharacterCount
+  behave like pageWithCharacterCount(commentMaxLength)
 
   behave like pageWithHint(s"You can enter up to $commentMaxLength characters")
 
