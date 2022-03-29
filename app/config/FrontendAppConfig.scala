@@ -34,6 +34,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val betaFeedbackUnauthenticatedUrl = s"$contactHost/contact/beta-feedback-unauthenticated?service=$contactFormServiceIdentifier"
   val signOutUrl: String             = configuration.get[String]("urls.logoutContinue") + configuration.get[String]("urls.feedback")
   lazy val nctsEnquiriesUrl: String  = configuration.get[String]("urls.nctsEnquiries")
+  lazy val nctsHelpdeskUrl: String   = configuration.get[String]("urls.nctsHelpdesk")
 
   lazy val authUrl: String           = configuration.get[Service]("auth").baseUrl
   lazy val loginUrl: String          = configuration.get[String]("urls.login")
