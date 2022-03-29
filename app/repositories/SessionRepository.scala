@@ -36,7 +36,8 @@ class SessionRepository @Inject() (
       mongoComponent = mongoComponent,
       collectionName = "user-answers",
       domainFormat = UserAnswers.format,
-      indexes = SessionRepository.indexes(appConfig)
+      indexes = SessionRepository.indexes(appConfig),
+      replaceIndexes = appConfig.replaceIndexes
     ) {
 
   def get(departureId: DepartureId): Future[Option[UserAnswers]] = {

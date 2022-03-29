@@ -62,4 +62,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     configuration.get[Boolean]("microservice.services.features.welsh-translation")
 
   lazy val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  lazy val replaceIndexes: Boolean = configuration.get[Boolean]("feature-flags.replace-indexes")
 }
