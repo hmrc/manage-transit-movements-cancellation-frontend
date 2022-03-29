@@ -34,5 +34,16 @@ class SessionExpiredControllerSpec extends SpecBase {
 
       status(result) mustEqual OK
     }
+
+    "must redirect to a new page for a POST" in {
+      val request =
+        FakeRequest(POST, routes.SessionExpiredController.onSubmit().url)
+          .withFormUrlEncodedBody()
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual "http://localhost:9485/manage-transit-movements/what-do-you-want-to-do"
+    }
   }
 }
