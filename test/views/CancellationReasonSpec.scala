@@ -34,8 +34,6 @@ class CancellationReasonSpec extends QuestionViewBehaviours[String] {
 
   behave like pageWithHeading
 
-  behave like pageWithTitle
-
   behave like pageWithCaption(s"The local reference number is $lrn")
 
   behave like pageWithHint(s"You can enter up to $commentMaxLength characters")

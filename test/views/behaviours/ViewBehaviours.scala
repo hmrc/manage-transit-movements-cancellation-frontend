@@ -22,57 +22,9 @@ import org.jsoup.nodes.Document
 import play.twirl.api.HtmlFormat
 import views.base.ViewSpecAssertions
 
-trait ViewBehaviours extends ViewSpec {
+import scala.collection.JavaConverters._
 
-  def pageWithTitle(): Unit =
-    "must render title" in {
-      val title = doc.title()
-      title mustBe s"${messages(s"$prefix.title")} - Manage your transit movements - GOV.UK"
-    }
-
-  def pageWithHeading(): Unit =
-    "must render heading" in {
-      assertPageContainsHeading(doc, messages(s"$prefix.heading"))
-    }
-
-  def pageWithCaption(expectedText: String): Unit =
-    "must render caption" in {
-      assertPageContainsCaption(doc, expectedText)
-    }
-
-  def pageWithHint(expectedText: String): Unit =
-    "must render hint" in {
-      assertPageContainsHint(doc, expectedText)
-    }
-
-  def pageWithContinueButton(): Unit =
-    "must render continue button" in {
-      assertPageContainsSubmitButton(doc, "Continue")
-    }
-
-  def pageWithLink(id: String, expectedText: String, expectedHref: String): Unit =
-    s"must render link with id $id" in {
-      assertPageContainsLink(doc, id, expectedText, expectedHref)
-    }
-
-  def pageWithBackLink(): Unit =
-    "must render back link" in {
-      assertPageContainsBackLink(doc)
-    }
-
-  def pageWithoutBackLink(): Unit =
-    "must not render back link" in {
-      assertPageDoesNotContainBackLink(doc)
-    }
-
-  def pageWithContent(tag: String, expectedText: String): Unit =
-    s"must render $tag with text $expectedText" in {
-      assertPageContainsTagWithExpectedText(doc, tag, expectedText)
-    }
-
-}
-
-private[behaviours] trait ViewSpec extends SpecBase with ViewSpecAssertions {
+trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
 
   def view: HtmlFormat.Appendable
 
@@ -86,29 +38,99 @@ private[behaviours] trait ViewSpec extends SpecBase with ViewSpecAssertions {
 
   if (hasSignOutLink) {
     "must render sign out link in header" in {
-      assertPageHasSignOutLink(
-        doc = doc,
-        expectedText = "Sign out",
-        expectedHref = "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/manage-transit-departures"
+      val link = getElementByClass(doc, "hmrc-sign-out-nav__link")
+      assertElementContainsText(link, "Sign out")
+      assertElementContainsHref(link,
+                                "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/manage-transit-departures"
       )
     }
   } else {
     "must not render sign out link in header" in {
-      assertPageHasNoSignOutLink(doc)
+      assertElementDoesNotExist(doc, "hmrc-sign-out-nav__link")
     }
   }
 
   "must render service name link in header" in {
-    val link = doc.getElementsByClass("hmrc-header__service-name--linked")
-    link.text() mustBe "Manage your transit movements"
-    link.attr("href") mustBe "http://localhost:10122/manage-transit-movements/cancellation"
+    val link = getElementByClass(doc, "hmrc-header__service-name--linked")
+    assertElementContainsText(link, "Manage your transit movements")
+    assertElementContainsHref(link, "http://localhost:10122/manage-transit-movements/cancellation")
   }
 
   "must append service to feedback link" in {
-    val link = doc.getElementsByClass("govuk-phase-banner__text").first().getElementsByClass("govuk-link").first()
-    link.attr("href") must include("?service=CTCTraders")
+    val link = getElementBySelector(doc, ".govuk-phase-banner__text > .govuk-link")
+    getElementHref(link) must endWith("?service=CTCTraders")
   }
 
-  // TODO - test that accessibility link href is correct
-  // TODO - rename views to add View
+  "must render title" in {
+    val title = doc.title()
+    title mustBe s"${messages(s"$prefix.title")} - Manage your transit movements - GOV.UK"
+  }
+
+  "must render accessibility statement link" in {
+    val link = doc
+      .select(".govuk-footer__inline-list-item > .govuk-footer__link")
+      .asScala
+      .find(_.text() == "Accessibility statement")
+      .get
+
+    getElementHref(link) must include("http://localhost:12346/accessibility-statement/manage-transit-movements?referrerUrl=")
+  }
+
+  def pageWithHeading(): Unit =
+    "must render heading" in {
+      val heading = getElementByTag(doc, "h1")
+      assertElementIncludesText(heading, messages(s"$prefix.heading"))
+    }
+
+  def pageWithCaption(expectedText: String): Unit =
+    "must render caption" in {
+      val caption = getElementByClass(doc, "govuk-caption-xl")
+      assertElementContainsText(caption, expectedText)
+    }
+
+  def pageWithHint(expectedText: String): Unit =
+    "must render hint" in {
+      val hint = getElementByClass(doc, "govuk-hint")
+      assertElementContainsText(hint, expectedText)
+    }
+
+  def pageWithContinueButton(): Unit =
+    "must render continue button" in {
+      val button = getElementByClass(doc, "govuk-button")
+      assertElementContainsText(button, "Continue")
+      assertElementContainsId(button, "submit")
+    }
+
+  def pageWithButton(expectedText: String, expectedHref: String): Unit =
+    s"must render $expectedText button" in {
+      val button = getElementByClass(doc, "govuk-button")
+      assertElementContainsText(button, expectedText)
+      assertElementContainsHref(button, expectedHref)
+    }
+
+  def pageWithLink(id: String, expectedText: String, expectedHref: String): Unit =
+    s"must render link with id $id" in {
+      val link = getElementById(doc, id)
+      assertElementContainsText(link, expectedText)
+      assertElementContainsHref(link, expectedHref)
+    }
+
+  def pageWithBackLink(): Unit =
+    "must render back link" in {
+      val link = getElementByClass(doc, "govuk-back-link")
+      assertElementContainsText(link, "Back")
+      assertElementContainsHref(link, "javascript:history.back()")
+    }
+
+  def pageWithoutBackLink(): Unit =
+    "must not render back link" in {
+      assertElementDoesNotExist(doc, "govuk-back-link")
+    }
+
+  def pageWithContent(tag: String, expectedText: String): Unit =
+    s"must render $tag with text $expectedText" in {
+      val elements = getElementsByTag(doc, tag)
+      assertElementExists(elements, _.text() == expectedText)
+    }
+
 }

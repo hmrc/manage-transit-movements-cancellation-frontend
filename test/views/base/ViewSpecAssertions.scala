@@ -18,51 +18,13 @@ package views.base
 
 import base.SpecBase
 import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.Elements
 import org.scalatest.Assertion
 
 import scala.collection.JavaConverters._
 
-trait ViewSpecAssertions {
+trait ViewSpecAssertions extends ViewSpecGetters {
   this: SpecBase =>
-
-  def getByElementId(doc: Document, id: String): Element = {
-    val elem: Element = doc.getElementById(id)
-    elem must not equal null
-    elem
-  }
-
-  def getElementBySelector(doc: Document, selector: String): Element =
-    doc.getElementsByClass(selector).first()
-
-  def getByElementTestIdSelector(doc: Document, id: String): Seq[Element] =
-    doc.select(s"[data-testid=$id]").asScala
-
-  def findByElementId(doc: Document, id: String): Option[Element] =
-    Option(doc.getElementById(id))
-
-  def assertEqualsMessage(doc: Document, cssSelector: String, expectedMessageKey: String): Assertion =
-    assertEqualsValue(doc, cssSelector, messages(expectedMessageKey))
-
-  def assertEqualsValue(doc: Document, cssSelector: String, expectedValue: String): Assertion = {
-    val elements = doc.select(cssSelector)
-
-    if (elements.isEmpty) throw new IllegalArgumentException(s"CSS Selector $cssSelector wasn't rendered.")
-
-    //<p> HTML elements are rendered out with a carriage return on some pages, so discount for comparison
-    elements.first().html().replace("\n", "") mustEqual expectedValue
-  }
-
-  def assertPageTitleEqualsMessage(doc: Document, expectedMessageKey: String, args: Any*): Assertion = {
-    val headers = doc.getElementsByTag("h1")
-    headers.size mustBe 1
-    headers.first.text.replaceAll("\u00a0", " ") mustBe messages(expectedMessageKey, args: _*).replaceAll("&nbsp;", " ")
-  }
-
-  def assertContainsText(doc: Document, text: String): Assertion =
-    assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
-
-  def assertContainsMessages(doc: Document, expectedMessageKeys: String*): Unit =
-    for (key <- expectedMessageKeys) assertContainsText(doc, messages(key))
 
   def assertRenderedById(doc: Document, id: String): Assertion =
     assert(doc.getElementById(id) != null, "\n\nElement " + id + " was not rendered on the page.\n")
@@ -73,88 +35,21 @@ trait ViewSpecAssertions {
   def assertRenderedByCssSelector(doc: Document, cssSelector: String): Assertion =
     assert(!doc.select(cssSelector).isEmpty, "Element " + cssSelector + " was not rendered on the page.")
 
-  def assertNotRenderedByCssSelector(doc: Document, cssSelector: String): Assertion =
-    assert(doc.select(cssSelector).isEmpty, "\n\nElement " + cssSelector + " was rendered on the page.\n")
+  def assertElementContainsText(element: Element, expectedText: String): Assertion =
+    element.text() mustBe expectedText
 
-  def assertContainsLabel(doc: Document, forElement: String, expectedText: String, expectedHintText: Option[String] = None): Assertion = {
-    val labels = doc.getElementsByAttributeValue("for", forElement)
-    assert(labels.size == 1, s"\n\nLabel for $forElement was not rendered on the page.")
-    val label = labels.first
+  def assertElementIncludesText(element: Element, expectedText: String): Assertion =
+    element.text() must include(expectedText)
 
-    if (expectedHintText.isDefined) {
-      assert(label.getElementsByClass("form-hint").first.text == expectedHintText.get, s"\n\nLabel for $forElement did not contain hint text $expectedHintText")
-    }
+  def assertElementContainsHref(element: Element, expectedHref: String): Assertion =
+    getElementHref(element) mustBe expectedHref
 
-    assert(label.text().contains(expectedText), s"\n\nLabel for $forElement was not $expectedText")
-  }
+  def assertElementContainsId(element: Element, expectedId: String): Assertion =
+    element.id() mustBe expectedId
 
-  def assertElementHasClass(doc: Document, id: String, expectedClass: String): Assertion =
-    assert(doc.getElementById(id).hasClass(expectedClass), s"\n\nElement $id does not have class $expectedClass")
+  def assertElementExists(elements: Elements, condition: Element => Boolean): Assertion =
+    assert(elements.asScala.exists(condition))
 
-  def assertContainsRadioButton(doc: Document, id: String, name: String, value: String, isChecked: Boolean): Assertion = {
-    assertRenderedById(doc, id)
-    val radio = doc.getElementById(id)
-    assert(radio.attr("name") == name, s"\n\nElement $id does not have name $name")
-    assert(radio.attr("value") == value, s"\n\nElement $id does not have value $value")
-    if (isChecked) {
-      assert(radio.attr("checked") == "checked", s"\n\nElement $id is not checked")
-    } else {
-      assert(!radio.hasAttr("checked") && radio.attr("checked") != "checked", s"\n\nElement $id is checked")
-    }
-  }
-
-  def assertPageHasSignOutLink(doc: Document, expectedText: String, expectedHref: String): Assertion = {
-    val link = doc.getElementsByClass("hmrc-sign-out-nav__link").first()
-    link.text() mustBe expectedText
-    link.attr("href") mustBe expectedHref
-  }
-
-  def assertPageHasNoSignOutLink(doc: Document): Assertion =
-    assert(doc.getElementsByClass("hmrc-sign-out-nav__link").isEmpty)
-
-  def assertAttributeValueForElement(element: Element, attribute: String, attributeValue: String): Assertion =
-    assert(element.attr(attribute) == attributeValue)
-
-  def assertPageContainsButton(doc: Document, expectedText: String, expectedHref: String): Unit = {
-    val button = doc.getElementsByClass("govuk-button").first()
-    button.text() mustBe expectedText
-    button.attr("href") mustBe expectedHref
-  }
-
-  def assertPageContainsCaption(doc: Document, expectedText: String): Assertion = {
-    val caption = doc.getElementsByClass("govuk-caption-xl").first()
-    caption.text() mustBe expectedText
-  }
-
-  def assertPageContainsHint(doc: Document, expectedText: String): Assertion = {
-    val hint = doc.getElementsByClass("govuk-hint").first()
-    hint.text() mustBe expectedText
-  }
-
-  def assertPageContainsSubmitButton(doc: Document, expectedText: String): Assertion = {
-    val button = doc.getElementsByClass("govuk-button").first()
-    button.id() mustBe "submit"
-    button.text() mustBe expectedText
-  }
-
-  def assertPageContainsHeading(doc: Document, expectedText: String): Assertion = {
-    val heading = doc.getElementsByTag("h1").first
-    heading.text must include(expectedText)
-  }
-
-  def assertPageContainsLink(doc: Document, id: String, expectedText: String, expectedHref: String, className: String = "govuk-link"): Assertion = {
-    val link = doc.getElementById(id)
-    link.text() mustBe expectedText
-    link.attr("href") mustBe expectedHref
-    assert(link.hasClass(className))
-  }
-
-  def assertPageContainsBackLink(doc: Document): Assertion =
-    assertPageContainsLink(doc, "back-link", "Back", "javascript:history.back()", "govuk-back-link")
-
-  def assertPageDoesNotContainBackLink(doc: Document): Assertion =
-    assert(doc.getElementsByClass("govuk-back-link").isEmpty)
-
-  def assertPageContainsTagWithExpectedText(doc: Document, tag: String, expectedText: String): Assertion =
-    assert(doc.getElementsByTag(tag).asScala.exists(_.text() == expectedText))
+  def assertElementDoesNotExist(doc: Document, className: String): Assertion =
+    assert(doc.getElementsByClass(className).isEmpty)
 }

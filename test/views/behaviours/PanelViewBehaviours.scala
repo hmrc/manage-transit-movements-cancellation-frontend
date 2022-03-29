@@ -18,9 +18,8 @@ package views.behaviours
 
 trait PanelViewBehaviours extends ViewBehaviours {
 
-  def pageWithPanel(content: String): Unit =
-    "page with panel" - {
-
+  def pageWithPanel(body: String): Unit =
+    "page with a panel" - {
       "when rendered" - {
 
         "must have a panel" in {
@@ -28,15 +27,9 @@ trait PanelViewBehaviours extends ViewBehaviours {
         }
 
         "must have a body" in {
-          assertRenderedByCssSelector(doc, ".govuk-panel__body")
-
-          val text = getElementBySelector(doc, "govuk-panel__body").text()
-
-          text mustBe content
+          val panelBody = getElementByClass(doc, "govuk-panel__body")
+          panelBody.text() mustBe body
         }
-
       }
-
     }
-
 }
