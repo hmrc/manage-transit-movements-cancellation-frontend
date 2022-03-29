@@ -50,6 +50,9 @@ trait ViewSpecAssertions extends ViewSpecGetters {
   def assertElementExists(elements: Elements, condition: Element => Boolean): Assertion =
     assert(elements.asScala.exists(condition))
 
+  def assertElementDoesNotExist(elements: Elements, condition: Element => Boolean): Assertion =
+    assert(!elements.asScala.exists(condition))
+
   def assertElementDoesNotExist(doc: Document, className: String): Assertion =
     assert(doc.getElementsByClass(className).isEmpty)
 }

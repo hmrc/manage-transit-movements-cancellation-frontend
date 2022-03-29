@@ -43,12 +43,14 @@
 )(mainContent: Html)(implicit request: Request[_], messages: Messages)
 
 @headScripts = {
-    @hmrcTimeoutDialog(TimeoutDialog(
-        timeout = Some(appConfig.timeoutSeconds),
-        countdown = Some(appConfig.countdownSeconds),
-        keepAliveUrl = Some(routes.KeepAliveController.keepAlive().url),
-        signOutUrl = Some(appConfig.signOutUrl)
-    ))
+    @if(canSignOut) {
+        @hmrcTimeoutDialog(TimeoutDialog(
+            timeout = Some(appConfig.timeoutSeconds),
+            countdown = Some(appConfig.countdownSeconds),
+            keepAliveUrl = Some(routes.KeepAliveController.keepAlive().url),
+            signOutUrl = Some(appConfig.signOutUrl)
+        ))
+    }
 
     @stylesheets()
 }

@@ -32,12 +32,11 @@ class SessionExpiredController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      Ok(view()).withNewSession
+      Ok(view())
   }
 
   def onSubmit(): Action[AnyContent] = Action {
     _ =>
-      val signInUrl = s"${config.manageTransitMovementsUrl}/what-do-you-want-to-do"
-      Redirect(signInUrl)
+      Redirect(s"${config.manageTransitMovementsUrl}/what-do-you-want-to-do")
   }
 }
