@@ -18,11 +18,12 @@
 
 @this(
         main_template: MainTemplate,
+        formHelper: FormWithCSRF,
         heading: Heading,
         button: Button
 )
 
-@(signInUrl: String)(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
 @main_template(
     title = messages("session_expired.title"),
@@ -30,9 +31,11 @@
     canSignOut = false
 ) {
 
-    @heading(messages("session_expired.heading"))
+    @formHelper(action = routes.SessionExpiredController.onSubmit(), 'autoComplete -> "off") {
+        @heading(messages("session_expired.heading"))
 
-    <p class="govuk-body">@messages("session_expired.guidance")</p>
+        <p class="govuk-body">@messages("session_expired.guidance")</p>
 
-    @button(messageKey = "session_expired.button", attributes = Map("id" -> "submit"), href = Some(signInUrl))
+        @button(messageKey = "session_expired.button", attributes = Map("id" -> "submit"))
+    }
 }

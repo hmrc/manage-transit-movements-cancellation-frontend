@@ -21,7 +21,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.SessionExpiredView
-
 import javax.inject.Inject
 
 class SessionExpiredController @Inject() (
@@ -33,8 +32,12 @@ class SessionExpiredController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      val signInUrl = s"${config.manageTransitMovementsUrl}/what-do-you-want-to-do"
+      Ok(view()).withNewSession
+  }
 
-      Ok(view(signInUrl)).withNewSession
+  def onSubmit(): Action[AnyContent] = Action {
+    _ =>
+      val signInUrl = s"${config.manageTransitMovementsUrl}/what-do-you-want-to-do"
+      Redirect(signInUrl)
   }
 }

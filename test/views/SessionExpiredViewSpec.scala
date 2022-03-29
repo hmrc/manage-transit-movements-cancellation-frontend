@@ -22,10 +22,8 @@ import views.html.SessionExpiredView
 
 class SessionExpiredViewSpec extends ViewBehaviours {
 
-  private val signInUrl = "url"
-
   override def view: HtmlFormat.Appendable =
-    injector.instanceOf[SessionExpiredView].apply(signInUrl)(fakeRequest, messages)
+    injector.instanceOf[SessionExpiredView].apply()(fakeRequest, messages)
 
   override val prefix: String = "session_expired"
 
@@ -37,5 +35,5 @@ class SessionExpiredViewSpec extends ViewBehaviours {
 
   behave like pageWithContent("p", "We did not save your answers.")
 
-  behave like pageWithButton("Sign in", signInUrl)
+  behave like pageWithSubmitButton("Sign in")
 }
