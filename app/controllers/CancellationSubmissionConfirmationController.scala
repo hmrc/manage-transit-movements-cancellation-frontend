@@ -24,7 +24,7 @@ import models.response.ResponseDeparture
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.{CanNotCancel, CancellationSubmissionConfirmation}
+import views.html.{CanNotCancelView, CancellationSubmissionConfirmationView}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -35,8 +35,8 @@ class CancellationSubmissionConfirmationController @Inject() (
   departureMovementConnector: DepartureMovementConnector,
   val controllerComponents: MessagesControllerComponents,
   appConfig: FrontendAppConfig,
-  confirmationView: CancellationSubmissionConfirmation,
-  canNotCancelView: CanNotCancel
+  confirmationView: CancellationSubmissionConfirmationView,
+  canNotCancelView: CanNotCancelView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {

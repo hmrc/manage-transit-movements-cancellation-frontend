@@ -20,13 +20,13 @@ import config.FrontendAppConfig
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.DeclarationNotFound
+import views.html.DeclarationNotFoundView
 
 import javax.inject.Inject
 
 class DeclarationNotFoundController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  view: DeclarationNotFound,
+  view: DeclarationNotFoundView,
   appConfig: FrontendAppConfig
 ) extends FrontendBaseController
     with I18nSupport {

@@ -18,14 +18,14 @@ package views
 
 import play.twirl.api.HtmlFormat
 import views.behaviours.ViewBehaviours
-import views.html.SessionExpired
+import views.html.SessionExpiredView
 
-class SessionExpiredSpec extends ViewBehaviours {
+class SessionExpiredViewSpec extends ViewBehaviours {
 
   private val signInUrl = "url"
 
   override def view: HtmlFormat.Appendable =
-    injector.instanceOf[SessionExpired].apply(signInUrl)(fakeRequest, messages)
+    injector.instanceOf[SessionExpiredView].apply(signInUrl)(fakeRequest, messages)
 
   override val prefix: String = "session_expired"
 

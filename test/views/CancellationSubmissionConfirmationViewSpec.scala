@@ -18,14 +18,14 @@ package views
 
 import play.twirl.api.HtmlFormat
 import views.behaviours.PanelViewBehaviours
-import views.html.CancellationSubmissionConfirmation
+import views.html.CancellationSubmissionConfirmationView
 
-class CancellationSubmissionConfirmationSpec extends PanelViewBehaviours {
+class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
 
   private val url = "url"
 
   override def view: HtmlFormat.Appendable =
-    injector.instanceOf[CancellationSubmissionConfirmation].apply(url, lrn)(fakeRequest, messages)
+    injector.instanceOf[CancellationSubmissionConfirmationView].apply(url, lrn)(fakeRequest, messages)
 
   override val prefix: String = "cancellationSubmissionConfirmation"
 
