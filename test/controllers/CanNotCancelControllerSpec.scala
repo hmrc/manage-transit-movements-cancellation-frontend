@@ -26,11 +26,11 @@ class CanNotCancelControllerSpec extends SpecBase {
 
     "must return 400 for a GET" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      dataRetrievalNoData()
 
       val request = FakeRequest(GET, routes.CanNotCancelController.onPageLoad().url)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual BAD_REQUEST
     }

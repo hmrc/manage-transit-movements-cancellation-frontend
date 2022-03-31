@@ -41,8 +41,8 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
   val mockConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
   val validStatus: Seq[DepartureStatus]         = Seq(GuaranteeNotValid, MrnAllocated, NoReleaseForTransit, ControlDecisionNotification)
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     Mockito.reset(mockConnector)
   }
 
