@@ -52,7 +52,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       checkCancellationStatus()
 
-      val userAnswers = UserAnswers(departureId, eoriNumber).set(ConfirmCancellationPage(departureId), true).success.value
+      val userAnswers = emptyUserAnswers.set(ConfirmCancellationPage(departureId), true).success.value
       dataRetrievalWithData(userAnswers)
 
       val request = FakeRequest(GET, confirmCancellationRoute)

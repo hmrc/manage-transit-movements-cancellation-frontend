@@ -40,11 +40,11 @@ trait SpecBase
 
   val departureId: DepartureId = DepartureId(1)
 
+  val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
+
   def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj())
 
   def injector: Injector = app.injector
-
-  val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
 
   def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
 
