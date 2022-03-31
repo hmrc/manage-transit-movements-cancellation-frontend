@@ -56,21 +56,14 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     super.beforeEach()
   }
 
-  def dataRetrievalWithData(userAnswers: UserAnswers): Unit = {
+  def dataRetrievalWithData(userAnswers: UserAnswers): Unit = dataRetrieval(Some(userAnswers))
+
+  def dataRetrievalNoData(): Unit = dataRetrieval(None)
+
+  private def dataRetrieval(userAnswers: Option[UserAnswers]): Unit = {
     val fakeDataRetrievalAction = new ActionTransformer[AuthorisedRequest, OptionalDataRequest] {
       override protected def transform[A](request: AuthorisedRequest[A]): Future[OptionalDataRequest[A]] =
-        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, lrn, Some(userAnswers)))
-
-      override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
-    }
-
-    when(mockDataRetrievalActionProvider.apply(any())).thenReturn(fakeDataRetrievalAction)
-  }
-
-  def dataRetrievalNoData(): Unit = {
-    val fakeDataRetrievalAction = new ActionTransformer[AuthorisedRequest, OptionalDataRequest] {
-      override protected def transform[A](request: AuthorisedRequest[A]): Future[OptionalDataRequest[A]] =
-        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, lrn, None))
+        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, lrn, userAnswers))
 
       override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
     }

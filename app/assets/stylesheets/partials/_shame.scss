@@ -1,0 +1,10 @@
+// ----------------
+// Hide the back link when body does not have .js-enabled
+body:not(.js-enabled) {
+    .govuk-back-link {
+        display: none;
+        visibility: hidden;
+        width: 0;
+        height: 0;
+    }
+}
