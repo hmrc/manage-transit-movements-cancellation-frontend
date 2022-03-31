@@ -21,9 +21,10 @@ import connectors.DepartureMovementConnector
 import models.DepartureStatus.DepartureSubmitted
 import models.response.ResponseDeparture
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -40,43 +41,43 @@ class CancellationSubmissionConfirmationControllerSpec extends SpecBase with Moc
       DepartureSubmitted
     )
 
+  private val mockConnector = mock[DepartureMovementConnector]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConnector)
+  }
+
+  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
+    super
+      .guiceApplicationBuilder()
+      .overrides(bind[DepartureMovementConnector].toInstance(mockConnector))
+
   "CancellationSubmissionConfirmation Controller" - {
 
     "return OK and the correct view for a GET" in {
 
-      val mockConnector = mock[DepartureMovementConnector]
-
       when(mockConnector.getDeparture(any())(any()))
         .thenReturn(Future.successful(Some(mockDepartureResponse)))
 
-      val application = guiceApplicationBuilder().overrides(bind[DepartureMovementConnector].toInstance(mockConnector)).build()
-
       val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual OK
-
-      application.stop()
 
     }
 
     "return Not_Found and the correct view for a GET when departure record is not found" in {
 
-      val mockConnector = mock[DepartureMovementConnector]
-
       when(mockConnector.getDeparture(any())(any()))
         .thenReturn(Future.successful(None))
 
-      val application = guiceApplicationBuilder().overrides(bind[DepartureMovementConnector].toInstance(mockConnector)).build()
-
       val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual NOT_FOUND
-
-      application.stop()
     }
   }
 }

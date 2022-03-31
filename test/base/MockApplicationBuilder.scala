@@ -47,7 +47,7 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
-  override def beforeEach {
+  override def beforeEach(): Unit = {
     Mockito.reset(
       mockDataRetrievalActionProvider,
       mockCheckCancellationStatusProvider,
@@ -103,15 +103,6 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
         bind[CheckCancellationStatusProvider].toInstance(mockCheckCancellationStatusProvider),
         bind[CancellationSubmissionService].toInstance(mockSubmissionService),
         bind[SessionRepository].toInstance(mockSessionRepository)
-      )
-
-  // TODO: Remove and use app from GuiceOneAppPerSuite instead
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalActionProvider].toInstance(new FakeDataRetrievalActionProvider(userAnswers))
       )
 
 }
