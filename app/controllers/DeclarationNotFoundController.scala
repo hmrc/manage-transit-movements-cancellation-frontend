@@ -33,7 +33,6 @@ class DeclarationNotFoundController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      val departuresListUrl = s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-      NotFound(view(departuresListUrl))
+      NotFound(view(appConfig.manageTransitMovementsViewDeparturesUrl))
   }
 }

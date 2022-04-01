@@ -22,9 +22,10 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
+import pages.QuestionPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.Injector
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads, Writes}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 
@@ -53,5 +54,17 @@ trait SpecBase
   def fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
   implicit def messages: Messages = messagesApi.preferred(fakeRequest)
+
+  implicit class RichUserAnswers(userAnswers: UserAnswers) {
+
+    def getValue[T](page: QuestionPage[T])(implicit rds: Reads[T]): T =
+      userAnswers.get(page).value
+
+    def setValue[T](page: QuestionPage[T], value: T)(implicit wts: Writes[T]): UserAnswers =
+      userAnswers.set(page, value).success.value
+
+    def removeValue(page: QuestionPage[_]): UserAnswers =
+      userAnswers.remove(page).success.value
+  }
 
 }

@@ -17,11 +17,9 @@
 package controllers
 
 import base.SpecBase
-import models.UserAnswers
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito.when
 import pages.ConfirmCancellationPage
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
@@ -29,9 +27,7 @@ import scala.concurrent.Future
 
 class ConfirmCancellationControllerSpec extends SpecBase {
 
-  def onwardRoute = Call("GET", "/foo")
-
-  lazy val confirmCancellationRoute = routes.ConfirmCancellationController.onPageLoad(departureId).url
+  private lazy val confirmCancellationRoute: String = routes.ConfirmCancellationController.onPageLoad(departureId).url
 
   "ConfirmCancellation Controller" - {
 
@@ -52,7 +48,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       checkCancellationStatus()
 
-      val userAnswers = emptyUserAnswers.set(ConfirmCancellationPage(departureId), true).success.value
+      val userAnswers = emptyUserAnswers.setValue(ConfirmCancellationPage(departureId), true)
       dataRetrievalWithData(userAnswers)
 
       val request = FakeRequest(GET, confirmCancellationRoute)
@@ -60,7 +56,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
       val result = route(app, request).value
 
       status(result) mustEqual OK
-
     }
 
     "must redirect to the next page when valid data is submitted and user selects Yes" in {
@@ -71,16 +66,14 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      val request =
-        FakeRequest(POST, confirmCancellationRoute)
-          .withFormUrlEncodedBody(("value", "true"))
+      val request = FakeRequest(POST, confirmCancellationRoute)
+        .withFormUrlEncodedBody(("value", "true"))
 
       val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual s"${controllers.routes.CancellationReasonController.onPageLoad(departureId)}"
-
+      redirectLocation(result).value mustEqual routes.CancellationReasonController.onPageLoad(departureId).url
     }
 
     "must redirect to the next page when valid data is submitted and user selects No" in {
@@ -90,16 +83,14 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      val request =
-        FakeRequest(POST, confirmCancellationRoute)
-          .withFormUrlEncodedBody(("value", "false"))
+      val request = FakeRequest(POST, confirmCancellationRoute)
+        .withFormUrlEncodedBody(("value", "false"))
 
       val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
 
       redirectLocation(result).value mustEqual s"${frontendAppConfig.manageTransitMovementsViewDeparturesUrl}"
-
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
@@ -113,7 +104,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
       val result = route(app, request).value
 
       status(result) mustEqual BAD_REQUEST
-
     }
 
   }

@@ -18,11 +18,12 @@ package controllers
 
 import base.SpecBase
 import matchers.JsonMatchers
+import models.UserAnswers
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
-import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import services.responses.InvalidState
@@ -32,13 +33,14 @@ import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
-  def onwardRoute = Call("GET", "/foo")
+  lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
 
-  lazy val cancellationReasonRoute = routes.CancellationReasonController.onPageLoad(departureId).url
+  private val validAnswer = "answer"
 
   "CancellationReason Controller" - {
 
     "must return OK and the correct view for a GET" in {
+
       checkCancellationStatus()
 
       dataRetrievalWithData(emptyUserAnswers)
@@ -47,14 +49,13 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val result  = route(app, request).value
 
       status(result) mustEqual OK
-
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       checkCancellationStatus()
 
-      val userAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "answer").success.value
+      val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage(departureId), validAnswer)
 
       dataRetrievalWithData(userAnswers)
 
@@ -62,7 +63,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val result  = route(app, request).value
 
       status(result) mustEqual OK
-
     }
 
     "must redirect to the next page when valid data is submitted" in {
@@ -76,19 +76,24 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      val request =
-        FakeRequest(POST, cancellationReasonRoute)
-          .withFormUrlEncodedBody(("value", "answer"))
+      val request = FakeRequest(POST, cancellationReasonRoute)
+        .withFormUrlEncodedBody(("value", validAnswer))
 
       val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual s"${controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(departureId)}"
+      redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url
+
+      val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+      verify(mockSessionRepository).set(uaCaptor.capture)
+      uaCaptor.getValue.get(CancellationReasonPage(departureId)).get mustBe validAnswer
     }
 
     "must return InternalServerError when the submission fails" in {
 
       checkCancellationStatus()
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       when(mockSubmissionService.submitCancellation(any())(any()))
         .thenReturn(Future.successful(Left(InvalidState)))
@@ -96,12 +101,15 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, cancellationReasonRoute)
-        .withFormUrlEncodedBody(("value", "answer"))
+        .withFormUrlEncodedBody(("value", validAnswer))
 
       val result = route(app, request).value
 
       status(result) mustEqual INTERNAL_SERVER_ERROR
 
+      val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+      verify(mockSessionRepository).set(uaCaptor.capture)
+      uaCaptor.getValue.get(CancellationReasonPage(departureId)).get mustBe validAnswer
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
@@ -115,7 +123,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val result = route(app, request).value
 
       status(result) mustEqual BAD_REQUEST
-
     }
   }
 }

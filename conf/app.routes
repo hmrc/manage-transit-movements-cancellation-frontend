@@ -11,10 +11,10 @@ GET        /unauthorised                                            controllers.
 GET        /unauthorised-group-access                               controllers.UnauthorisedWithGroupAccessController.onPageLoad()
 
 GET        /:departureId/confirm-cancellation                       controllers.ConfirmCancellationController.onPageLoad(departureId: DepartureId)
-POST       /:departureId/confirm-cancellation                       controllers.ConfirmCancellationController.onSubmit(departureId: DepartureId, mode: Mode = NormalMode)
+POST       /:departureId/confirm-cancellation                       controllers.ConfirmCancellationController.onSubmit(departureId: DepartureId)
 
 GET        /:departureId/cancellation-reason                        controllers.CancellationReasonController.onPageLoad(departureId: DepartureId)
-POST       /:departureId/cancellation-reason                        controllers.CancellationReasonController.onSubmit(departureId: DepartureId, mode: Mode = NormalMode)
+POST       /:departureId/cancellation-reason                        controllers.CancellationReasonController.onSubmit(departureId: DepartureId)
 
 GET        /:departureId/cancellation-submission-confirmation       controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: DepartureId)
 

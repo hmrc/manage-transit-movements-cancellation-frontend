@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions._
 import forms.ConfirmCancellationFormProvider
-import models.{DepartureId, Mode, UserAnswers}
+import models.{DepartureId, UserAnswers}
 import navigation.Navigator
 import pages.ConfirmCancellationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -47,12 +47,12 @@ class ConfirmCancellationController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
+    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)) {
       implicit request =>
-        Future.successful(Ok(view(form, departureId, request.lrn)))
+        Ok(view(form, departureId, request.lrn))
     }
 
-  def onSubmit(departureId: DepartureId, mode: Mode): Action[AnyContent] =
+  def onSubmit(departureId: DepartureId): Action[AnyContent] =
     (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
       implicit request =>
         form
@@ -60,14 +60,11 @@ class ConfirmCancellationController @Inject() (
           .fold(
             formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
             value => {
-              val userAnswers = request.userAnswers match {
-                case Some(value) => value
-                case None        => UserAnswers(departureId, request.eoriNumber)
-              }
+              val userAnswers = request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber))
               for {
                 updatedAnswers <- Future.fromTry(userAnswers.set(ConfirmCancellationPage(departureId), value))
                 _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), mode, updatedAnswers, departureId))
+              } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId))
             }
           )
     }
