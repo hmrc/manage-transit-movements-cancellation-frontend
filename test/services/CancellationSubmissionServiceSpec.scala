@@ -132,7 +132,7 @@ class CancellationSubmissionServiceSpec extends SpecBase {
       when(mockDepartureConnector.submitCancellation(eqTo(departureId), any())(any()))
         .thenReturn(Future.successful(Right(response)))
 
-      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "some value")
 
       service.submitCancellation(userAnswers).futureValue mustBe Right(response)
     }
@@ -152,7 +152,7 @@ class CancellationSubmissionServiceSpec extends SpecBase {
       when(mockDepartureConnector.submitCancellation(eqTo(departureId), any())(any()))
         .thenReturn(Future.successful(Left(InvalidStatus(Helpers.INTERNAL_SERVER_ERROR))))
 
-      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "some value")
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
@@ -170,7 +170,7 @@ class CancellationSubmissionServiceSpec extends SpecBase {
       when(mockDepartureConnector.getMrnAllocatedMessage(eqTo(departureId), eqTo("theSecondUrl"))(any()))
         .thenReturn(Future.successful(Left(MalformedBody)))
 
-      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "some value")
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
@@ -185,7 +185,7 @@ class CancellationSubmissionServiceSpec extends SpecBase {
 
       when(mockDepartureConnector.getMessageSummary(eqTo(departureId))(any())).thenReturn(Future.successful(Right(messageSummary)))
 
-      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "some value")
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
@@ -193,7 +193,7 @@ class CancellationSubmissionServiceSpec extends SpecBase {
     "return an invalid state if get messages fails" in new Setup {
       when(mockDepartureConnector.getMessageSummary(eqTo(departureId))(any())).thenReturn(Future.successful(Left(InvalidStatus(Helpers.INTERNAL_SERVER_ERROR))))
 
-      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "some value")
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }

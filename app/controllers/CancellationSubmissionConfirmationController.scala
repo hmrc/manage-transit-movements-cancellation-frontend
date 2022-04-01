@@ -43,7 +43,7 @@ class CancellationSubmissionConfirmationController @Inject() (
 
   def onPageLoad(departureId: DepartureId): Action[AnyContent] = identify.async {
     implicit request =>
-      val departureListUrl = s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
+      lazy val departureListUrl = appConfig.manageTransitMovementsViewDeparturesUrl
 
       departureMovementConnector.getDeparture(departureId).map {
         case Some(responseDeparture: ResponseDeparture) =>

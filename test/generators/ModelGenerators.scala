@@ -20,7 +20,6 @@ import models._
 import org.scalacheck.Arbitrary
 
 trait ModelGenerators extends UserAnswersEntryGenerators {
-
   self: Generators =>
 
   implicit lazy val arbitraryDepartureId: Arbitrary[DepartureId] =

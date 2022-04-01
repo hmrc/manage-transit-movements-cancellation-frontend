@@ -33,7 +33,6 @@ class CanNotCancelController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      val departuresListUrl = s"${appConfig.manageTransitMovementsViewDeparturesUrl}"
-      BadRequest(view(departuresListUrl))
+      BadRequest(view(appConfig.manageTransitMovementsViewDeparturesUrl))
   }
 }

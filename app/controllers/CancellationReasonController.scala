@@ -20,11 +20,12 @@ import config.FrontendAppConfig
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
-import models.{DepartureId, Mode}
+import models.DepartureId
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.CancellationSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.{CancellationReasonView, TechnicalDifficultiesView}
@@ -34,10 +35,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
-  identify: IdentifierAction,
-  checkCancellationStatus: CheckCancellationStatusProvider,
-  getData: DataRetrievalActionProvider,
-  requireData: DataRequiredAction,
+  actions: Actions,
+  sessionRepository: SessionRepository,
   navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
   cancellationSubmissionService: CancellationSubmissionService,
@@ -51,30 +50,30 @@ class CancellationReasonController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
-      implicit request =>
-        Future.successful(Ok(view(form, departureId, request.lrn, commentMaxLength)))
-    }
+  def onPageLoad(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId) {
+    implicit request =>
+      val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+      Ok(view(preparedForm, departureId, request.lrn, commentMaxLength))
+  }
 
-  def onSubmit(departureId: DepartureId, mode: Mode): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
-
-      implicit request =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn, commentMaxLength))),
-            value =>
-              Future
-                .fromTry(request.userAnswers.set(CancellationReasonPage(departureId), value))
-                .flatMap(
-                  updatedAnswers =>
-                    cancellationSubmissionService.submitCancellation(updatedAnswers).flatMap {
-                      case Right(_) => Future.successful(Redirect(navigator.nextPage(CancellationReasonPage(departureId), mode, updatedAnswers, departureId)))
-                      case Left(_)  => Future.successful(InternalServerError(technicalDifficulties(appConfig.contactHost)))
-                    }
-                )
-          )
-    }
+  def onSubmit(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId).async {
+    implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn, commentMaxLength))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+              response       <- cancellationSubmissionService.submitCancellation(updatedAnswers)
+            } yield response match {
+              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+              case Left(_)  => InternalServerError(technicalDifficulties(appConfig.contactHost))
+            }
+        )
+  }
 }

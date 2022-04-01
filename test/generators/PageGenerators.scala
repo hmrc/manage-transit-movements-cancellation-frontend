@@ -16,17 +16,15 @@
 
 package generators
 
-import models.DepartureId
 import org.scalacheck.Arbitrary
 import pages._
 
 trait PageGenerators {
-
   self: Generators =>
 
-  implicit lazy val arbitraryCancellationReasonPage: Arbitrary[CancellationReasonPage] =
-    Arbitrary(CancellationReasonPage(DepartureId(1)))
+  implicit lazy val arbitraryCancellationReasonPage: Arbitrary[CancellationReasonPage.type] =
+    Arbitrary(CancellationReasonPage)
 
-  implicit lazy val arbitraryConfirmCancellationPage: Arbitrary[ConfirmCancellationPage] =
-    Arbitrary(ConfirmCancellationPage(DepartureId(1)))
+  implicit lazy val arbitraryConfirmCancellationPage: Arbitrary[ConfirmCancellationPage.type] =
+    Arbitrary(ConfirmCancellationPage)
 }

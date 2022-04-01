@@ -17,20 +17,18 @@
 package navigation
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.routes
 import generators.Generators
 import models._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages._
+import play.api.mvc.Call
+import uk.gov.hmrc.http.HttpVerbs.GET
 
 class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
 
-  val appConfig = app.injector.instanceOf[FrontendAppConfig]
-
-  private val navigator: Navigator   = new Navigator(appConfig)
-  private val viewDepartures: String = s"${frontendAppConfig.manageTransitMovementsViewDeparturesUrl}"
+  private val navigator: Navigator = new Navigator(frontendAppConfig)
 
   "Navigator" - {
     "must go from a page that doesn't exist in the route map to Index" in {
@@ -40,9 +38,8 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           navigator
-            .nextPage(UnknownPage, NormalMode, answers, departureId)
+            .nextPage(UnknownPage, answers, departureId)
             .mustBe(routes.ConfirmCancellationController.onPageLoad(departureId))
-
       }
     }
 
@@ -50,11 +47,9 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           val updatedAnswers = answers
-            .set(ConfirmCancellationPage(departureId), true)
-            .success
-            .value
+            .setValue(ConfirmCancellationPage, true)
           navigator
-            .nextPage(ConfirmCancellationPage(departureId), NormalMode, updatedAnswers, departureId)
+            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId)
             .mustBe(routes.CancellationReasonController.onPageLoad(departureId))
       }
     }
@@ -63,13 +58,10 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           val updatedAnswers = answers
-            .set(ConfirmCancellationPage(departureId), false)
-            .success
-            .value
+            .setValue(ConfirmCancellationPage, false)
           navigator
-            .nextPage(ConfirmCancellationPage(departureId), NormalMode, updatedAnswers, departureId)
-            .url
-            .mustBe(viewDepartures)
+            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId)
+            .mustBe(Call(GET, frontendAppConfig.manageTransitMovementsViewDeparturesUrl))
       }
     }
 
@@ -77,11 +69,9 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           val updatedAnswers = answers
-            .set(CancellationReasonPage(departureId), "Test reason")
-            .success
-            .value
+            .setValue(CancellationReasonPage, "Test reason")
           navigator
-            .nextPage(CancellationReasonPage(departureId), NormalMode, updatedAnswers, departureId)
+            .nextPage(CancellationReasonPage, updatedAnswers, departureId)
             .mustBe(routes.CancellationSubmissionConfirmationController.onPageLoad(departureId))
       }
     }

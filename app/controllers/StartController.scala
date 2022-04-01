@@ -16,22 +16,30 @@
 
 package controllers
 
-import controllers.actions.IdentifierAction
-import play.api.i18n.I18nSupport
+import controllers.actions._
+import models.{DepartureId, UserAnswers}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
-class KeepAliveController @Inject() (
-  identify: IdentifierAction,
+class StartController @Inject() (
+  override val messagesApi: MessagesApi,
+  actions: Actions,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents
-) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
-  def keepAlive: Action[AnyContent] =
-    identify {
-      _ =>
-        NoContent
-    }
+  def start(departureId: DepartureId): Action[AnyContent] = actions.getData(departureId).async {
+    implicit request =>
+      sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber))) map {
+        _ =>
+          Redirect(routes.ConfirmCancellationController.onPageLoad(departureId))
+      }
+  }
 }
