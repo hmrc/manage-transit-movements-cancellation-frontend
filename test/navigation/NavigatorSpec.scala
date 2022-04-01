@@ -47,9 +47,9 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           val updatedAnswers = answers
-            .setValue(ConfirmCancellationPage(departureId), true)
+            .setValue(ConfirmCancellationPage, true)
           navigator
-            .nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId)
+            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId)
             .mustBe(routes.CancellationReasonController.onPageLoad(departureId))
       }
     }
@@ -58,9 +58,9 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           val updatedAnswers = answers
-            .setValue(ConfirmCancellationPage(departureId), false)
+            .setValue(ConfirmCancellationPage, false)
           navigator
-            .nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId)
+            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId)
             .mustBe(Call(GET, frontendAppConfig.manageTransitMovementsViewDeparturesUrl))
       }
     }
@@ -69,9 +69,9 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           val updatedAnswers = answers
-            .setValue(CancellationReasonPage(departureId), "Test reason")
+            .setValue(CancellationReasonPage, "Test reason")
           navigator
-            .nextPage(CancellationReasonPage(departureId), updatedAnswers, departureId)
+            .nextPage(CancellationReasonPage, updatedAnswers, departureId)
             .mustBe(routes.CancellationSubmissionConfirmationController.onPageLoad(departureId))
       }
     }

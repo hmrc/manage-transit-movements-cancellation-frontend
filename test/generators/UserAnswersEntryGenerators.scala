@@ -22,21 +22,20 @@ import pages._
 import play.api.libs.json.{JsValue, Json}
 
 trait UserAnswersEntryGenerators extends PageGenerators {
-
   self: Generators =>
 
-  implicit lazy val arbitraryCancellationReasonAnswersEntry: Arbitrary[(CancellationReasonPage, JsValue)] =
+  implicit lazy val arbitraryCancellationReasonAnswersEntry: Arbitrary[(CancellationReasonPage.type, JsValue)] =
     Arbitrary {
       for {
-        page  <- arbitrary[CancellationReasonPage]
+        page  <- arbitrary[CancellationReasonPage.type]
         value <- arbitrary[String].suchThat(_.nonEmpty).map(Json.toJson(_))
       } yield (page, value)
     }
 
-  implicit lazy val arbitraryConfirmCancellationUserAnswersEntry: Arbitrary[(ConfirmCancellationPage, JsValue)] =
+  implicit lazy val arbitraryConfirmCancellationUserAnswersEntry: Arbitrary[(ConfirmCancellationPage.type, JsValue)] =
     Arbitrary {
       for {
-        page  <- arbitrary[ConfirmCancellationPage]
+        page  <- arbitrary[ConfirmCancellationPage.type]
         value <- arbitrary[Boolean].map(Json.toJson(_))
       } yield (page, value)
     }

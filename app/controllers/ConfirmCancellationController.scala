@@ -46,7 +46,7 @@ class ConfirmCancellationController @Inject() (
 
   def onPageLoad(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(ConfirmCancellationPage(departureId)) match {
+      val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -61,9 +61,9 @@ class ConfirmCancellationController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmCancellationPage(departureId), value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmCancellationPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId))
+            } yield Redirect(navigator.nextPage(ConfirmCancellationPage, updatedAnswers, departureId))
         )
   }
 }

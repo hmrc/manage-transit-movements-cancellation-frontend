@@ -27,16 +27,16 @@ import uk.gov.hmrc.http.HttpVerbs.GET
 @Singleton
 class Navigator @Inject() (val appConfig: FrontendAppConfig) {
 
-  protected def normalRoutes: PartialFunction[Page, UserAnswers => Option[Call]] = {
+  protected def normalRoutes(departureId: DepartureId): PartialFunction[Page, UserAnswers => Option[Call]] = {
 
-    case ConfirmCancellationPage(departureId) =>
+    case ConfirmCancellationPage =>
       ua => confirmCancellationRoute(ua, departureId)
-    case CancellationReasonPage(departureId) =>
+    case CancellationReasonPage =>
       _ => Some(routes.CancellationSubmissionConfirmationController.onPageLoad(departureId))
   }
 
   def confirmCancellationRoute(ua: UserAnswers, departureId: DepartureId): Option[Call] =
-    ua.get(ConfirmCancellationPage(departureId)) map {
+    ua.get(ConfirmCancellationPage) map {
       case true  => routes.CancellationReasonController.onPageLoad(departureId)
       case false => Call(GET, appConfig.manageTransitMovementsViewDeparturesUrl)
     }
@@ -48,7 +48,7 @@ class Navigator @Inject() (val appConfig: FrontendAppConfig) {
     }
 
   def nextPage(page: Page, userAnswers: UserAnswers, departureId: DepartureId): Call =
-    normalRoutes.lift(page) match {
+    normalRoutes(departureId).lift(page) match {
       case None       => routes.ConfirmCancellationController.onPageLoad(departureId)
       case Some(call) => handleCall(userAnswers, call)
     }

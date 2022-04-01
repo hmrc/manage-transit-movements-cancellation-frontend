@@ -36,7 +36,7 @@ class CancellationSubmissionService @Inject() (
 
   def submitCancellation(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Either[ServiceErrorResponse, HttpResponse]] =
     userAnswers
-      .get(CancellationReasonPage(userAnswers.id))
+      .get(CancellationReasonPage)
       .map(
         cancellationReason =>
           connector.getMessageSummary(userAnswers.id).flatMap {

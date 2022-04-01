@@ -16,10 +16,9 @@
 
 package pages
 
-import models.DepartureId
 import play.api.libs.json.JsPath
 
-case class CancellationReasonPage(departureId: DepartureId) extends QuestionPage[String] {
+case object CancellationReasonPage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ toString
 

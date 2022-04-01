@@ -52,7 +52,7 @@ class CancellationReasonController @Inject() (
 
   def onPageLoad(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(CancellationReasonPage(departureId)) match {
+      val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -67,11 +67,11 @@ class CancellationReasonController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn, commentMaxLength))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage(departureId), value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
               _              <- sessionRepository.set(updatedAnswers)
               response       <- cancellationSubmissionService.submitCancellation(updatedAnswers)
             } yield response match {
-              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage(departureId), updatedAnswers, departureId))
+              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
               case Left(_)  => InternalServerError(technicalDifficulties(appConfig.contactHost))
             }
         )

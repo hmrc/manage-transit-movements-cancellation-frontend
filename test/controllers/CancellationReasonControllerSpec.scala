@@ -66,7 +66,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       checkCancellationStatus()
 
-      val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage(departureId), validAnswer)
+      val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, validAnswer)
 
       dataRetrievalWithData(userAnswers)
 
@@ -101,7 +101,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
       verify(mockSessionRepository).set(uaCaptor.capture)
-      uaCaptor.getValue.get(CancellationReasonPage(departureId)).get mustBe validAnswer
+      uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
     }
 
     "must return InternalServerError when the submission fails" in {
@@ -122,7 +122,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
       verify(mockSessionRepository).set(uaCaptor.capture)
-      uaCaptor.getValue.get(CancellationReasonPage(departureId)).get mustBe validAnswer
+      uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
