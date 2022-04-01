@@ -56,7 +56,11 @@ class CancellationReasonController @Inject() (
   def onPageLoad(departureId: DepartureId): Action[AnyContent] =
     (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData) {
       implicit request =>
-        Ok(view(form, departureId, request.lrn, commentMaxLength))
+        val preparedForm = request.userAnswers.get(CancellationReasonPage(departureId)) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(preparedForm, departureId, request.lrn, commentMaxLength))
     }
 
   def onSubmit(departureId: DepartureId): Action[AnyContent] =

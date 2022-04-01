@@ -28,4 +28,6 @@ GET        /technical-difficulties                                  controllers.
 GET        /internal-server-error                                   controllers.ErrorController.internalServerError()
 
 
-->         /hmrc-frontend                      hmrcfrontend.Routes
+->         /hmrc-frontend                                           hmrcfrontend.Routes
+
+GET        /:departureId                                            controllers.StartController.start(departureId: DepartureId)

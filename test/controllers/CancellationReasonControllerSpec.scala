@@ -17,23 +17,28 @@
 package controllers
 
 import base.SpecBase
+import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
+import models.Constants.commentMaxLength
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
+import play.api.data.Form
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import services.responses.InvalidState
 import uk.gov.hmrc.http.HttpResponse
+import views.html.CancellationReasonView
 
 import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
-  lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
+  private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
+  private val form: Form[String]                   = new CancellationReasonFormProvider()()
 
   private val validAnswer = "answer"
 
@@ -46,9 +51,15 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(GET, cancellationReasonRoute)
-      val result  = route(app, request).value
+
+      val result = route(app, request).value
+
+      val view = injector.instanceOf[CancellationReasonView]
 
       status(result) mustEqual OK
+
+      contentAsString(result) mustEqual
+        view(form, departureId, lrn, commentMaxLength)(request, messages).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -60,16 +71,20 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       dataRetrievalWithData(userAnswers)
 
       val request = FakeRequest(GET, cancellationReasonRoute)
-      val result  = route(app, request).value
+
+      val result = route(app, request).value
+
+      val view = injector.instanceOf[CancellationReasonView]
 
       status(result) mustEqual OK
+
+      contentAsString(result) mustEqual
+        view(form.fill(validAnswer), departureId, lrn, commentMaxLength)(request, messages).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
       checkCancellationStatus()
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       when(mockSubmissionService.submitCancellation(any())(any()))
         .thenReturn(Future.successful(Right(HttpResponse(Helpers.ACCEPTED, ""))))
@@ -92,8 +107,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
     "must return InternalServerError when the submission fails" in {
 
       checkCancellationStatus()
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       when(mockSubmissionService.submitCancellation(any())(any()))
         .thenReturn(Future.successful(Left(InvalidState)))
@@ -123,6 +136,34 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val result = route(app, request).value
 
       status(result) mustEqual BAD_REQUEST
+    }
+
+    "redirect to Session Expired for a GET if no existing data is found" in {
+
+      checkCancellationStatus()
+      dataRetrievalNoData()
+
+      val request = FakeRequest(GET, cancellationReasonRoute)
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+    }
+
+    "redirect to Session Expired for a POST if no existing data is found" in {
+
+      checkCancellationStatus()
+      dataRetrievalNoData()
+
+      val request = FakeRequest(POST, cancellationReasonRoute)
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
     }
   }
 }

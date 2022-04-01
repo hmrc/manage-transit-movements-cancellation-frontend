@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions._
 import forms.ConfirmCancellationFormProvider
-import models.{DepartureId, UserAnswers}
+import models.DepartureId
 import navigation.Navigator
 import pages.ConfirmCancellationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -38,6 +38,7 @@ class ConfirmCancellationController @Inject() (
   checkCancellationStatus: CheckCancellationStatusProvider,
   navigator: Navigator,
   getData: DataRetrievalActionProvider,
+  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: ConfirmCancellationView
 )(implicit ec: ExecutionContext)
@@ -47,25 +48,27 @@ class ConfirmCancellationController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)) {
+    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData) {
       implicit request =>
-        Ok(view(form, departureId, request.lrn))
+        val preparedForm = request.userAnswers.get(ConfirmCancellationPage(departureId)) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(preparedForm, departureId, request.lrn))
     }
 
   def onSubmit(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
+    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
       implicit request =>
         form
           .bindFromRequest()
           .fold(
             formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
-            value => {
-              val userAnswers = request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber))
+            value =>
               for {
-                updatedAnswers <- Future.fromTry(userAnswers.set(ConfirmCancellationPage(departureId), value))
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmCancellationPage(departureId), value))
                 _              <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId))
-            }
           )
     }
 }

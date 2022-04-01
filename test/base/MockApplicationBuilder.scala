@@ -48,12 +48,15 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
   override def beforeEach(): Unit = {
+    super.beforeEach()
+
     Mockito.reset(
       mockDataRetrievalActionProvider,
       mockCheckCancellationStatusProvider,
       mockSessionRepository
     )
-    super.beforeEach()
+
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
   }
 
   def dataRetrievalWithData(userAnswers: UserAnswers): Unit = dataRetrieval(Some(userAnswers))
