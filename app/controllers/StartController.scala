@@ -28,21 +28,18 @@ import scala.concurrent.ExecutionContext
 
 class StartController @Inject() (
   override val messagesApi: MessagesApi,
-  identify: IdentifierAction,
+  actions: Actions,
   sessionRepository: SessionRepository,
-  checkCancellationStatus: CheckCancellationStatusProvider,
-  getData: DataRetrievalActionProvider,
   val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def start(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId)).async {
-      implicit request =>
-        sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber))) map {
-          _ =>
-            Redirect(routes.ConfirmCancellationController.onPageLoad(departureId))
-        }
-    }
+  def start(departureId: DepartureId): Action[AnyContent] = actions.getData(departureId).async {
+    implicit request =>
+      sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber))) map {
+        _ =>
+          Redirect(routes.ConfirmCancellationController.onPageLoad(departureId))
+      }
+  }
 }

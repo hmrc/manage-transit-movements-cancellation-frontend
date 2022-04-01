@@ -32,13 +32,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmCancellationController @Inject() (
   override val messagesApi: MessagesApi,
-  identify: IdentifierAction,
+  actions: Actions,
   sessionRepository: SessionRepository,
   formProvider: ConfirmCancellationFormProvider,
-  checkCancellationStatus: CheckCancellationStatusProvider,
   navigator: Navigator,
-  getData: DataRetrievalActionProvider,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: ConfirmCancellationView
 )(implicit ec: ExecutionContext)
@@ -47,28 +44,26 @@ class ConfirmCancellationController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData) {
-      implicit request =>
-        val preparedForm = request.userAnswers.get(ConfirmCancellationPage(departureId)) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
-        Ok(view(preparedForm, departureId, request.lrn))
-    }
+  def onPageLoad(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId) {
+    implicit request =>
+      val preparedForm = request.userAnswers.get(ConfirmCancellationPage(departureId)) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+      Ok(view(preparedForm, departureId, request.lrn))
+  }
 
-  def onSubmit(departureId: DepartureId): Action[AnyContent] =
-    (identify andThen checkCancellationStatus(departureId) andThen getData(departureId) andThen requireData).async {
-      implicit request =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmCancellationPage(departureId), value))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId))
-          )
-    }
+  def onSubmit(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId).async {
+    implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmCancellationPage(departureId), value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(ConfirmCancellationPage(departureId), updatedAnswers, departureId))
+        )
+  }
 }
