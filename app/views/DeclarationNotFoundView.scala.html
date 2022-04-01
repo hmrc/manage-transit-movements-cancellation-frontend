@@ -15,22 +15,29 @@
  *@
 
 @import views.html.components.Heading
+@import config.FrontendAppConfig
 
 @this(
         main_template: MainTemplate,
-        heading: Heading
+        heading: Heading,
+        config: FrontendAppConfig
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(departureList: String)(implicit request: Request[_], messages: Messages)
 
 @main_template(
-    title = messages("pageNotFound.title"),
+    title = messages("canNotCancel.title"),
     showBackLink = true
 ) {
-    @heading(messages("pageNotFound.heading"))
-    <p class="govuk-body">@messages("pageNotFound.paragraph1")</p>
-    <p class="govuk-body">@messages("pageNotFound.paragraph2")</p>
-    <p class="govuk-body">@messages("pageNotFound.paragraph3Start")
-    <a rel="noreferrer noopener" href="https://www.gov.uk/new-computerised-transit-system" target="_blank" class="govuk-link">@messages("pageNotFound.contactLink")</a>.
+
+    @heading(messages("canNotCancel.heading"))
+
+    <p class="govuk-body">@messages("canNotCancel.declarationNotFound")
+        <a rel="noreferrer noopener" href=@config.nctsHelpdeskUrl target="_blank" class="govuk-link" id="contact">
+        @messages("canNotCancel.contactLink")</a>.
+    </p>
+
+    <p class="govuk-body">
+        <a id="manage-transit-movements" href=@departureList class="govuk-link">@messages("canNotCancel.linkText")</a>
     </p>
 }

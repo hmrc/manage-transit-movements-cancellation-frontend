@@ -16,18 +16,14 @@
 
 package services
 
+import base.SpecBase
 import connectors.DepartureMovementConnector
 import connectors.responses.{InvalidStatus, MalformedBody}
 import models.response.{MRNAllocatedMessage, MRNAllocatedRootLevel, MessageSummary, PrincipalTraderDetails}
-import models.{DepartureId, EoriNumber, UserAnswers}
+import models.{DepartureId, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.TryValues
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Span}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
 import play.api.test.Helpers
 import services.responses.InvalidState
@@ -36,19 +32,20 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.xml.Elem
 
-class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures with TryValues {
+class CancellationSubmissionServiceSpec extends SpecBase {
 
   implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(300, Millis))
 
   trait Setup {
     val mockDepartureConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
-    val date                                               = LocalDate.now()
+    val date: LocalDate                                    = LocalDate.now()
     lazy val service                                       = new CancellationSubmissionService(mockDepartureConnector, () => date)
     val departureId: DepartureId                           = DepartureId(1)
     implicit val hc: HeaderCarrier                         = HeaderCarrier()
 
-    val mrnAllocatedMessage = <CC028B>
+    val mrnAllocatedMessage: Elem = <CC028B>
       <SynIdeMES1>SynIdeMES1</SynIdeMES1>
       <SynVerNumMES2>SynVerNumMES2</SynVerNumMES2>
       <MesSenMES3>MesSenMES3</MesSenMES3>
@@ -87,7 +84,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
       </CUSOFFDEPEPT>
     </CC028B>
 
-    val mrnAllocatedModel = MRNAllocatedMessage(
+    val mrnAllocatedModel: MRNAllocatedMessage = MRNAllocatedMessage(
       MRNAllocatedRootLevel(
         "SynIdeMES1",
         "SynVerNumMES2",
@@ -127,7 +124,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
         )
       )
 
-      val response = HttpResponse(Helpers.NO_CONTENT, "")
+      val response: HttpResponse = HttpResponse(Helpers.NO_CONTENT, "")
 
       when(mockDepartureConnector.getMessageSummary(eqTo(departureId))(any())).thenReturn(Future.successful(Right(messageSummary)))
       when(mockDepartureConnector.getMrnAllocatedMessage(eqTo(departureId), eqTo("theSecondUrl"))(any()))
@@ -135,7 +132,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
       when(mockDepartureConnector.submitCancellation(eqTo(departureId), any())(any()))
         .thenReturn(Future.successful(Right(response)))
 
-      val userAnswers: UserAnswers = UserAnswers(departureId, EoriNumber("12345")).set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
 
       service.submitCancellation(userAnswers).futureValue mustBe Right(response)
     }
@@ -155,7 +152,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
       when(mockDepartureConnector.submitCancellation(eqTo(departureId), any())(any()))
         .thenReturn(Future.successful(Left(InvalidStatus(Helpers.INTERNAL_SERVER_ERROR))))
 
-      val userAnswers: UserAnswers = UserAnswers(departureId, EoriNumber("12345")).set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
@@ -173,7 +170,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
       when(mockDepartureConnector.getMrnAllocatedMessage(eqTo(departureId), eqTo("theSecondUrl"))(any()))
         .thenReturn(Future.successful(Left(MalformedBody)))
 
-      val userAnswers: UserAnswers = UserAnswers(departureId, EoriNumber("12345")).set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
@@ -188,7 +185,7 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
 
       when(mockDepartureConnector.getMessageSummary(eqTo(departureId))(any())).thenReturn(Future.successful(Right(messageSummary)))
 
-      val userAnswers: UserAnswers = UserAnswers(departureId, EoriNumber("12345")).set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
@@ -196,13 +193,13 @@ class CancellationSubmissionServiceSpec extends AnyFreeSpec with Matchers with M
     "return an invalid state if get messages fails" in new Setup {
       when(mockDepartureConnector.getMessageSummary(eqTo(departureId))(any())).thenReturn(Future.successful(Left(InvalidStatus(Helpers.INTERNAL_SERVER_ERROR))))
 
-      val userAnswers: UserAnswers = UserAnswers(departureId, EoriNumber("12345")).set(CancellationReasonPage(departureId), "some value").success.value
+      val userAnswers: UserAnswers = emptyUserAnswers.set(CancellationReasonPage(departureId), "some value").success.value
 
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
 
     "return an invalid state if no cancellation reason is found" in new Setup {
-      val userAnswers: UserAnswers = UserAnswers(departureId, EoriNumber("12345"))
+      val userAnswers: UserAnswers = emptyUserAnswers
       service.submitCancellation(userAnswers).futureValue mustBe Left(InvalidState)
     }
   }

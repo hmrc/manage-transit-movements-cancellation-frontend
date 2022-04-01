@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package controllers
+@this()
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+@()(implicit request: Request[_])
 
-class CanNotCancelControllerSpec extends SpecBase {
-
-  "CanNotCancel Controller" - {
-
-    "must return 400 for a GET" in {
-
-      dataRetrievalNoData()
-
-      val request = FakeRequest(GET, routes.CanNotCancelController.onPageLoad().url)
-
-      val result = route(app, request).value
-
-      status(result) mustEqual BAD_REQUEST
-    }
-  }
-}
+<script src='https://code.jquery.com/jquery-3.6.0.min.js' type='text/javascript' integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous' @{CSPNonce.attr}></script>
+<script src='@routes.Assets.versioned("javascripts/ctc.min.js")' type='text/javascript' @{CSPNonce.attr}></script>

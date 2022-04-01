@@ -28,11 +28,11 @@ class ErrorControllerSpec extends SpecBase {
 
       "must return BadRequest" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        dataRetrievalNoData()
 
         val request = FakeRequest(GET, routes.ErrorController.badRequest().url)
 
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual BAD_REQUEST
       }
@@ -42,11 +42,11 @@ class ErrorControllerSpec extends SpecBase {
 
       "must return notFound" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        dataRetrievalNoData()
 
         val request = FakeRequest(GET, routes.ErrorController.notFound().url)
 
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual NOT_FOUND
       }
@@ -56,11 +56,11 @@ class ErrorControllerSpec extends SpecBase {
 
       "must return InternalServerError" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        dataRetrievalNoData()
 
         val request = FakeRequest(GET, routes.ErrorController.technicalDifficulties().url)
 
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
       }
@@ -70,11 +70,11 @@ class ErrorControllerSpec extends SpecBase {
 
       "must return InternalServerError" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        dataRetrievalNoData()
 
         val request = FakeRequest(GET, routes.ErrorController.internalServerError().url)
 
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
       }

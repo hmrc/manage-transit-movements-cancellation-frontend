@@ -21,7 +21,7 @@ import connectors.DepartureMovementConnector
 import models.DepartureStatus.{ControlDecisionNotification, GuaranteeNotValid, MrnAllocated, NoReleaseForTransit, WriteOffNotification}
 import models.requests.IdentifierRequest
 import models.response.ResponseDeparture
-import models.{DepartureId, DepartureStatus, EoriNumber, LocalReferenceNumber}
+import models.{DepartureId, DepartureStatus, EoriNumber}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
@@ -41,8 +41,8 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
   val mockConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
   val validStatus: Seq[DepartureStatus]         = Seq(GuaranteeNotValid, MrnAllocated, NoReleaseForTransit, ControlDecisionNotification)
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     Mockito.reset(mockConnector)
   }
 
@@ -56,7 +56,7 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
         departureStatus =>
           val mockDepartureResponse: ResponseDeparture =
             ResponseDeparture(
-              LocalReferenceNumber("lrn"),
+              lrn,
               departureStatus
             )
 
@@ -77,7 +77,7 @@ class CancellationStatusActionSpec extends SpecBase with BeforeAndAfterEach with
     "will get a 303 and will load the cannot cancel page when the departure status is invalid" in {
       val mockDepartureResponse: ResponseDeparture =
         ResponseDeparture(
-          LocalReferenceNumber("lrn"),
+          lrn,
           WriteOffNotification
         )
 

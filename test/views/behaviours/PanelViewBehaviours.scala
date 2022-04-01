@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package views.behaviours
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+trait PanelViewBehaviours extends ViewBehaviours {
 
-class CanNotCancelControllerSpec extends SpecBase {
+  def pageWithPanel(body: String): Unit =
+    "page with a panel" - {
+      "when rendered" - {
 
-  "CanNotCancel Controller" - {
+        "must have a panel" in {
+          assertRenderedByCssSelector(doc, ".govuk-panel")
+        }
 
-    "must return 400 for a GET" in {
-
-      dataRetrievalNoData()
-
-      val request = FakeRequest(GET, routes.CanNotCancelController.onPageLoad().url)
-
-      val result = route(app, request).value
-
-      status(result) mustEqual BAD_REQUEST
+        "must have a body" in {
+          val panelBody = getElementByClass(doc, "govuk-panel__body")
+          panelBody.text() mustBe body
+        }
+      }
     }
-  }
 }

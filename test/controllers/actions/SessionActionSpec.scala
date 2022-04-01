@@ -39,9 +39,9 @@ class SessionActionSpec extends SpecBase {
 
       "must redirect to the session expired page" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        dataRetrievalNoData()
 
-        val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+        val bodyParsers = injector.instanceOf[BodyParsers.Default]
 
         val sessionAction = new SessionIdentifierAction(bodyParsers)
 
@@ -58,9 +58,9 @@ class SessionActionSpec extends SpecBase {
 
       "must perform the action" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        dataRetrievalNoData()
 
-        val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+        val bodyParsers = injector.instanceOf[BodyParsers.Default]
 
         val sessionAction = new SessionIdentifierAction(bodyParsers)
 

@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package views
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.twirl.api.HtmlFormat
+import views.behaviours.ViewBehaviours
+import views.html.SessionExpiredView
 
-class CanNotCancelControllerSpec extends SpecBase {
+class SessionExpiredViewSpec extends ViewBehaviours {
 
-  "CanNotCancel Controller" - {
+  override def view: HtmlFormat.Appendable =
+    injector.instanceOf[SessionExpiredView].apply()(fakeRequest, messages)
 
-    "must return 400 for a GET" in {
+  override val prefix: String = "session_expired"
 
-      dataRetrievalNoData()
+  override val hasSignOutLink: Boolean = false
 
-      val request = FakeRequest(GET, routes.CanNotCancelController.onPageLoad().url)
+  behave like pageWithoutBackLink
 
-      val result = route(app, request).value
+  behave like pageWithHeading
 
-      status(result) mustEqual BAD_REQUEST
-    }
-  }
+  behave like pageWithContent("p", "We did not save your answers.")
+
+  behave like pageWithSubmitButton("Sign in")
 }

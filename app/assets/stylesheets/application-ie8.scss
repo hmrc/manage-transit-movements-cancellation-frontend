@@ -2,4 +2,5 @@ $govuk-assets-path: "/manage-transit-movements/cancellation/assets/lib/govuk-fro
 $hmrc-assets-path: "/manage-transit-movements/cancellation/assets/lib/hmrc-frontend/hmrc/assets";
 
 @import "lib/govuk-frontend/govuk/all-ie8.scss";
-@import "components/timeout-dialog";
+@import "lib/hmrc-frontend/hmrc/all-ie8.scss";
+@import "partials/shame";

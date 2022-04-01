@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,26 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.components.{Button, Heading}
+package views
 
-@this(
-        main_template: MainTemplate,
-        heading: Heading,
-        button: Button
-)
+import play.twirl.api.HtmlFormat
+import views.behaviours.ViewBehaviours
+import views.html.UnauthorisedGroupAccessView
 
-@(signInUrl: String)(implicit request: Request[_], messages: Messages)
+class UnauthorisedGroupAccessViewSpec extends ViewBehaviours {
 
-@main_template(
-    title = messages("session_expired.title"),
-    showBackLink = true
-) {
+  override def view: HtmlFormat.Appendable =
+    injector.instanceOf[UnauthorisedGroupAccessView].apply()(fakeRequest, messages)
 
-    @heading(messages("session_expired.heading"))
+  override val prefix: String = "unauthorisedWithGroupAccess"
 
-    <p class="govuk-body">@messages("session_expired.guidance")</p>
+  behave like pageWithBackLink
 
-    @button(attributes = Map("id" -> "submit"), href = Some(signInUrl))
+  behave like pageWithHeading
+
+  behave like pageWithContent("p", "If you already have access, you must contact your group administrator to update your access rights.")
 }

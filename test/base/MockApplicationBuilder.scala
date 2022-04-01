@@ -26,11 +26,9 @@ import org.scalatest.{BeforeAndAfterEach, TestSuite}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{ActionRefiner, ActionTransformer, Result}
-import play.api.test.Helpers
 import repositories.SessionRepository
 import services.CancellationSubmissionService
 
@@ -38,6 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
   self: TestSuite =>
+
+  val lrn: LocalReferenceNumber = LocalReferenceNumber("lrn")
 
   val mockSubmissionService: CancellationSubmissionService = mock[CancellationSubmissionService]
 
@@ -47,7 +47,7 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
-  override def beforeEach {
+  override def beforeEach(): Unit = {
     Mockito.reset(
       mockDataRetrievalActionProvider,
       mockCheckCancellationStatusProvider,
@@ -56,21 +56,14 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     super.beforeEach()
   }
 
-  def dataRetrievalWithData(userAnswers: UserAnswers): Unit = {
+  def dataRetrievalWithData(userAnswers: UserAnswers): Unit = dataRetrieval(Some(userAnswers))
+
+  def dataRetrievalNoData(): Unit = dataRetrieval(None)
+
+  private def dataRetrieval(userAnswers: Option[UserAnswers]): Unit = {
     val fakeDataRetrievalAction = new ActionTransformer[AuthorisedRequest, OptionalDataRequest] {
       override protected def transform[A](request: AuthorisedRequest[A]): Future[OptionalDataRequest[A]] =
-        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, LocalReferenceNumber("lrn"), Some(userAnswers)))
-
-      override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
-    }
-
-    when(mockDataRetrievalActionProvider.apply(any())).thenReturn(fakeDataRetrievalAction)
-  }
-
-  def dataRetrievalNoData(): Unit = {
-    val fakeDataRetrievalAction = new ActionTransformer[AuthorisedRequest, OptionalDataRequest] {
-      override protected def transform[A](request: AuthorisedRequest[A]): Future[OptionalDataRequest[A]] =
-        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, LocalReferenceNumber("lrn"), None))
+        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, lrn, userAnswers))
 
       override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
     }
@@ -81,7 +74,7 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
   def checkCancellationStatus(): Unit = {
     val fakeCancellationStatusAction = new ActionRefiner[IdentifierRequest, AuthorisedRequest] {
       override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, AuthorisedRequest[A]]] =
-        Future.successful(Right(AuthorisedRequest(request.request, request.eoriNumber, LocalReferenceNumber("lrn"))))
+        Future.successful(Right(AuthorisedRequest(request.request, request.eoriNumber, lrn)))
 
       override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
     }
@@ -101,20 +94,8 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalActionProvider].toInstance(mockDataRetrievalActionProvider),
         bind[CheckCancellationStatusProvider].toInstance(mockCheckCancellationStatusProvider),
-        bind[MessagesApi].toInstance(Helpers.stubMessagesApi()),
         bind[CancellationSubmissionService].toInstance(mockSubmissionService),
         bind[SessionRepository].toInstance(mockSessionRepository)
-      )
-
-  // TODO: Remove and use app from GuiceOneAppPerSuite instead
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalActionProvider]
-          .toInstance(new FakeDataRetrievalActionProvider(userAnswers)),
-        bind[MessagesApi].toInstance(Helpers.stubMessagesApi())
       )
 
 }

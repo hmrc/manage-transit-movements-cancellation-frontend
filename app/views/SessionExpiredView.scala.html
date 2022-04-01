@@ -14,28 +14,28 @@
  * limitations under the License.
  *@
 
-@import views.html.components.Heading
+@import views.html.components.{Button, Heading}
 
 @this(
         main_template: MainTemplate,
-        heading: Heading
+        formHelper: FormWithCSRF,
+        heading: Heading,
+        button: Button
 )
 
-@(departureList: String)(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
 @main_template(
-    title = messages("canNotCancel.title"),
-    showBackLink = true
+    title = messages("session_expired.title"),
+    showBackLink = false,
+    canSignOut = false
 ) {
 
-    @heading(messages("canNotCancel.heading"))
+    @formHelper(action = routes.SessionExpiredController.onSubmit(), 'autoComplete -> "off") {
+        @heading(messages("session_expired.heading"))
 
-    <p class="govuk-body">@messages("canNotCancel.declarationNotFound")
-        <a rel="noreferrer noopener" href="https://www.gov.uk/new-computerised-transit-system" target="_blank" class="govuk-link">
-        @messages("canNotCancel.contactLink")</a>.
-    </p>
+        <p class="govuk-body">@messages("session_expired.guidance")</p>
 
-    <p class="govuk-body">
-        <a id="manage-transit-movements" href=@departureList class="govuk-link">@messages("canNotCancel.linkText")</a>
-    </p>
+        @button(messageKey = "session_expired.button", attributes = Map("id" -> "submit"))
+    }
 }

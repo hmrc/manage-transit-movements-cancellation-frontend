@@ -22,8 +22,6 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice._
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.Injector
 import play.api.libs.json.Json
@@ -33,24 +31,20 @@ import play.api.test.FakeRequest
 trait SpecBase
     extends AnyFreeSpec
     with Matchers
-    with GuiceOneAppPerSuite
     with OptionValues
     with TryValues
     with ScalaFutures
     with IntegrationPatience
-    with MockitoSugar
     with BeforeAndAfterEach
     with MockApplicationBuilder {
 
-  val departureId = DepartureId(1)
+  val departureId: DepartureId = DepartureId(1)
 
-  def emptyUserAnswers = UserAnswers(departureId, eoriNumber, Json.obj())
+  val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
+
+  def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj())
 
   def injector: Injector = app.injector
-
-  val configKey = "config"
-
-  val eoriNumber = EoriNumber("eoriNumber")
 
   def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
 

@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package views
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.twirl.api.HtmlFormat
+import views.behaviours.ViewBehaviours
+import views.html.UnauthorisedView
 
-class CanNotCancelControllerSpec extends SpecBase {
+class UnauthorisedViewSpec extends ViewBehaviours {
 
-  "CanNotCancel Controller" - {
+  override def view: HtmlFormat.Appendable =
+    injector.instanceOf[UnauthorisedView].apply()(fakeRequest, messages)
 
-    "must return 400 for a GET" in {
+  override val prefix: String = "unauthorised"
 
-      dataRetrievalNoData()
+  behave like pageWithBackLink
 
-      val request = FakeRequest(GET, routes.CanNotCancelController.onPageLoad().url)
-
-      val result = route(app, request).value
-
-      status(result) mustEqual BAD_REQUEST
-    }
-  }
+  behave like pageWithHeading
 }
