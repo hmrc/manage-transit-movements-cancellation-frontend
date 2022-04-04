@@ -23,14 +23,12 @@
     field: Field,
     legend: String,
     caption: Option[String] = None,
-    hint: Option[String] = None,
-    legendClass: Option[String] = None,
-    legendAsHeading: Boolean = true
+    hint: Option[String] = None
 )(implicit messages: Messages)
 
 @govukRadios(Radios(
     classes = "govuk-radios--inline",
-    hint = if (hint.isDefined) Some(Hint(content = Text(hint.get))) else None,
+    hint = hint.map(x => Hint(content = Text(x))),
     items = Seq(
         RadioItem(
             id = Some(s"${field.id}-yes"),

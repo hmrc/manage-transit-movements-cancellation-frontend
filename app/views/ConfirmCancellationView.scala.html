@@ -18,11 +18,11 @@
 @import views.html.components.{Button, ErrorSummary, InputYesNo}
 
 @this(
- mainTemplate: MainTemplate,
- formHelper: FormWithCSRF,
- button: Button,
- yesNo: InputYesNo,
- errorSummary: ErrorSummary
+    mainTemplate: MainTemplate,
+    formHelper: FormWithCSRF,
+    button: Button,
+    inputYesNo: InputYesNo,
+    errorSummary: ErrorSummary
 )
 
 @(form: Form[Boolean], departureId: DepartureId, lrn: LocalReferenceNumber)(implicit request: Request[_], messages: Messages)
@@ -32,17 +32,17 @@
     showBackLink = true
 ) {
 
- @formHelper(action = routes.ConfirmCancellationController.onSubmit(departureId), 'autoComplete -> "off") {
+    @formHelper(action = routes.ConfirmCancellationController.onSubmit(departureId), 'autoComplete -> "off") {
 
- @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-  @yesNo(
-    field = form("value"),
-    legend = messages("confirmCancellation.heading"),
-    caption = Some(lrn.value)
-  )
+        @inputYesNo(
+            field = form("value"),
+            legend = messages("confirmCancellation.heading"),
+            caption = Some(lrn.value)
+        )
 
-  @button(attributes = Map("id" -> "submit"))
+        @button(attributes = Map("id" -> "submit"))
 
- }
+    }
 }

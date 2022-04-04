@@ -19,11 +19,11 @@
 @import views.html.components.InputCharacterCount
 
 @this(
- mainTemplate: MainTemplate,
- formHelper: FormWithCSRF,
- button: Button,
- inputCharacterCount: InputCharacterCount,
- errorSummary: ErrorSummary
+    mainTemplate: MainTemplate,
+    formHelper: FormWithCSRF,
+    button: Button,
+    inputCharacterCount: InputCharacterCount,
+    errorSummary: ErrorSummary
 )
 
 @(form: Form[String], departureId: DepartureId, lrn: LocalReferenceNumber, maxLength: Int)(implicit request: Request[_], messages: Messages)
@@ -33,17 +33,17 @@
     showBackLink = true
 ) {
 
-  @formHelper(action = routes.CancellationReasonController.onSubmit(departureId), 'autoComplete -> "off") {
+    @formHelper(action = routes.CancellationReasonController.onSubmit(departureId), 'autoComplete -> "off") {
 
-  @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-  @inputCharacterCount(
-      field = form("value"),
-      label = messages("cancellationReason.title"),
-      maxLength = Some(maxLength),
-      caption = Some(lrn.value)
-  )
+        @inputCharacterCount(
+            field = form("value"),
+            label = messages("cancellationReason.title"),
+            maxLength = Some(maxLength),
+            caption = Some(lrn.value)
+        )
 
-  @button(messageKey = "site.submit", attributes = Map("id" -> "submit"))
- }
+        @button(messageKey = "site.submit", attributes = Map("id" -> "submit"))
+    }
 }

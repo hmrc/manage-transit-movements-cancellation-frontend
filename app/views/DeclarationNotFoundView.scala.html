@@ -18,9 +18,9 @@
 @import config.FrontendAppConfig
 
 @this(
-        main_template: MainTemplate,
-        heading: Heading,
-        config: FrontendAppConfig
+    main_template: MainTemplate,
+    heading: Heading,
+    config: FrontendAppConfig
 )
 
 @(departureList: String)(implicit request: Request[_], messages: Messages)
@@ -33,8 +33,7 @@
     @heading(messages("canNotCancel.heading"))
 
     <p class="govuk-body">@messages("canNotCancel.declarationNotFound")
-        <a rel="noreferrer noopener" href=@config.nctsHelpdeskUrl target="_blank" class="govuk-link" id="contact">
-        @messages("canNotCancel.contactLink")</a>.
+        <a rel="noreferrer noopener" href=@config.nctsHelpdeskUrl target="_blank" class="govuk-link" id="contact">@messages("canNotCancel.contactLink")</a>.
     </p>
 
     <p class="govuk-body">

@@ -20,33 +20,25 @@
 @this(govukTextarea: GovukTextarea)
 
 @(
-        field: Field,
-        label: String,
-        caption: Option[String] = None,
-        labelAsHeading: Boolean = false,
-        inputClass: Option[String] = None,
-        labelClass: Option[String] = None,
-        hint: Option[String] = None,
-        rows: Int = 5
+    field: Field,
+    label: String,
+    caption: Option[String] = None,
+    inputClass: Option[String] = None,
+    hint: Option[String] = None,
+    rows: Int = 5
 )(implicit messages: Messages)
 
 @govukTextarea(
     Textarea(
         id = field.id,
         name = field.id,
-        label = Label(
-            isPageHeading = labelAsHeading,
-            classes = labelClass.getOrElse("govuk-label--l"),
-            content = Text(label)
-        ),
-        hint = hint.map(hint => Hint(content = Text(hint))),
+        hint = hint.map(x => Hint(content = Text(x))),
         rows = rows,
-        errorMessage = field.error match {
-            case Some(e) => Some(ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args: _*))))
-            case None => None
+        errorMessage = field.error.map { e =>
+            ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args: _*)))
         },
         value = field.value,
-        classes = if(inputClass.isDefined) inputClass.get else ""
+        classes = inputClass.getOrElse("")
     )
     .withFormField(field)
     .withHeadingAndCaption(label, caption)
