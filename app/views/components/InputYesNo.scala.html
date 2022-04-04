@@ -30,7 +30,7 @@
 
 @govukRadios(Radios(
     classes = "govuk-radios--inline",
-    hint = if (hint.isDefined) Some(Hint(content = Text(hint.get))) else None,
+    hint = hint.map(x => Hint(content = Text(x))),
     items = Seq(
         RadioItem(
             id = Some(s"${field.id}-yes"),

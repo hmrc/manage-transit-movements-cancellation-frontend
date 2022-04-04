@@ -18,9 +18,9 @@
 @import config.FrontendAppConfig
 
 @this(
-        main_template: MainTemplate,
-        heading: Heading,
-        config: FrontendAppConfig
+    main_template: MainTemplate,
+    heading: Heading,
+    config: FrontendAppConfig
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -33,6 +33,6 @@
     <p class="govuk-body">@messages("pageNotFound.paragraph1")</p>
     <p class="govuk-body">@messages("pageNotFound.paragraph2")</p>
     <p class="govuk-body">@messages("pageNotFound.paragraph3Start")
-    <a rel="noreferrer noopener" href=@config.nctsHelpdeskUrl target="_blank" class="govuk-link" id="contact">@messages("pageNotFound.contactLink")</a>.
+        <a rel="noreferrer noopener" href=@config.nctsHelpdeskUrl target="_blank" class="govuk-link" id="contact">@messages("pageNotFound.contactLink")</a>.
     </p>
 }
