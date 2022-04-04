@@ -35,7 +35,7 @@ class ConfirmCancellationViewSpec extends YesNoViewBehaviours {
 
   behave like pageWithHeading
 
-  behave like yesNoPage()
+  behave like pageWithRadioItems()
 
   behave like pageWithSubmitButton("Continue")
 }

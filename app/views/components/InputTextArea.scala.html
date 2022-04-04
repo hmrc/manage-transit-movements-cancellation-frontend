@@ -34,11 +34,6 @@
     Textarea(
         id = field.id,
         name = field.id,
-        label = Label(
-            isPageHeading = labelAsHeading,
-            classes = labelClass.getOrElse("govuk-label--l"),
-            content = Text(label)
-        ),
         hint = hint.map(x => Hint(content = Text(x))),
         rows = rows,
         errorMessage = field.error.map { e =>

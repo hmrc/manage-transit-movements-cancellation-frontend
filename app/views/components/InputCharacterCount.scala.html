@@ -39,11 +39,6 @@
         value = field.value,
         rows = rows,
         maxLength = maxLength,
-        label = Label(
-            isPageHeading = labelAsHeading,
-            classes = labelClass.getOrElse("govuk-label--l"),
-            content = Text(label)
-        ),
         hint = hint.map(x => Hint(content = HtmlContent(messages(x)))),
         errorMessage = field.error.map { e =>
             ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args: _*)))
