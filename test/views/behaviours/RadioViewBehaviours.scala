@@ -20,17 +20,25 @@ import uk.gov.hmrc.govukfrontend.views.html.components._
 
 trait RadioViewBehaviours[T] extends QuestionViewBehaviours[T] {
 
-  def radioItems(checkedValue: Option[T] = None): Seq[RadioItem]
+  val fieldId: String = "value"
+
+  def radioItems(fieldId: String, checkedValue: Option[T] = None): Seq[RadioItem]
   def values: Seq[T]
 
-  def pageWithRadioItems(hintTextPrefix: Option[String] = None, args: Seq[String] = Nil): Unit =
+  // scalastyle:off method.length
+  def pageWithRadioItems(legendIsHeading: Boolean = true, hintTextPrefix: Option[String] = None, args: Seq[String] = Nil): Unit =
     "page with a radio question" - {
       "when rendered" - {
 
         "must contain a legend for the question" in {
           val legends = getElementsByTag(doc, "legend")
           legends.size mustBe 1
-          assertElementIncludesText(legends.first(), messages(s"$prefix.heading", args: _*))
+          if (legendIsHeading) {
+            assertElementIncludesText(legends.first(), messages(s"$prefix.heading", args: _*))
+          } else {
+            assertElementIncludesText(legends.first(), messages(s"$prefix.label", args: _*))
+            assert(!legends.first().hasClass("govuk-visually-hidden"))
+          }
 
           hintTextPrefix.map {
             prefix =>
@@ -39,7 +47,7 @@ trait RadioViewBehaviours[T] extends QuestionViewBehaviours[T] {
           }
         }
 
-        radioItems() foreach {
+        radioItems(fieldId) foreach {
           radioItem =>
             s"must contain an input for the value ${radioItem.value.get}" in {
               assertRenderedById(doc, radioItem.id.get)
@@ -63,7 +71,6 @@ trait RadioViewBehaviours[T] extends QuestionViewBehaviours[T] {
       }
 
       "when rendered with an error" - {
-
         "must show an error summary" in {
           assertRenderedById(docWithError, "error-summary-title")
         }
@@ -74,13 +81,14 @@ trait RadioViewBehaviours[T] extends QuestionViewBehaviours[T] {
         }
       }
     }
+  // scalastyle:on method.length
 
   private def answeredRadioPage(answer: T): Unit = {
 
     val filledForm = form.fill(answer)
     val doc        = parseView(applyView(filledForm))
 
-    radioItems(Some(answer)) foreach {
+    radioItems(fieldId, Some(answer)) foreach {
       radioItem =>
         if (radioItem.value.get == answer.toString) {
           s"must have ${radioItem.value.get} checked" in {
