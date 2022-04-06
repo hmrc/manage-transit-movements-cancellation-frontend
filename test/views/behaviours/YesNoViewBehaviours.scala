@@ -21,19 +21,17 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 trait YesNoViewBehaviours extends RadioViewBehaviours[Boolean] {
 
-  val fieldId: String = "value"
-
-  override def radioItems(checkedValue: Option[Boolean]): Seq[RadioItem] =
+  override def radioItems(fieldId: String, checkedValue: Option[Boolean]): Seq[RadioItem] =
     Seq(
       RadioItem(
-        Text(messages("site.yes")),
-        Some(s"$fieldId-yes"),
-        Some("true")
+        content = Text(messages("site.yes")),
+        id = Some(fieldId),
+        value = Some("true")
       ),
       RadioItem(
-        Text(messages("site.no")),
-        Some(s"$fieldId-no"),
-        Some("false")
+        content = Text(messages("site.no")),
+        id = Some(s"$fieldId-no"),
+        value = Some("false")
       )
     )
 

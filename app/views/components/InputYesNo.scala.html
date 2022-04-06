@@ -31,7 +31,7 @@
     hint = hint.map(x => Hint(content = Text(x))),
     items = Seq(
         RadioItem(
-            id = Some(s"${field.id}-yes"),
+            id = Some(s"${field.id}"),
             value = Some("true"),
             content = Text(messages("site.yes"))
         ),
