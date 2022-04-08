@@ -21,14 +21,15 @@
 @(
     messageKey: String = "site.continue",
     isStartButton: Boolean = false,
-    isPrintButton: Boolean = false,
     attributes: Map[String, String] = Map.empty,
     href: Option[String] = None
 )(implicit messages: Messages)
 
-@govukButton(Button(
-    isStartButton = isStartButton,
-    content = Text(messages(messageKey)),
-    attributes = attributes,
-    href = href
-))
+@govukButton(
+    Button(
+        isStartButton = isStartButton,
+        content = Text(messages(messageKey)),
+        attributes = attributes,
+        href = href
+    )
+)
