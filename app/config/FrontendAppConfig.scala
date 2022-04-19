@@ -26,8 +26,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   val contactHost: String                  = configuration.get[String]("contact-frontend.host")
   val contactFormServiceIdentifier: String = "CTCTraders"
 
-  val trackingConsentUrl: String = configuration.get[String]("microservice.services.tracking-consent-frontend.url")
-  val gtmContainer: String       = configuration.get[String]("microservice.services.tracking-consent-frontend.gtm.container")
+  val trackingConsentUrl: String = configuration.get[String]("tracking-consent-frontend.url")
+  val gtmContainer: String       = configuration.get[String]("tracking-consent-frontend.gtm.container")
 
   val userResearchUrl: String         = configuration.get[String]("urls.userResearch")
   val showUserResearchBanner: Boolean = configuration.get[Boolean]("banners.showUserResearch")
