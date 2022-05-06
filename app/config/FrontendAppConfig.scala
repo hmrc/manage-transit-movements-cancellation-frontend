@@ -36,17 +36,19 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   val signOutUrl: String             = configuration.get[String]("urls.logoutContinue") + configuration.get[String]("urls.feedback")
   lazy val nctsHelpdeskUrl: String   = configuration.get[String]("urls.nctsHelpdesk")
 
-  lazy val authUrl: String           = service.baseUrl("auth")
-  lazy val loginUrl: String          = configuration.get[String]("urls.login")
-  lazy val loginContinueUrl: String  = configuration.get[String]("urls.loginContinue")
-  lazy val enrolmentKey: String      = configuration.get[String]("microservice.services.auth.enrolmentKey")
+  lazy val authUrl: String          = service.baseUrl("auth")
+  lazy val loginUrl: String         = configuration.get[String]("urls.login")
+  lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+
   lazy val enrolmentProxyUrl: String = service.baseUrl("enrolment-store-proxy") + "/enrolment-store-proxy"
 
   lazy val legacyEnrolmentKey: String           = configuration.get[String]("keys.legacy.enrolmentKey")
   lazy val legacyEnrolmentIdentifierKey: String = configuration.get[String]("keys.legacy.enrolmentIdentifierKey")
-  lazy val newEnrolmentKey: String              = configuration.get[String]("keys.enrolmentKey")
-  lazy val newEnrolmentIdentifierKey: String    = configuration.get[String]("keys.enrolmentIdentifierKey")
-  lazy val eccEnrolmentSplashPage: String       = configuration.get[String]("urls.eccEnrolmentSplashPage")
+
+  lazy val newEnrolmentKey: String           = configuration.get[String]("keys.enrolmentKey")
+  lazy val newEnrolmentIdentifierKey: String = configuration.get[String]("keys.enrolmentIdentifierKey")
+
+  lazy val eccEnrolmentSplashPage: String = configuration.get[String]("urls.eccEnrolmentSplashPage")
 
   lazy val manageTransitMovementsUrl: String               = configuration.get[String]("urls.manageTransitMovementsFrontend")
   lazy val manageTransitMovementsViewDeparturesUrl: String = s"$manageTransitMovementsUrl/view-departures"
