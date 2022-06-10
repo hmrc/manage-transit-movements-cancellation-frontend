@@ -28,7 +28,6 @@
     hmrcHead: HmrcHead,
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     standardBetaBanner: StandardBetaBanner,
-    hmrcScripts: HmrcScripts,
     stylesheets: Stylesheets,
     javascripts: Javascripts,
     govukBackLink: GovukBackLink,
@@ -73,10 +72,6 @@
     @hmrcReportTechnicalIssueHelper()
 }
 
-@nonce = @{
-    CSPNonce.get
-}
-
 @hmrcLayout(
     pageTitle = Some(breadCrumbTitle(title, mainContent)),
     additionalHeadBlock = Some(headScripts),
@@ -86,6 +81,6 @@
     signOutUrl = if (canSignOut) Some(appConfig.signOutUrl) else None,
     phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUnauthenticatedUrl)),
     beforeContentBlock = Some(beforeContentBlock),
-    nonce = nonce,
-    additionalScriptsBlock = Some(hmrcScripts(nonce = nonce, scriptsBlock = Some(javascripts())))
+    nonce = CSPNonce.get,
+    additionalScriptsBlock = Some(javascripts())
 )(mainContentWithGetHelp)
