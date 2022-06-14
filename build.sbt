@@ -6,7 +6,7 @@ import uk.gov.hmrc.DefaultBuildSettings
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 lazy val appName: String = "manage-transit-movements-cancellation-frontend"
-val silencerVersion = "1.7.0"
+val silencerVersion = "1.7.9"
 
 lazy val root = (project in file("."))
   .enablePlugins(
@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
   .settings(inConfig(Test)(testSettings): _*)
   .settings(majorVersion := 0)
   .settings(
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.15",
     name := appName,
     RoutesKeys.routesImport += "models._",
     TwirlKeys.templateImports ++= Seq(
