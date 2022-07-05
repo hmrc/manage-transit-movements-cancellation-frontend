@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
@@ -28,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.CancellationSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.{CancellationReasonView, TechnicalDifficultiesView}
+import views.html.CancellationReasonView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,9 +40,7 @@ class CancellationReasonController @Inject() (
   formProvider: CancellationReasonFormProvider,
   cancellationSubmissionService: CancellationSubmissionService,
   val controllerComponents: MessagesControllerComponents,
-  appConfig: FrontendAppConfig,
-  view: CancellationReasonView,
-  technicalDifficulties: TechnicalDifficultiesView
+  view: CancellationReasonView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -72,7 +69,7 @@ class CancellationReasonController @Inject() (
               response       <- cancellationSubmissionService.submitCancellation(updatedAnswers)
             } yield response match {
               case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
-              case Left(_)  => InternalServerError(technicalDifficulties(appConfig.contactHost))
+              case Left(_)  => Redirect(routes.ErrorController.technicalDifficulties())
             }
         )
   }

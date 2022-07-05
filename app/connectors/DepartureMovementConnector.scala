@@ -16,17 +16,19 @@
 
 package connectors
 
+import com.lucidchart.open.xtract.XmlReader
 import config.FrontendAppConfig
 import logging.Logging
-import models.DepartureId
-import models.messages.CancellationRequest
+import models.messages.{CancellationDecisionUpdate, CancellationRequest}
 import models.response.{MRNAllocatedMessage, MessageSummary, ResponseDeparture}
+import models.{DepartureId, ResponseMessage}
 import play.api.http.HeaderNames
 import uk.gov.hmrc.http.HttpReads.is2xx
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.NodeSeq
 
 class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
 
@@ -72,6 +74,20 @@ class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, ht
       header,
       implicitly
     )
+  }
+
+  def getCancellationDecisionUpdateMessage(location: String)(implicit hc: HeaderCarrier): Future[Option[CancellationDecisionUpdate]] = {
+    val serviceUrl = s"${appConfig.departureBaseUrl}$location"
+    val header     = hc.withExtraHeaders(ChannelHeader(channel))
+
+    http.GET[HttpResponse](serviceUrl)(httpReads, header, ec) map {
+      case responseMessage if is2xx(responseMessage.status) =>
+        val message: NodeSeq = responseMessage.json.as[ResponseMessage].message
+        XmlReader.of[CancellationDecisionUpdate].read(message).toOption
+      case _ =>
+        logger.error("[getCancellationDecisionUpdateMessage] failed to return data")
+        None
+    }
   }
 
   object ChannelHeader {

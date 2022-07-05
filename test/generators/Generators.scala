@@ -16,13 +16,13 @@
 
 package generators
 
-import java.time.{Instant, LocalDate, ZoneOffset}
-
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
-import org.scalacheck.{Gen, Shrink}
+import org.scalacheck.{Arbitrary, Gen, Shrink}
 
-trait Generators extends UserAnswersGenerator with PageGenerators with ModelGenerators with UserAnswersEntryGenerators {
+import java.time.{Instant, LocalDate, ZoneOffset}
+
+trait Generators extends UserAnswersGenerator with PageGenerators with ModelGenerators with UserAnswersEntryGenerators with ViewModelGenerators {
 
   implicit val dontShrink: Shrink[String] = Shrink.shrinkAny
 
@@ -77,13 +77,12 @@ trait Generators extends UserAnswersGenerator with PageGenerators with ModelGene
     )
 
   def nonBooleans: Gen[String] =
-    arbitrary[String]
-      .suchThat(_.nonEmpty)
+    nonEmptyString
       .suchThat(_ != "true")
       .suchThat(_ != "false")
 
   def nonEmptyString: Gen[String] =
-    arbitrary[String] suchThat (_.nonEmpty)
+    Gen.alphaNumStr suchThat (_.nonEmpty)
 
   def stringsWithMaxLength(maxLength: Int): Gen[String] =
     for {
@@ -125,5 +124,11 @@ trait Generators extends UserAnswersGenerator with PageGenerators with ModelGene
       length <- choose(1, maxLength)
       chars  <- listOfN(length, Gen.alphaNumChar)
     } yield chars.mkString
+
+  def listWithMaxLength[A](maxLength: Int = 10: Int)(implicit a: Arbitrary[A]): Gen[List[A]] =
+    for {
+      length <- choose(1, maxLength)
+      seq    <- listOfN(length, arbitrary[A])
+    } yield seq
 
 }
