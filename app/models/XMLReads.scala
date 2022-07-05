@@ -33,7 +33,7 @@ object XMLReads extends Logging {
       val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
       Try(LocalDate.parse(xml.text, dateFormatter)) match {
         case Success(value) => ParseSuccess(value)
-        case Failure(e) => ParseFailure(LocalDateParseFailure(e.getMessage))
+        case Failure(e)     => ParseFailure(LocalDateParseFailure(e.getMessage))
       }
     }
 }
