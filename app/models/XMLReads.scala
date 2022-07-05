@@ -18,9 +18,9 @@ package models
 
 import com.lucidchart.open.xtract._
 import play.api.Logging
-import utils.Format.dateFormatter
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.util.{Failure, Success, Try}
 import scala.xml.NodeSeq
 
@@ -29,9 +29,11 @@ object XMLReads extends Logging {
   case class LocalDateParseFailure(message: String) extends ParseError
 
   implicit val xmlDateReads: XmlReader[LocalDate] =
-    (xml: NodeSeq) =>
+    (xml: NodeSeq) => {
+      val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
       Try(LocalDate.parse(xml.text, dateFormatter)) match {
         case Success(value) => ParseSuccess(value)
-        case Failure(e)     => ParseFailure(LocalDateParseFailure(e.getMessage))
+        case Failure(e) => ParseFailure(LocalDateParseFailure(e.getMessage))
       }
+    }
 }
