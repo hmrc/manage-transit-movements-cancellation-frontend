@@ -104,7 +104,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
     }
 
-    "must return InternalServerError when the submission fails" in {
+    "must redirect to technical difficulties when the submission fails" in {
 
       checkCancellationStatus()
 
@@ -118,7 +118,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       val result = route(app, request).value
 
-      status(result) mustEqual INTERNAL_SERVER_ERROR
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
 
       val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
       verify(mockSessionRepository).set(uaCaptor.capture)

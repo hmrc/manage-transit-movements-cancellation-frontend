@@ -16,13 +16,14 @@
 
 package connectors
 
+import akka.util.Helpers.Requiring
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.responses.{InvalidStatus, MalformedBody}
 import generators.Generators
 import helper.WireMockServerHandler
 import models.DepartureStatus.DepartureSubmitted
-import models.messages.CancellationRequest
+import models.messages.{CancellationDecisionUpdate, CancellationRequest}
 import models.response._
 import org.scalacheck.Gen
 import org.scalatest.EitherValues
@@ -35,6 +36,7 @@ import play.api.test.Helpers
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 
 import java.time.{LocalDate, LocalDateTime}
+import scala.xml.NodeSeq
 
 class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler with ScalaCheckPropertyChecks with Generators with EitherValues {
   implicit val hc: HeaderCarrier = HeaderCarrier(Some(Authorization("BearerToken")))
@@ -53,7 +55,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
     "status"          -> "DepartureSubmitted"
   )
 
-  val errorResponses: Gen[Int] = Gen.chooseNum(400, 599)
+  private val errorResponseCodes: Gen[Int] = Gen.chooseNum(400, 599)
 
   "DeparturesMovementConnector" - {
     "getDepartures" - {
@@ -75,7 +77,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
       "must return a None when an error response is returned from getDepartures" in {
 
-        forAll(errorResponses) {
+        forAll(errorResponseCodes) {
           errorResponse =>
             server.stubFor(
               get(urlEqualTo(s"/$startUrl/movements/departures/${departureId.index}"))
@@ -131,7 +133,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
       "must return an InvalidStatus when an error response is returned from getMessageSummary" in {
 
-        forAll(errorResponses) {
+        forAll(errorResponseCodes) {
           errorResponse =>
             server.stubFor(
               get(urlEqualTo(s"/$startUrl/movements/departures/${departureId.index}/messages/summary"))
@@ -256,7 +258,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
       "must return an InvalidStatus when an error response is returned from getMrnAllocatedMessage" in {
 
-        forAll(errorResponses) {
+        forAll(errorResponseCodes) {
           errorResponse =>
             val url = s"/$startUrl/movements/departures/${departureId.index}/messages/2"
 
@@ -324,7 +326,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
         val request = cancellationRequest
 
-        forAll(errorResponses) {
+        forAll(errorResponseCodes) {
           errorResponse =>
             server.stubFor(
               post(urlEqualTo(s"/$startUrl/movements/departures/${departureId.index}/messages"))
@@ -336,6 +338,83 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
                 )
             )
             connector.submitCancellation(departureId, request).futureValue mustBe Left(InvalidStatus(errorResponse))
+        }
+      }
+    }
+
+    "getCancellationDecisionUpdateMessage" - {
+      "must return valid 'cancellation decision update message'" in {
+        val url = s"/transits-movements-trader-at-departure/movements/departures/${departureId.value}/messages/2"
+
+        val xml: NodeSeq = <CC009A>
+          <HEAHEA>
+            <DocNumHEA5>19GB00006010021477</DocNumHEA5>
+            <CanDecHEA93>1</CanDecHEA93>
+            <DatOfCanReqHEA147>20190912</DatOfCanReqHEA147>
+            <CanIniByCusHEA94>0</CanIniByCusHEA94>
+            <DatOfCanDecHEA146>20190912</DatOfCanDecHEA146>
+            <CanJusHEA248>ok thats fine</CanJusHEA248>
+          </HEAHEA>
+        </CC009A>
+
+        val json = Json.obj("message" -> xml.toString())
+
+        server.stubFor(
+          get(urlEqualTo(url))
+            .withHeader("Channel", containing("web"))
+            .willReturn(
+              okJson(json.toString)
+            )
+        )
+        val expectedResult =
+          Some(
+            CancellationDecisionUpdate(
+              "19GB00006010021477",
+              Some(LocalDate.parse("2019-09-12")),
+              0,
+              Some(1),
+              LocalDate.parse("2019-09-12"),
+              Some("ok thats fine")
+            )
+          )
+
+        connector.getCancellationDecisionUpdateMessage(url).futureValue mustBe expectedResult
+      }
+
+      "must return None for malformed input'" in {
+        val url                   = s"/transits-movements-trader-at-departure/movements/departures/${departureId.value}/messages/2"
+        val rejectionXml: NodeSeq = <CC009A>
+          <FUNERRER1>
+            <ErrTypER11>15</ErrTypER11>
+            <ErrPoiER12>not valid</ErrPoiER12>
+          </FUNERRER1>
+        </CC009A>
+
+        val json = Json.obj("message" -> rejectionXml.toString())
+
+        server.stubFor(
+          get(urlEqualTo(url))
+            .withHeader("Channel", containing("web"))
+            .willReturn(
+              okJson(json.toString)
+            )
+        )
+        connector.getCancellationDecisionUpdateMessage(url).futureValue mustBe None
+      }
+
+      "must return None when an error response is returned from getCancellationDecisionUpdateMessage" in {
+        val url: String = "/transits-movements-trader-at-departure/movements/departures/1/messages/2"
+        forAll(errorResponseCodes) {
+          errorResponseCode =>
+            server.stubFor(
+              get(urlEqualTo(url))
+                .withHeader("Channel", containing("web"))
+                .willReturn(
+                  aResponse()
+                    .withStatus(errorResponseCode)
+                )
+            )
+            connector.getCancellationDecisionUpdateMessage(url).futureValue mustBe None
         }
       }
     }

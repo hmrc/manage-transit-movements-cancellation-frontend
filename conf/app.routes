@@ -18,6 +18,8 @@ POST       /:departureId/cancellation-reason                        controllers.
 
 GET        /:departureId/cancellation-submission-confirmation       controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: DepartureId)
 
+GET        /:departureId/cancellation-decision-update               controllers.CancellationDecisionUpdateController.onPageLoad(departureId: DepartureId)
+
 GET        /keep-alive                                              controllers.KeepAliveController.keepAlive()
 
 GET        /can-not-cancel                                          controllers.CanNotCancelController.onPageLoad()
@@ -26,7 +28,6 @@ GET        /bad-request                                             controllers.
 GET        /not-found                                               controllers.ErrorController.notFound()
 GET        /technical-difficulties                                  controllers.ErrorController.technicalDifficulties()
 GET        /internal-server-error                                   controllers.ErrorController.internalServerError()
-
 
 ->         /hmrc-frontend                                           hmrcfrontend.Routes
 
