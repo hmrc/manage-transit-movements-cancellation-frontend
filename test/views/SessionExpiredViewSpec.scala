@@ -31,7 +31,7 @@ class SessionExpiredViewSpec extends ViewBehaviours {
 
   behave like pageWithoutBackLink
 
-  behave like pageWithHeading
+  behave like pageWithHeading()
 
   behave like pageWithContent("p", "We did not save your answers.")
 

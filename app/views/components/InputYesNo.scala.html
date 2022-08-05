@@ -15,21 +15,26 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import viewModels.components.InputYesNoViewModel
+@import viewModels.components.InputYesNoViewModel._
+@import views.html.components.Heading
 @import views.utils.ViewUtils._
 
-@this(govukRadios: GovukRadios)
+@this(
+    govukRadios: GovukRadios,
+    hmrcHeading: Heading
+)
 
 @(
     field: Field,
-    legend: String,
-    caption: Option[String] = None,
-    hint: Option[String] = None
+    yesNoType: InputYesNoViewModel,
+    hint: Option[Content] = None
 )(implicit messages: Messages)
 
-@govukRadios(
+@radios = @{
     Radios(
         classes = "govuk-radios--inline",
-        hint = hint.map(x => Hint(content = Text(x))),
+        hint = hint.map(x => Hint(content = x)),
         items = Seq(
             RadioItem(
                 id = Some(s"${field.id}"),
@@ -44,5 +49,18 @@
         )
     )
     .withFormField(field)
-    .withHeadingAndCaption(legend, caption)
-)
+}
+
+@yesNoType match {
+    case OrdinaryYesNo(heading, caption) => {
+        @govukRadios(radios.withHeadingAndCaption(heading, caption))
+    }
+    case x @ YesNoWithAdditionalHtml(heading, caption, additionalHtml) => {
+        @hmrcHeading(heading, caption, Some(x.headingClasses))
+        @additionalHtml
+        @govukRadios(radios.withLegend(heading, legendIsVisible = false))
+    }
+    case YesNoWithLegend(legend) => {
+        @govukRadios(radios.withLegend(legend, legendIsVisible = true))
+    }
+}

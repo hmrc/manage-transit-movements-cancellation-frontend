@@ -30,7 +30,7 @@
     title = messages(s"$messageKey.title")
 ) {
 
-    @heading(s"$messageKey.heading")
+    @heading(messages(s"$messageKey.heading"))
 
     @govukSummaryList(SummaryList(rows))
 

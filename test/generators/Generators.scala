@@ -56,6 +56,8 @@ trait Generators extends UserAnswersGenerator with PageGenerators with ModelGene
       x => x < Int.MinValue
     )
 
+  def positiveInts: Gen[Int] = Gen.choose(0, Int.MaxValue)
+
   def nonNumerics: Gen[String] =
     alphaStr suchThat (_.size > 0)
 

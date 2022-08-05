@@ -18,11 +18,8 @@ package views.utils
 
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import uk.gov.hmrc.govukfrontend.views.implicits.{RichCharacterCountSupport, RichRadiosSupport, RichTextareaSupport}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
-import uk.gov.hmrc.govukfrontend.views.viewmodels.textarea.Textarea
+import uk.gov.hmrc.govukfrontend.views.Aliases._
+import uk.gov.hmrc.govukfrontend.views.implicits.{RichCharacterCountSupport, RichRadiosSupport}
 
 object ViewUtils {
 
@@ -39,15 +36,13 @@ object ViewUtils {
         case Some(value) => radios.withHeadingAndSectionCaption(Text(heading), Text(value))
         case None        => radios.withHeading(Text(heading))
       }
-  }
 
-  implicit class TextAreaImplicits(textArea: Textarea)(implicit messages: Messages) extends RichTextareaSupport {
-
-    def withHeadingAndCaption(heading: String, caption: Option[String]): Textarea =
-      caption match {
-        case Some(value) => textArea.withHeadingAndSectionCaption(Text(heading), Text(value))
-        case None        => textArea.withHeading(Text(heading))
-      }
+    def withLegend(legend: String, legendIsVisible: Boolean = true): Radios = {
+      val legendClass = if (legendIsVisible) "govuk-fieldset__legend--m" else "govuk-visually-hidden"
+      radios.copy(
+        fieldset = Some(Fieldset(legend = Some(Legend(content = Text(legend), classes = legendClass, isPageHeading = false))))
+      )
+    }
   }
 
   implicit class InputCharacterCountImplicits(characterCount: CharacterCount)(implicit messages: Messages) extends RichCharacterCountSupport {

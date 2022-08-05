@@ -15,6 +15,7 @@
  *@
 
 @import models.{DepartureId, LocalReferenceNumber}
+@import viewModels.components.InputYesNoViewModel._
 @import views.html.components.{Button, ErrorSummary, InputYesNo}
 
 @this(
@@ -38,8 +39,10 @@
 
         @inputYesNo(
             field = form("value"),
-            legend = messages("confirmCancellation.heading"),
-            caption = Some(lrn.value)
+            yesNoType = OrdinaryYesNo(
+                heading = messages("confirmCancellation.heading"),
+                caption = Some(lrn.value)
+            )
         )
 
         @button(attributes = Map("id" -> "submit"))

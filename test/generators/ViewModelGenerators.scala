@@ -18,6 +18,8 @@ package generators
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
+import play.api.data.FormError
+import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.Aliases._
 import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 
@@ -74,5 +76,18 @@ trait ViewModelGenerators {
       classes <- Gen.alphaNumStr
       actions <- arbitrary[Option[Actions]]
     } yield SummaryListRow(key, value, classes, actions)
+  }
+
+  implicit lazy val arbitraryFormError: Arbitrary[FormError] = Arbitrary {
+    for {
+      key     <- nonEmptyString
+      message <- nonEmptyString
+    } yield FormError(key, message)
+  }
+
+  implicit lazy val arbitraryHtml: Arbitrary[Html] = Arbitrary {
+    for {
+      text <- nonEmptyString
+    } yield Html(text)
   }
 }

@@ -30,9 +30,11 @@ class DeclarationNotFoundViewSpec extends ViewBehaviours {
 
   override val prefix: String = "canNotCancel"
 
+  behave like pageWithTitle()
+
   behave like pageWithBackLink
 
-  behave like pageWithHeading
+  behave like pageWithHeading()
 
   behave like pageWithPartialContent(
     "p",

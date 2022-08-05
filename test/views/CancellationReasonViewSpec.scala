@@ -32,11 +32,13 @@ class CancellationReasonViewSpec extends CharacterCountViewBehaviours {
 
   override val prefix: String = "cancellationReason"
 
+  behave like pageWithTitle()
+
   behave like pageWithBackLink
 
   behave like pageWithCaption(s"The local reference number is $lrn")
 
-  behave like pageWithHeading
+  behave like pageWithHeading()
 
   behave like pageWithCharacterCount(commentMaxLength)
 

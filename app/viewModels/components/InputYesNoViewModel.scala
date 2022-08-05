@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package views
+package viewModels.components
 
-import play.twirl.api.HtmlFormat
-import views.behaviours.ViewBehaviours
-import views.html.UnauthorisedView
+import play.twirl.api.Html
 
-class UnauthorisedViewSpec extends ViewBehaviours {
+sealed trait InputYesNoViewModel
 
-  override def view: HtmlFormat.Appendable =
-    injector.instanceOf[UnauthorisedView].apply()(fakeRequest, messages)
+object InputYesNoViewModel {
 
-  override val prefix: String = "unauthorised"
+  case class OrdinaryYesNo(
+    heading: String,
+    caption: Option[String] = None
+  ) extends InputYesNoViewModel
 
-  behave like pageWithBackLink
+  case class YesNoWithAdditionalHtml(
+    heading: String,
+    caption: Option[String] = None,
+    additionalHtml: Html
+  ) extends InputYesNoViewModel
+      with AdditionalHtmlViewModel
 
-  behave like pageWithHeading()
+  case class YesNoWithLegend(
+    legend: String
+  ) extends InputYesNoViewModel
 }

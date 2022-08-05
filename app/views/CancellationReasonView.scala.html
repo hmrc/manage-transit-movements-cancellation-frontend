@@ -15,8 +15,7 @@
  *@
 
 @import models.{DepartureId, LocalReferenceNumber}
-@import views.html.components.{Button, ErrorSummary, InputTextArea}
-@import views.html.components.InputCharacterCount
+@import views.html.components.{Button, ErrorSummary, InputCharacterCount}
 
 @this(
     mainTemplate: MainTemplate,
@@ -40,7 +39,7 @@
         @inputCharacterCount(
             field = form("value"),
             label = messages("cancellationReason.title"),
-            maxLength = Some(maxLength),
+            maxLength = maxLength,
             caption = Some(lrn.value)
         )
 

@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package views
+package viewModels.components
 
-import play.twirl.api.HtmlFormat
-import views.behaviours.ViewBehaviours
-import views.html.UnauthorisedView
-
-class UnauthorisedViewSpec extends ViewBehaviours {
-
-  override def view: HtmlFormat.Appendable =
-    injector.instanceOf[UnauthorisedView].apply()(fakeRequest, messages)
-
-  override val prefix: String = "unauthorised"
-
-  behave like pageWithBackLink
-
-  behave like pageWithHeading()
+trait AdditionalHtmlViewModel {
+  val headingClasses = "govuk-!-margin-top-0 govuk-!-margin-bottom-2"
 }

@@ -43,6 +43,8 @@ class CancellationDecisionUpdateViewSpec extends SummaryListViewBehaviours with 
     .sample
     .value
 
+  behave like pageWithTitle()
+
   behave like pageWithoutBackLink()
 
   behave like pageWithHeading()
