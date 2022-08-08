@@ -17,6 +17,7 @@ site.textarea.char_limit = (Limit is {0} characters)
 site.youMust = You must
 site.accepted = Accepted
 site.rejected = Rejected
+site.section = This section is
 
 error.title.prefix = Error:
 error.summary.title = There is a problem
