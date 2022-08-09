@@ -29,7 +29,7 @@ class UnauthorisedGroupAccessViewSpec extends ViewBehaviours {
 
   behave like pageWithBackLink
 
-  behave like pageWithHeading
+  behave like pageWithHeading()
 
   behave like pageWithContent("p", "If you already have access, you must contact your group administrator to update your access rights.")
 }

@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package views
+package templates
 
-import play.twirl.api.HtmlFormat
-import views.behaviours.ViewBehaviours
-import views.html.UnauthorisedView
+import a11ySpecBase.A11ySpecBase
+import views.html.templates.ErrorTemplate
 
-class UnauthorisedViewSpec extends ViewBehaviours {
+class ErrorTemplateSpec extends A11ySpecBase {
 
-  override def view: HtmlFormat.Appendable =
-    injector.instanceOf[UnauthorisedView].apply()(fakeRequest, messages)
+  "the 'error' template" must {
+    val template = app.injector.instanceOf[ErrorTemplate]
 
-  override val prefix: String = "unauthorised"
+    val title   = nonEmptyString.sample.value
+    val header  = nonEmptyString.sample.value
+    val message = nonEmptyString.sample.value
 
-  behave like pageWithBackLink
+    val content = template.apply(title, header, message)
 
-  behave like pageWithHeading()
+    "pass accessibility checks" in {
+      content.toString() must passAccessibilityChecks
+    }
+  }
 }
