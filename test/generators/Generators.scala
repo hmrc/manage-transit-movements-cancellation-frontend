@@ -59,13 +59,13 @@ trait Generators extends UserAnswersGenerator with PageGenerators with ModelGene
   def positiveInts: Gen[Int] = Gen.choose(0, Int.MaxValue)
 
   def nonNumerics: Gen[String] =
-    alphaStr suchThat (_.size > 0)
+    alphaStr suchThat (_.nonEmpty)
 
   def decimals: Gen[String] =
     arbitrary[BigDecimal]
       .suchThat(_.abs < Int.MaxValue)
       .suchThat(!_.isValidInt)
-      .map(_.formatted("%f"))
+      .map("%f".format(_))
 
   def intsBelowValue(value: Int): Gen[Int] =
     arbitrary[Int] suchThat (_ < value)
@@ -84,7 +84,7 @@ trait Generators extends UserAnswersGenerator with PageGenerators with ModelGene
       .suchThat(_ != "false")
 
   def nonEmptyString: Gen[String] =
-    Gen.alphaNumStr suchThat (_.nonEmpty)
+    Gen.nonEmptyListOf[Char](Gen.alphaNumChar).map(_.mkString)
 
   def stringsWithMaxLength(maxLength: Int): Gen[String] =
     for {
