@@ -40,7 +40,7 @@ class CancellationDecisionUpdateControllerSpec extends SpecBase with Generators 
   private val mockViewModelProvider       = mock[CancellationDecisionUpdateViewModelProvider]
 
   override def beforeEach(): Unit = {
-    reset(mockDepartureMessageService, mockViewModelProvider)
+    reset(mockDepartureMessageService); reset(mockViewModelProvider)
     super.beforeEach()
   }
 

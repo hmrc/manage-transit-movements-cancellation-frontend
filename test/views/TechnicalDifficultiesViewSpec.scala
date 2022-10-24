@@ -29,7 +29,7 @@ class TechnicalDifficultiesViewSpec extends ViewBehaviours {
 
   override val prefix: String = "technicalDifficulties"
 
-  behave like pageWithBackLink
+  behave like pageWithBackLink()
 
   behave like pageWithHeading()
 

@@ -20,8 +20,7 @@ import controllers.actions._
 import models.requests.{AuthorisedRequest, IdentifierRequest, OptionalDataRequest}
 import models.{LocalReferenceNumber, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.{BeforeAndAfterEach, TestSuite}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -50,11 +49,7 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
   override def beforeEach(): Unit = {
     super.beforeEach()
 
-    Mockito.reset(
-      mockDataRetrievalActionProvider,
-      mockCheckCancellationStatusProvider,
-      mockSessionRepository
-    )
+    reset(mockDataRetrievalActionProvider); reset(mockCheckCancellationStatusProvider); reset(mockSessionRepository)
 
     when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
   }

@@ -55,7 +55,7 @@ class CancellationStatusAction(
       case Some(responseDeparture: ResponseDeparture) if !validStatus.contains(responseDeparture.status) =>
         Left(Redirect(controllers.routes.CanNotCancelController.onPageLoad()))
 
-      case Some(responseDeparture: ResponseDeparture) if validStatus.contains(responseDeparture.status) =>
+      case Some(responseDeparture: ResponseDeparture) =>
         Right(AuthorisedRequest(request.request, request.eoriNumber, responseDeparture.localReferenceNumber))
 
       case None =>
