@@ -34,7 +34,7 @@ class CancellationReasonViewSpec extends CharacterCountViewBehaviours {
 
   behave like pageWithTitle()
 
-  behave like pageWithBackLink
+  behave like pageWithBackLink()
 
   behave like pageWithCaption(s"The local reference number is $lrn")
 

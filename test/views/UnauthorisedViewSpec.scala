@@ -27,7 +27,7 @@ class UnauthorisedViewSpec extends ViewBehaviours {
 
   override val prefix: String = "unauthorised"
 
-  behave like pageWithBackLink
+  behave like pageWithBackLink()
 
   behave like pageWithHeading()
 }
