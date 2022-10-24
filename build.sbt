@@ -60,7 +60,6 @@ lazy val root = (project in file("."))
     update / evictionWarningOptions :=
       EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     resolvers ++= Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
       Resolver.jcenterRepo
     ),
     uglifyCompressOptions := Seq("unused=false", "dead_code=false", "warnings=false"),
