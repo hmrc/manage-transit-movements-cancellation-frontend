@@ -26,6 +26,7 @@ import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import utils.TimeMachine
 
 import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,8 +42,9 @@ class SessionRepositorySpec
     with DefaultPlayMongoRepositorySupport[UserAnswers] {
 
   private val config: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  private val timeMachine: TimeMachine  = app.injector.instanceOf[TimeMachine]
 
-  override protected val repository = new SessionRepository(mongoComponent, config)
+  override protected val repository = new SessionRepository(mongoComponent, config, timeMachine)
 
   private lazy val userAnswers1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"), Json.obj(), Instant.now())
   private lazy val userAnswers2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"), Json.obj(), Instant.now())
