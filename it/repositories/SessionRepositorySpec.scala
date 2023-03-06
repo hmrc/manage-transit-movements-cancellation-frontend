@@ -42,7 +42,7 @@ class SessionRepositorySpec
 
   private val config: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
-  override protected def repository = new SessionRepository(mongoComponent, config)
+  override protected val repository = new SessionRepository(mongoComponent, config)
 
   private lazy val userAnswers1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"), Json.obj(), Instant.now())
   private lazy val userAnswers2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"), Json.obj(), Instant.now())
