@@ -16,13 +16,16 @@
 
 package utils
 
-import java.time.{Clock, LocalDate}
+import java.time.{Clock, Instant, LocalDate}
 import javax.inject.Inject
 
 trait TimeMachine {
   def today(): LocalDate
+  def now(): Instant
 }
 
 class DefaultTimeMachine @Inject() (clock: Clock) extends TimeMachine {
   override def today(): LocalDate = LocalDate.now(clock)
+
+  override def now(): Instant = Instant.now(clock)
 }

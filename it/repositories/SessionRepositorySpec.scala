@@ -27,6 +27,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SessionRepositorySpec
@@ -43,9 +44,9 @@ class SessionRepositorySpec
 
   override protected def repository = new SessionRepository(mongoComponent, config)
 
-  private lazy val userAnswers1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"))
-  private lazy val userAnswers2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"))
-  private lazy val userAnswers3 = UserAnswers(DepartureId(2), EoriNumber("EoriNumber3"))
+  private lazy val userAnswers1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"), Json.obj(), Instant.now())
+  private lazy val userAnswers2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"), Json.obj(), Instant.now())
+  private lazy val userAnswers3 = UserAnswers(DepartureId(2), EoriNumber("EoriNumber3"), Json.obj(), Instant.now())
 
   override def beforeEach(): Unit = {
     super.beforeEach()

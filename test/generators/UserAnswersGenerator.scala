@@ -23,6 +23,8 @@ import org.scalatest.TryValues
 import pages._
 import play.api.libs.json.{JsValue, Json}
 
+import java.time.Instant
+
 trait UserAnswersGenerator extends UserAnswersEntryGenerators with TryValues {
   self: Generators =>
 
@@ -49,7 +51,8 @@ trait UserAnswersGenerator extends UserAnswersEntryGenerators with TryValues {
         data = data.foldLeft(Json.obj()) {
           case (obj, (path, value)) =>
             obj.setObject(path.path, value).get
-        }
+        },
+        lastUpdated = Instant.now()
       )
     }
   }

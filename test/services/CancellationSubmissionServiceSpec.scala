@@ -28,8 +28,8 @@ import pages.CancellationReasonPage
 import play.api.test.Helpers
 import services.responses.InvalidState
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import utils.TimeMachine
 
-import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.Elem
@@ -40,8 +40,8 @@ class CancellationSubmissionServiceSpec extends SpecBase {
 
   trait Setup {
     val mockDepartureConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
-    val date: LocalDate                                    = LocalDate.now()
-    lazy val service                                       = new CancellationSubmissionService(mockDepartureConnector, () => date)
+    val timeMachine: TimeMachine                           = injector.instanceOf[TimeMachine]
+    lazy val service                                       = new CancellationSubmissionService(mockDepartureConnector, timeMachine)
     val departureId: DepartureId                           = DepartureId(1)
     implicit val hc: HeaderCarrier                         = HeaderCarrier()
 

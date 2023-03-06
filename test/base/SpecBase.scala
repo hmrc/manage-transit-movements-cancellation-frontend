@@ -29,6 +29,8 @@ import play.api.libs.json.{Json, Reads, Writes}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 
+import java.time.Instant
+
 trait SpecBase
     extends AnyFreeSpec
     with Matchers
@@ -43,7 +45,7 @@ trait SpecBase
 
   val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
 
-  def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj())
+  def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj(), Instant.now())
 
   def injector: Injector = app.injector
 
