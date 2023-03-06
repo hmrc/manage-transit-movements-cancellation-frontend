@@ -65,7 +65,7 @@ class StartControllerSpec extends SpecBase {
 
         val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(uaCaptor.capture)
-        uaCaptor.getValue.lastUpdated isEqual existingUserAnswers.lastUpdated mustBe true
+        uaCaptor.getValue.lastUpdated equals existingUserAnswers.lastUpdated mustBe true
       }
     }
   }

@@ -19,9 +19,11 @@ package controllers
 import controllers.actions._
 import models.{DepartureId, UserAnswers}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TimeMachine
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -30,14 +32,15 @@ class StartController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
   sessionRepository: SessionRepository,
-  val controllerComponents: MessagesControllerComponents
+  val controllerComponents: MessagesControllerComponents,
+  timeMachine: TimeMachine
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def start(departureId: DepartureId): Action[AnyContent] = actions.getData(departureId).async {
     implicit request =>
-      sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber))) map {
+      sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber, Json.obj(), timeMachine.now()))) map {
         _ =>
           Redirect(routes.ConfirmCancellationController.onPageLoad(departureId))
       }
