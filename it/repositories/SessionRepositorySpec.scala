@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{DepartureId, EoriNumber, UserAnswers}
+import models.{EoriNumber, UserAnswers}
 import org.mongodb.scala.model.Filters
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -45,9 +45,9 @@ class SessionRepositorySpec
 
   override protected val repository = new SessionRepository(mongoComponent, config, timeMachine)
 
-  private lazy val userAnswers1 = UserAnswers(DepartureId(0), EoriNumber("EoriNumber1"), Json.obj(), timeMachine.now())
-  private lazy val userAnswers2 = UserAnswers(DepartureId(1), EoriNumber("EoriNumber2"), Json.obj(), timeMachine.now())
-  private lazy val userAnswers3 = UserAnswers(DepartureId(2), EoriNumber("EoriNumber3"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers1 = UserAnswers("AB123", EoriNumber("EoriNumber1"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers2 = UserAnswers("CD123", EoriNumber("EoriNumber2"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers3 = UserAnswers("EF123", EoriNumber("EoriNumber3"), Json.obj(), timeMachine.now())
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -56,7 +56,7 @@ class SessionRepositorySpec
   }
 
   private def findOne(userAnswers: UserAnswers): Option[UserAnswers] =
-    find(Filters.eq("_id", userAnswers.id.index)).futureValue.headOption
+    find(Filters.eq("_id", userAnswers.id)).futureValue.headOption
 
   "SessionRepository" - {
 
