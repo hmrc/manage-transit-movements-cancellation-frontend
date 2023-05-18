@@ -17,7 +17,7 @@
 package base
 
 import config.FrontendAppConfig
-import models.{DepartureId, EoriNumber, UserAnswers}
+import models.{EoriNumber, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -41,7 +41,7 @@ trait SpecBase
     with BeforeAndAfterEach
     with MockApplicationBuilder {
 
-  val departureId: DepartureId = DepartureId(1)
+  val departureId: String = "AB123"
 
   val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
 

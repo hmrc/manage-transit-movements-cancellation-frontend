@@ -22,18 +22,13 @@ import matchers.JsonMatchers
 import models.Constants.commentMaxLength
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.verify
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
 import play.api.data.Form
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
-import services.responses.InvalidState
-import uk.gov.hmrc.http.HttpResponse
 import views.html.CancellationReasonView
-
-import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
@@ -45,8 +40,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
   "CancellationReason Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
-      checkCancellationStatus()
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -63,8 +56,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      checkCancellationStatus()
 
       val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, validAnswer)
 
@@ -84,11 +75,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must redirect to the next page when valid data is submitted" in {
 
-      checkCancellationStatus()
-
-      when(mockSubmissionService.submitCancellation(any())(any()))
-        .thenReturn(Future.successful(Right(HttpResponse(Helpers.ACCEPTED, ""))))
-
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, cancellationReasonRoute)
@@ -104,31 +90,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
     }
 
-    "must redirect to technical difficulties when the submission fails" in {
-
-      checkCancellationStatus()
-
-      when(mockSubmissionService.submitCancellation(any())(any()))
-        .thenReturn(Future.successful(Left(InvalidState)))
-
-      dataRetrievalWithData(emptyUserAnswers)
-
-      val request = FakeRequest(POST, cancellationReasonRoute)
-        .withFormUrlEncodedBody(("value", validAnswer))
-
-      val result = route(app, request).value
-
-      status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
-
-      val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-      verify(mockSessionRepository).set(uaCaptor.capture)
-      uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
-    }
-
     "must return a Bad Request and errors when invalid data is submitted" in {
-
-      checkCancellationStatus()
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -141,7 +103,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "redirect to Session Expired for a GET if no existing data is found" in {
 
-      checkCancellationStatus()
       dataRetrievalNoData()
 
       val request = FakeRequest(GET, cancellationReasonRoute)
@@ -155,7 +116,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "redirect to Session Expired for a POST if no existing data is found" in {
 
-      checkCancellationStatus()
       dataRetrievalNoData()
 
       val request = FakeRequest(POST, cancellationReasonRoute)

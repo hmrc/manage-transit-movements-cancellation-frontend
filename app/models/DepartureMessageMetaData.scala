@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import play.api.libs.json._
+import play.api.libs.json.{__, Reads}
 
-import scala.xml.{NodeSeq, XML}
+import java.time.LocalDateTime
 
-trait NodeSeqFormat {
+case class DepartureMessageMetaData(received: LocalDateTime, messageType: DepartureMessageType, path: String)
 
-  implicit val writesNodeSeq: Writes[NodeSeq] = new Writes[NodeSeq] {
-    override def writes(o: NodeSeq): JsValue = JsString(o.mkString)
-  }
+object DepartureMessageMetaData {
 
-  implicit val readsNodeSeq: Reads[NodeSeq] = new Reads[NodeSeq] {
-
-    override def reads(json: JsValue): JsResult[NodeSeq] = json match {
-      case JsString(value) => JsSuccess(XML.loadString(value))
-      case _               => JsError("Value cannot be parsed as XML")
-    }
+  implicit lazy val reads: Reads[DepartureMessageMetaData] = {
+    import play.api.libs.functional.syntax._
+    (
+      (__ \ "received").read[LocalDateTime] and
+        (__ \ "type").read[DepartureMessageType] and
+        (__ \ "_links" \ "self" \ "href").read[String].map(_.replace("/customs/transits/", ""))
+    )(DepartureMessageMetaData.apply _)
   }
 }

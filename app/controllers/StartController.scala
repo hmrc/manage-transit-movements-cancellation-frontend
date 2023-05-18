@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions._
-import models.{DepartureId, UserAnswers}
+import models.UserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,7 +38,7 @@ class StartController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def start(departureId: DepartureId): Action[AnyContent] = actions.getData(departureId).async {
+  def start(departureId: String): Action[AnyContent] = actions.getData(departureId).async {
     implicit request =>
       sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber, Json.obj(), timeMachine.now()))) map {
         _ =>

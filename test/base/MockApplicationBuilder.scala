@@ -17,7 +17,7 @@
 package base
 
 import controllers.actions._
-import models.requests.{AuthorisedRequest, IdentifierRequest, OptionalDataRequest}
+import models.requests.{AuthorisedRequest, OptionalDataRequest}
 import models.{LocalReferenceNumber, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -27,9 +27,9 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{ActionRefiner, ActionTransformer, Result}
+import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
-import services.CancellationSubmissionService
+import services.DepartureMessageService
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,20 +38,27 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
 
   val lrn: LocalReferenceNumber = LocalReferenceNumber("lrn")
 
-  val mockSubmissionService: CancellationSubmissionService = mock[CancellationSubmissionService]
-
   val mockDataRetrievalActionProvider: DataRetrievalActionProvider = mock[DataRetrievalActionProvider]
-
-  val mockCheckCancellationStatusProvider: CheckCancellationStatusProvider = mock[CheckCancellationStatusProvider]
+  val mockGetLRNActionProvider: GetLRNActionProvider               = mock[GetLRNActionProvider]
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
+  val mockDepartureMessageService: DepartureMessageService = mock[DepartureMessageService]
+
+  val getLRNAction: FakeGetLRNAction = new FakeGetLRNAction(
+    "ab123",
+    mockDepartureMessageService
+  )
+
   override def beforeEach(): Unit = {
     super.beforeEach()
-
-    reset(mockDataRetrievalActionProvider); reset(mockCheckCancellationStatusProvider); reset(mockSessionRepository)
+    reset(mockDataRetrievalActionProvider)
+    reset(mockGetLRNActionProvider)
+    reset(mockSessionRepository)
+    reset(mockDepartureMessageService)
 
     when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+    when(mockGetLRNActionProvider.apply(any())).thenReturn(getLRNAction)
   }
 
   def dataRetrievalWithData(userAnswers: UserAnswers): Unit = dataRetrieval(Some(userAnswers))
@@ -69,17 +76,6 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     when(mockDataRetrievalActionProvider.apply(any())).thenReturn(fakeDataRetrievalAction)
   }
 
-  def checkCancellationStatus(): Unit = {
-    val fakeCancellationStatusAction = new ActionRefiner[IdentifierRequest, AuthorisedRequest] {
-      override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, AuthorisedRequest[A]]] =
-        Future.successful(Right(AuthorisedRequest(request.request, request.eoriNumber, lrn)))
-
-      override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
-    }
-
-    when(mockCheckCancellationStatusProvider.apply(any())).thenReturn(fakeCancellationStatusAction)
-  }
-
   override def fakeApplication(): Application =
     guiceApplicationBuilder()
       .build()
@@ -91,8 +87,8 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalActionProvider].toInstance(mockDataRetrievalActionProvider),
-        bind[CheckCancellationStatusProvider].toInstance(mockCheckCancellationStatusProvider),
-        bind[CancellationSubmissionService].toInstance(mockSubmissionService),
+        bind[GetLRNActionProvider].toInstance(mockGetLRNActionProvider),
+        bind[DepartureMessageService].toInstance(mockDepartureMessageService),
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
 

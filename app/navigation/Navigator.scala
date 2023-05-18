@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HttpVerbs.GET
 @Singleton
 class Navigator @Inject() (val appConfig: FrontendAppConfig) {
 
-  protected def normalRoutes(departureId: DepartureId): PartialFunction[Page, UserAnswers => Option[Call]] = {
+  protected def normalRoutes(departureId: String): PartialFunction[Page, UserAnswers => Option[Call]] = {
 
     case ConfirmCancellationPage =>
       ua => confirmCancellationRoute(ua, departureId)
@@ -35,10 +35,12 @@ class Navigator @Inject() (val appConfig: FrontendAppConfig) {
       _ => Some(routes.CancellationSubmissionConfirmationController.onPageLoad(departureId))
   }
 
-  def confirmCancellationRoute(ua: UserAnswers, departureId: DepartureId): Option[Call] =
+  def confirmCancellationRoute(ua: UserAnswers, departureId: String): Option[Call] =
     ua.get(ConfirmCancellationPage) map {
-      case true  => routes.CancellationReasonController.onPageLoad(departureId)
-      case false => Call(GET, appConfig.manageTransitMovementsViewDeparturesUrl)
+      case true =>
+        routes.CancellationReasonController.onPageLoad(departureId)
+      case false =>
+        Call(GET, appConfig.manageTransitMovementsViewDeparturesUrl)
     }
 
   private def handleCall(userAnswers: UserAnswers, call: UserAnswers => Option[Call]) =
@@ -47,7 +49,7 @@ class Navigator @Inject() (val appConfig: FrontendAppConfig) {
       case None              => routes.SessionExpiredController.onPageLoad()
     }
 
-  def nextPage(page: Page, userAnswers: UserAnswers, departureId: DepartureId): Call =
+  def nextPage(page: Page, userAnswers: UserAnswers, departureId: String): Call =
     normalRoutes(departureId).lift(page) match {
       case None       => routes.ConfirmCancellationController.onPageLoad(departureId)
       case Some(call) => handleCall(userAnswers, call)

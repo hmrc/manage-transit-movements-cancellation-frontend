@@ -24,7 +24,7 @@ import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(
-  id: DepartureId,
+  id: String,
   eoriNumber: EoriNumber,
   data: JsObject,
   lastUpdated: Instant
@@ -71,14 +71,14 @@ object UserAnswers {
   import play.api.libs.functional.syntax._
 
   implicit lazy val reads: Reads[UserAnswers] = (
-    (__ \ "_id").read[DepartureId] and
+    (__ \ "_id").read[String] and
       (__ \ "eoriNumber").read[EoriNumber] and
       (__ \ "data").read[JsObject] and
       (__ \ "lastUpdated").read(MongoJavatimeFormats.instantReads)
   )(UserAnswers.apply _)
 
   implicit lazy val writes: OWrites[UserAnswers] = (
-    (__ \ "_id").write[DepartureId] and
+    (__ \ "_id").write[String] and
       (__ \ "eoriNumber").write[EoriNumber] and
       (__ \ "data").write[JsObject] and
       (__ \ "lastUpdated").write(MongoJavatimeFormats.instantWrites)

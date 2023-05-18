@@ -16,85 +16,29 @@
 
 package connectors
 
-import com.lucidchart.open.xtract.XmlReader
 import config.FrontendAppConfig
 import logging.Logging
-import models.messages.{CancellationDecisionUpdate, CancellationRequest}
-import models.response.{MRNAllocatedMessage, MessageSummary, ResponseDeparture}
-import models.{DepartureId, ResponseMessage}
-import play.api.http.HeaderNames
-import uk.gov.hmrc.http.HttpReads.is2xx
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import models.{DepartureMessages, LocalReferenceNumber}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.xml.NodeSeq
 
 class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
 
-  private val channel: String = "web"
+  def getLRN(location: String)(implicit hc: HeaderCarrier): Future[LocalReferenceNumber] = {
 
-  def getDeparture(departureId: DepartureId)(implicit hc: HeaderCarrier): Future[Option[ResponseDeparture]] = {
+    val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
 
-    val serviceUrl = s"${appConfig.departureUrl}/movements/departures/${departureId.index}"
-    val header     = hc.withExtraHeaders(ChannelHeader(channel))
+    val url = s"${appConfig.commonTransitConventionTradersUrl}$location"
 
-    http.GET[HttpResponse](serviceUrl)(httpReads, header, ec) map {
-      case responseMessage if is2xx(responseMessage.status) =>
-        Option(responseMessage.json.as[ResponseDeparture])
-      case _ =>
-        logger.error("getDeparture failed to return data")
-        None
-    }
+    http.GET[LocalReferenceNumber](url)(HttpReads[LocalReferenceNumber], headers, ec)
   }
 
-  def getMessageSummary(departureId: DepartureId)(implicit hc: HeaderCarrier): Future[ConnectorResponse[MessageSummary]] = {
-    val serviceUrl = s"${appConfig.departureUrl}/movements/departures/${departureId.index}/messages/summary"
-    val header     = hc.withExtraHeaders(ChannelHeader(channel))
+  def getMessageMetaData(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[DepartureMessages] = {
+    val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
 
-    http.GET[ConnectorResponse[MessageSummary]](serviceUrl)(connectorResponseHttpReads(departureId, logger), header, ec)
-  }
-
-  def getMrnAllocatedMessage(departureId: DepartureId, messageUrl: String)(implicit hc: HeaderCarrier): Future[ConnectorResponse[MRNAllocatedMessage]] = {
-    val header = hc.withExtraHeaders(ChannelHeader(channel))
-
-    http.GET[ConnectorResponse[MRNAllocatedMessage]](appConfig.departureBaseUrl + messageUrl)(connectorResponseHttpReads(departureId, logger), header, ec)
-  }
-
-  def submitCancellation(
-    departureId: DepartureId,
-    cancellationRequest: CancellationRequest
-  )(implicit hc: HeaderCarrier): Future[ConnectorResponse[HttpResponse]] = {
-    val serviceUrl = s"${appConfig.departureUrl}/movements/departures/${departureId.index}/messages"
-    val header = hc
-      .withExtraHeaders(ChannelHeader(channel), ContentTypeHeader("application/xml"))
-
-    http.POSTString[ConnectorResponse[HttpResponse]](serviceUrl, cancellationRequest.toXml.toString())(
-      connectorResponseDefaultReads(departureId, logger),
-      header,
-      implicitly
-    )
-  }
-
-  def getCancellationDecisionUpdateMessage(location: String)(implicit hc: HeaderCarrier): Future[Option[CancellationDecisionUpdate]] = {
-    val serviceUrl = s"${appConfig.departureBaseUrl}$location"
-    val header     = hc.withExtraHeaders(ChannelHeader(channel))
-
-    http.GET[HttpResponse](serviceUrl)(httpReads, header, ec) map {
-      case responseMessage if is2xx(responseMessage.status) =>
-        val message: NodeSeq = responseMessage.json.as[ResponseMessage].message
-        XmlReader.of[CancellationDecisionUpdate].read(message).toOption
-      case _ =>
-        logger.error("[getCancellationDecisionUpdateMessage] failed to return data")
-        None
-    }
-  }
-
-  object ChannelHeader {
-    def apply(value: String): (String, String) = ("Channel", value)
-  }
-
-  object ContentTypeHeader {
-    def apply(value: String): (String, String) = (HeaderNames.CONTENT_TYPE, value)
+    val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/$departureId/messages"
+    http.GET[DepartureMessages](serviceUrl)(implicitly, headers, ec)
   }
 }

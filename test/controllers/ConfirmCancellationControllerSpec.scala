@@ -33,7 +33,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      checkCancellationStatus()
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(GET, confirmCancellationRoute)
@@ -50,8 +49,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val answer = true
-      checkCancellationStatus()
+      val answer      = true
       val userAnswers = emptyUserAnswers.setValue(ConfirmCancellationPage, answer)
       dataRetrievalWithData(userAnswers)
 
@@ -69,7 +67,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted and user selects Yes" in {
 
-      checkCancellationStatus()
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, confirmCancellationRoute)
@@ -84,7 +81,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted and user selects No" in {
 
-      checkCancellationStatus()
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, confirmCancellationRoute)
@@ -99,7 +95,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      checkCancellationStatus()
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, confirmCancellationRoute).withFormUrlEncodedBody(("value", ""))
@@ -111,7 +106,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "redirect to Session Expired for a GET if no existing data is found" in {
 
-      checkCancellationStatus()
       dataRetrievalNoData()
 
       val request = FakeRequest(GET, confirmCancellationRoute)
@@ -125,7 +119,6 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "redirect to Session Expired for a POST if no existing data is found" in {
 
-      checkCancellationStatus()
       dataRetrievalNoData()
 
       val request = FakeRequest(POST, confirmCancellationRoute)

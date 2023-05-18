@@ -19,13 +19,11 @@ package controllers
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
-import models.DepartureId
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.CancellationSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
 
@@ -38,7 +36,6 @@ class CancellationReasonController @Inject() (
   sessionRepository: SessionRepository,
   navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
-  cancellationSubmissionService: CancellationSubmissionService,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView
 )(implicit ec: ExecutionContext)
@@ -47,7 +44,7 @@ class CancellationReasonController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId) {
+  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
       val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
         case None        => form
@@ -56,7 +53,7 @@ class CancellationReasonController @Inject() (
       Ok(view(preparedForm, departureId, request.lrn, commentMaxLength))
   }
 
-  def onSubmit(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId).async {
+  def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
     implicit request =>
       form
         .bindFromRequest()
@@ -66,11 +63,7 @@ class CancellationReasonController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-              response       <- cancellationSubmissionService.submitCancellation(updatedAnswers)
-            } yield response match {
-              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
-              case Left(_)  => Redirect(routes.ErrorController.technicalDifficulties())
-            }
+            } yield Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
         )
   }
 }
