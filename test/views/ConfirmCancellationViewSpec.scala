@@ -33,6 +33,8 @@ class ConfirmCancellationViewSpec extends YesNoViewBehaviours {
 
   behave like pageWithTitle()
 
+  behave like pageWithCaption(s"LRN: $lrn")
+
   behave like pageWithBackLink()
 
   behave like pageWithHeading()

@@ -59,10 +59,10 @@ cancellationReason.heading = Why do you want to cancel this departure declaratio
 cancellationReason.checkYourAnswersLabel = Why do you want to cancel this departure declaration?
 cancellationReason.error.required = Enter why you want to cancel this departure declaration
 cancellationReason.error.length = Your reason must be {0} characters or less
-cancellationReason.error.invalidCharacters = Your reason must only include letters a to z without accents, numbers 0 to 9, ampersands (&), apostrophes, at signs (@), commas, forward slashes, full stops, hyphens, question marks and spaces
+cancellationReason.error.invalidCharacters = Your reason must only include letters a to z without accents, ampersands (&), apostrophes, at signs (@), commas, forward slashes, full stops, hyphens and question marks
 
 cancellationSubmissionConfirmation.title = Cancellation request sent
-cancellationSubmissionConfirmation.heading = Cancellation request sent
+cancellationSubmissionConfirmation.heading = Cancellation request sentCancellationReasonFormProviderSpec
 cancellationSubmissionConfirmation.para1 = for local reference number
 cancellationSubmissionConfirmation.subHeading = What happens next
 cancellationSubmissionConfirmation.para2 = You will get a decision on this request in a few minutes.
