@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, Reads}
 
-import scala.xml.{NodeSeq, XML}
+case class DepartureMessages(messages: List[DepartureMessageMetaData])
 
-trait NodeSeqFormat {
-
-  implicit val writesNodeSeq: Writes[NodeSeq] = new Writes[NodeSeq] {
-    override def writes(o: NodeSeq): JsValue = JsString(o.mkString)
-  }
-
-  implicit val readsNodeSeq: Reads[NodeSeq] = new Reads[NodeSeq] {
-
-    override def reads(json: JsValue): JsResult[NodeSeq] = json match {
-      case JsString(value) => JsSuccess(XML.loadString(value))
-      case _               => JsError("Value cannot be parsed as XML")
-    }
-  }
+object DepartureMessages {
+  implicit val reads: Reads[DepartureMessages] = Json.reads[DepartureMessages]
 }

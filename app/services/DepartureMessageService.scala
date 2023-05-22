@@ -16,9 +16,11 @@
 
 package services
 
+import cats.data.OptionT
 import connectors.DepartureMovementConnector
-import models.DepartureId
+import models.DepartureMessageType.DepartureNotification
 import models.messages.CancellationDecisionUpdate
+import models.{DepartureId, DepartureMessageMetaData, DepartureMessageType, LocalReferenceNumber}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -27,20 +29,30 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DepartureMessageService @Inject() (connectors: DepartureMovementConnector) extends Logging {
 
-  def cancellationDecisionUpdateMessage(
-    departureId: DepartureId
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CancellationDecisionUpdate]] =
-    connectors.getMessageSummary(departureId) flatMap {
-      case Right(summary) =>
-        summary.messages.get("IE009") match {
-          case Some(location) =>
-            connectors.getCancellationDecisionUpdateMessage(location)
-          case _ =>
-            logger.error("[cancellationDecisionUpdateMessage] failed to get cancellation decision update location")
-            Future.successful(None)
-        }
-      case _ =>
-        logger.error("[cancellationDecisionUpdateMessage] failed to return cancellation decision update data")
-        Future.successful(None)
-    }
+  private def getDepartureNotificationMetaData(
+    departureId: String
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessageMetaData]] =
+    getMessageMetaData(departureId, DepartureNotification)
+
+  private def getMessageMetaData(departureId: String, messageType: DepartureMessageType)(implicit
+    ec: ExecutionContext,
+    hc: HeaderCarrier
+  ): Future[Option[DepartureMessageMetaData]] =
+    connectors
+      .getMessageMetaData(departureId)
+      .map(
+        _.messages
+          .filter(_.messageType == messageType)
+          .sortBy(_.received)
+          .reverse
+          .headOption
+      )
+
+  def getLRNFromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[LocalReferenceNumber]] =
+    (
+      for {
+        declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
+        lrn                <- OptionT.liftF(connectors.getLRN(declarationMessage.path))
+      } yield lrn
+    ).value
 }

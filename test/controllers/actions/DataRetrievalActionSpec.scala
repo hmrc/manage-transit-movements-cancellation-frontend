@@ -19,7 +19,7 @@ package controllers.actions
 import base.SpecBase
 import generators.Generators
 import models.requests.{AuthorisedRequest, OptionalDataRequest}
-import models.{DepartureId, EoriNumber, LocalReferenceNumber}
+import models.{EoriNumber, LocalReferenceNumber}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -47,7 +47,7 @@ class DataRetrievalActionSpec extends SpecBase with GuiceOneAppPerSuite with Gen
       .build()
   }
 
-  def harness(departureId: DepartureId, f: OptionalDataRequest[AnyContent] => Unit): Unit = {
+  def harness(departureId: String, f: OptionalDataRequest[AnyContent] => Unit): Unit = {
 
     lazy val actionProvider = app.injector.instanceOf[DataRetrievalActionProviderImpl]
 

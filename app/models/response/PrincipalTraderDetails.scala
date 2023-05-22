@@ -16,9 +16,8 @@
 
 package models.response
 
-import com.lucidchart.open.xtract.XmlReader
-import com.lucidchart.open.xtract.__
 import cats.syntax.all._
+import com.lucidchart.open.xtract.{__, XmlReader}
 
 import scala.xml.NodeSeq
 

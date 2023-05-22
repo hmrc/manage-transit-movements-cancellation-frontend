@@ -19,6 +19,8 @@ site.accepted = Accepted
 site.rejected = Rejected
 site.section = This section is
 
+site.lrn = LRN: {0}
+
 error.title.prefix = Error:
 error.summary.title = There is a problem
 
@@ -55,16 +57,17 @@ pageNotFound.contactLink=contact the New Computerised Transit System(NCTS) helpd
 cancellationReason.title = Why do you want to cancel this departure declaration?
 cancellationReason.heading = Why do you want to cancel this departure declaration?
 cancellationReason.checkYourAnswersLabel = Why do you want to cancel this departure declaration?
-cancellationReason.error.required = Enter the reason why you want to cancel this departure declaration
-cancellationReason.error.length = The reason why you want to cancel this departure declaration must be 350 characters or less
-cancellationReason.error.invalidCharacters = The reason why you want to cancel this departure declaration must only include letters a to z without accents, numbers 0 to 9, blank spaces, at signs (@), forward slashes, back slashes, full stops, commas, hyphens, and question marks
+cancellationReason.error.required = Enter why you want to cancel this departure declaration
+cancellationReason.error.length = Your reason must be {0} characters or less
+cancellationReason.error.invalidCharacters = Your reason must only include letters a to z without accents, numbers 0 to 9, ampersands (&), apostrophes, at signs (@), commas, forward slashes, full stops, hyphens, question marks and spaces
 
 cancellationSubmissionConfirmation.title = Cancellation request sent
 cancellationSubmissionConfirmation.heading = Cancellation request sent
-cancellationSubmissionConfirmation.para1 = for local reference number
+cancellationSubmissionConfirmation.para1 = for Local Reference Number (LRN) {0}
 cancellationSubmissionConfirmation.subHeading = What happens next
-cancellationSubmissionConfirmation.para2 = You will get a decision on this request in a few minutes.
-cancellationSubmissionConfirmation.linkText = View departure declarations
+cancellationSubmissionConfirmation.para2 = The office of departure will respond to your request within a few minutes.
+cancellationSubmissionConfirmation.linkText = Check the status of departure declarations
+cancellationSubmissionConfirmation.linkSuffix = for updates.
 
 canNotCancel.title = You cannot cancel this departure declaration
 canNotCancel.heading = You cannot cancel this departure declaration

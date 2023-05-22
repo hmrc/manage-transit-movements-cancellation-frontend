@@ -20,8 +20,7 @@ import base.SpecBase
 import connectors.DepartureMovementConnector
 import models.DepartureStatus.DepartureSubmitted
 import models.response.ResponseDeparture
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.reset
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -29,17 +28,9 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-import scala.concurrent.Future
-
 class CancellationSubmissionConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
-  private val mockDepartureResponse: ResponseDeparture =
-    ResponseDeparture(
-      lrn,
-      DepartureSubmitted
-    )
 
   private val mockConnector = mock[DepartureMovementConnector]
 
@@ -57,27 +48,12 @@ class CancellationSubmissionConfirmationControllerSpec extends SpecBase with Moc
 
     "return OK and the correct view for a GET" in {
 
-      when(mockConnector.getDeparture(any())(any()))
-        .thenReturn(Future.successful(Some(mockDepartureResponse)))
-
       val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url)
 
       val result = route(app, request).value
 
       status(result) mustEqual OK
 
-    }
-
-    "return Not_Found and the correct view for a GET when departure record is not found" in {
-
-      when(mockConnector.getDeparture(any())(any()))
-        .thenReturn(Future.successful(None))
-
-      val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url)
-
-      val result = route(app, request).value
-
-      status(result) mustEqual NOT_FOUND
     }
   }
 }

@@ -34,7 +34,6 @@ class StartControllerSpec extends SpecBase {
     "must redirect to confirm cancellation" - {
       "when there are no existing user answers" in {
 
-        checkCancellationStatus()
         dataRetrievalNoData()
 
         val request = FakeRequest(GET, startRoute)
@@ -52,7 +51,6 @@ class StartControllerSpec extends SpecBase {
 
       "when there are existing user answers" in {
 
-        checkCancellationStatus()
         dataRetrievalWithData(existingUserAnswers)
 
         val request = FakeRequest(GET, startRoute)

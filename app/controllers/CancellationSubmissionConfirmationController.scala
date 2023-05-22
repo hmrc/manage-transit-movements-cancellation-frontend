@@ -17,14 +17,11 @@
 package controllers
 
 import config.FrontendAppConfig
-import connectors.DepartureMovementConnector
 import controllers.actions._
-import models.DepartureId
-import models.response.ResponseDeparture
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.{CanNotCancelView, CancellationSubmissionConfirmationView}
+import views.html.CancellationSubmissionConfirmationView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -32,24 +29,17 @@ import scala.concurrent.ExecutionContext
 class CancellationSubmissionConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  departureMovementConnector: DepartureMovementConnector,
   val controllerComponents: MessagesControllerComponents,
   appConfig: FrontendAppConfig,
   confirmationView: CancellationSubmissionConfirmationView,
-  canNotCancelView: CanNotCancelView
+  getLRNAction: GetLRNActionProvider
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(departureId: DepartureId): Action[AnyContent] = identify.async {
+  def onPageLoad(departureId: String): Action[AnyContent] = (identify andThen getLRNAction(departureId)) {
     implicit request =>
       lazy val departureListUrl = appConfig.manageTransitMovementsViewDeparturesUrl
-
-      departureMovementConnector.getDeparture(departureId).map {
-        case Some(responseDeparture: ResponseDeparture) =>
-          Ok(confirmationView(departureListUrl, responseDeparture.localReferenceNumber))
-        case None =>
-          NotFound(canNotCancelView(departureListUrl))
-      }
+      Ok(confirmationView(departureListUrl, request.lrn))
   }
 }

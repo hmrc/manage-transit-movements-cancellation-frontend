@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{DepartureId, UserAnswers}
+import models.UserAnswers
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -41,8 +41,8 @@ class SessionRepository @Inject() (
       replaceIndexes = appConfig.replaceIndexes
     ) {
 
-  def get(departureId: DepartureId): Future[Option[UserAnswers]] = {
-    val filter = Filters.eq("_id", departureId.index)
+  def get(departureId: String): Future[Option[UserAnswers]] = {
+    val filter = Filters.eq("_id", departureId)
     val update = Updates.set("lastUpdated", timeMachine.now())
 
     collection
@@ -51,7 +51,7 @@ class SessionRepository @Inject() (
   }
 
   def set(userAnswers: UserAnswers): Future[Boolean] = {
-    val filter             = Filters.eq("_id", userAnswers.id.index)
+    val filter             = Filters.eq("_id", userAnswers.id)
     val updatedUserAnswers = userAnswers.copy(lastUpdated = timeMachine.now())
 
     collection

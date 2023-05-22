@@ -17,7 +17,6 @@
 package controllers.actions
 
 import com.google.inject.Singleton
-import models.DepartureId
 import models.requests.{AuthorisedRequest, OptionalDataRequest}
 import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
@@ -28,17 +27,17 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class DataRetrievalActionProviderImpl @Inject() (sessionRepository: SessionRepository, ec: ExecutionContext) extends DataRetrievalActionProvider {
 
-  def apply(departureId: DepartureId): ActionTransformer[AuthorisedRequest, OptionalDataRequest] =
+  def apply(departureId: String): ActionTransformer[AuthorisedRequest, OptionalDataRequest] =
     new DataRetrievalAction(departureId, ec, sessionRepository)
 }
 
 trait DataRetrievalActionProvider {
 
-  def apply(departureId: DepartureId): ActionTransformer[AuthorisedRequest, OptionalDataRequest]
+  def apply(departureId: String): ActionTransformer[AuthorisedRequest, OptionalDataRequest]
 }
 
 class DataRetrievalAction(
-  departureId: DepartureId,
+  departureId: String,
   implicit protected val executionContext: ExecutionContext,
   sessionRepository: SessionRepository
 ) extends ActionTransformer[AuthorisedRequest, OptionalDataRequest] {

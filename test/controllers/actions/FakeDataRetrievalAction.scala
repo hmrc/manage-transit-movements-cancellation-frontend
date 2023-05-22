@@ -17,14 +17,14 @@
 package controllers.actions
 
 import models.requests.{AuthorisedRequest, OptionalDataRequest}
-import models.{DepartureId, LocalReferenceNumber, UserAnswers}
+import models.{LocalReferenceNumber, UserAnswers}
 import play.api.mvc.ActionTransformer
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeDataRetrievalActionProvider(dataToReturn: Option[UserAnswers]) extends DataRetrievalActionProvider {
 
-  def apply(departureId: DepartureId): ActionTransformer[AuthorisedRequest, OptionalDataRequest] =
+  def apply(departureId: String): ActionTransformer[AuthorisedRequest, OptionalDataRequest] =
     new FakeDataRetrievalAction(dataToReturn)
 }
 

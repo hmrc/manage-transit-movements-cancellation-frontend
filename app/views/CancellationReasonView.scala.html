@@ -14,18 +14,19 @@
  * limitations under the License.
  *@
 
-@import models.{DepartureId, LocalReferenceNumber}
-@import views.html.components.{Button, ErrorSummary, InputCharacterCount}
+@import models.LocalReferenceNumber
+@import views.html.components.{Button, ErrorSummary, InputCharacterCount, HeadingCaption}
 
 @this(
     mainTemplate: MainTemplate,
     formHelper: FormWithCSRF,
     button: Button,
     inputCharacterCount: InputCharacterCount,
+    headingCaption: HeadingCaption,
     errorSummary: ErrorSummary
 )
 
-@(form: Form[String], departureId: DepartureId, lrn: LocalReferenceNumber, maxLength: Int)(implicit request: Request[_], messages: Messages)
+@(form: Form[String], departureId: String, lrn: LocalReferenceNumber, maxLength: Int)(implicit request: Request[_], messages: Messages)
 
 @mainTemplate(
     title = messages("cancellationReason.title"),
@@ -36,11 +37,12 @@
 
         @errorSummary(form.errors)
 
+        @headingCaption(lrn.value)
+
         @inputCharacterCount(
             field = form("value"),
             label = messages("cancellationReason.title"),
-            maxLength = maxLength,
-            caption = Some(lrn.value)
+            maxLength = maxLength
         )
 
         @button(messageKey = "site.submit", attributes = Map("id" -> "submit"))

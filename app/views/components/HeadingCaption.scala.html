@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package utils
+@this()
 
-import play.api.libs.json._
+@(caption: String, suffix: Option[String] = Some("LRN: "), visuallyHiddenClass: String = "govuk-visually-hidden")
 
-import scala.xml.{NodeSeq, XML}
-
-trait NodeSeqFormat {
-
-  implicit val writesNodeSeq: Writes[NodeSeq] = new Writes[NodeSeq] {
-    override def writes(o: NodeSeq): JsValue = JsString(o.mkString)
-  }
-
-  implicit val readsNodeSeq: Reads[NodeSeq] = new Reads[NodeSeq] {
-
-    override def reads(json: JsValue): JsResult[NodeSeq] = json match {
-      case JsString(value) => JsSuccess(XML.loadString(value))
-      case _               => JsError("Value cannot be parsed as XML")
-    }
-  }
-}
+<h2 class="govuk-caption-xl hmrc-caption-xl">@suffix@caption</h2>

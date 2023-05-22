@@ -14,19 +14,21 @@
  * limitations under the License.
  *@
 
-@import models.{DepartureId, LocalReferenceNumber}
+@import models.LocalReferenceNumber
 @import viewModels.components.InputYesNoViewModel._
 @import views.html.components.{Button, ErrorSummary, InputYesNo}
+@import views.html.components.HeadingCaption
 
 @this(
     mainTemplate: MainTemplate,
     formHelper: FormWithCSRF,
     button: Button,
     inputYesNo: InputYesNo,
+    headingCaption: HeadingCaption,
     errorSummary: ErrorSummary
 )
 
-@(form: Form[Boolean], departureId: DepartureId, lrn: LocalReferenceNumber)(implicit request: Request[_], messages: Messages)
+@(form: Form[Boolean], departureId: String, lrn: LocalReferenceNumber)(implicit request: Request[_], messages: Messages)
 
 @mainTemplate(
     title = messages("confirmCancellation.title"),
@@ -37,11 +39,12 @@
 
         @errorSummary(form.errors)
 
+        @headingCaption(lrn.value)
+
         @inputYesNo(
             field = form("value"),
             yesNoType = OrdinaryYesNo(
-                heading = messages("confirmCancellation.heading"),
-                caption = Some(lrn.value)
+                heading = messages("confirmCancellation.heading")
             )
         )
 

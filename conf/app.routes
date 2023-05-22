@@ -10,15 +10,13 @@ GET        /unauthorised                                            controllers.
 
 GET        /unauthorised-group-access                               controllers.UnauthorisedWithGroupAccessController.onPageLoad()
 
-GET        /:departureId/confirm-cancellation                       controllers.ConfirmCancellationController.onPageLoad(departureId: DepartureId)
-POST       /:departureId/confirm-cancellation                       controllers.ConfirmCancellationController.onSubmit(departureId: DepartureId)
+GET        /:departureId/cancel-declaration                         controllers.ConfirmCancellationController.onPageLoad(departureId: String)
+POST       /:departureId/cancel-declaration                         controllers.ConfirmCancellationController.onSubmit(departureId: String)
 
-GET        /:departureId/cancellation-reason                        controllers.CancellationReasonController.onPageLoad(departureId: DepartureId)
-POST       /:departureId/cancellation-reason                        controllers.CancellationReasonController.onSubmit(departureId: DepartureId)
+GET        /:departureId/departure-declaration-cancellation-reason  controllers.CancellationReasonController.onPageLoad(departureId: String)
+POST       /:departureId/departure-declaration-cancellation-reason  controllers.CancellationReasonController.onSubmit(departureId: String)
 
-GET        /:departureId/cancellation-submission-confirmation       controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: DepartureId)
-
-GET        /:departureId/cancellation-decision-update               controllers.CancellationDecisionUpdateController.onPageLoad(departureId: DepartureId)
+GET        /:departureId/request-sent                               controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: String)
 
 GET        /keep-alive                                              controllers.KeepAliveController.keepAlive()
 
@@ -31,4 +29,4 @@ GET        /internal-server-error                                   controllers.
 
 ->         /hmrc-frontend                                           hmrcfrontend.Routes
 
-GET        /:departureId                                            controllers.StartController.start(departureId: DepartureId)
+GET        /:departureId                                            controllers.StartController.start(departureId: String)

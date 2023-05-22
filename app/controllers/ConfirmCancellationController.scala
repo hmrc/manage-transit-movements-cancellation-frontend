@@ -16,9 +16,9 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions._
 import forms.ConfirmCancellationFormProvider
-import models.DepartureId
 import navigation.Navigator
 import pages.ConfirmCancellationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -44,7 +44,7 @@ class ConfirmCancellationController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId) {
+  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
       val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
         case None        => form
@@ -53,7 +53,7 @@ class ConfirmCancellationController @Inject() (
       Ok(view(preparedForm, departureId, request.lrn))
   }
 
-  def onSubmit(departureId: DepartureId): Action[AnyContent] = actions.requireData(departureId).async {
+  def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
     implicit request =>
       form
         .bindFromRequest()
