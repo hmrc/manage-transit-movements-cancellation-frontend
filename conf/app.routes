@@ -13,8 +13,8 @@ GET        /unauthorised-group-access                               controllers.
 GET        /:departureId/cancel-declaration                         controllers.ConfirmCancellationController.onPageLoad(departureId: String)
 POST       /:departureId/cancel-declaration                         controllers.ConfirmCancellationController.onSubmit(departureId: String)
 
-GET        /:departureId/departure-declaration-cancellation-reason  controllers.CancellationReasonController.onPageLoad(departureId: String)
-POST       /:departureId/departure-declaration-cancellation-reason  controllers.CancellationReasonController.onSubmit(departureId: String)
+GET        /:departureId/reason                                     controllers.CancellationReasonController.onPageLoad(departureId: String)
+POST       /:departureId/reason                                     controllers.CancellationReasonController.onSubmit(departureId: String)
 
 GET        /:departureId/cancellation-submission-confirmation       controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: String)
 
