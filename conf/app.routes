@@ -16,7 +16,7 @@ POST       /:departureId/cancel-declaration                         controllers.
 GET        /:departureId/departure-declaration-cancellation-reason  controllers.CancellationReasonController.onPageLoad(departureId: String)
 POST       /:departureId/departure-declaration-cancellation-reason  controllers.CancellationReasonController.onSubmit(departureId: String)
 
-GET        /:departureId/cancellation-submission-confirmation       controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: String)
+GET        /:departureId/request-sent                               controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: String)
 
 GET        /keep-alive                                              controllers.KeepAliveController.keepAlive()
 

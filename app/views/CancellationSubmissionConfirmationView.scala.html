@@ -32,12 +32,12 @@
 
     @govukPanel(Panel(
         title = Text(messages("cancellationSubmissionConfirmation.heading")),
-        content = HtmlContent(s"""${messages("cancellationSubmissionConfirmation.para1")} <strong>${lrn}</strong>""")
+        content = HtmlContent(s"""${messages("cancellationSubmissionConfirmation.para1", lrn)}""")
     ))
 
     <h2 class="govuk-heading-m">@messages("cancellationSubmissionConfirmation.subHeading")</h2>
 
     <p class="govuk-body">@messages("cancellationSubmissionConfirmation.para2")</p>
     <p class="govuk-body"><a id="manage-transit-movements" href=@departuresListUrl class="govuk-link">
-    @messages("cancellationSubmissionConfirmation.linkText")</a></p>
+    @messages("cancellationSubmissionConfirmation.linkText")</a> @messages("cancellationSubmissionConfirmation.linkSuffix")</p>
 }

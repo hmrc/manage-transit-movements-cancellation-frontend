@@ -36,12 +36,12 @@ class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
   behave like pageWithHeading()
 
   behave like pageWithPanel(
-    body = s"for local reference number $lrn"
+    body = s"for local reference number (LRN) $lrn"
   )
 
   behave like pageWithContent("h2", "What happens next")
 
-  behave like pageWithContent("p", "You will get a decision on this request in a few minutes.")
+  behave like pageWithContent("p", "The office of departure will respond to your request within a few minutes.")
 
-  behave like pageWithLink("manage-transit-movements", "View departure declarations", url)
+  behave like pageWithLink("manage-transit-movements", "Check the status of departure declarations", url)
 }
