@@ -63,7 +63,7 @@ cancellationReason.error.invalidCharacters = Your reason must only include lette
 
 cancellationSubmissionConfirmation.title = Cancellation request sent
 cancellationSubmissionConfirmation.heading = Cancellation request sent
-cancellationSubmissionConfirmation.para1 = for local reference number (LRN) {0}
+cancellationSubmissionConfirmation.para1 = for Local Reference Number (LRN) {0}
 cancellationSubmissionConfirmation.subHeading = What happens next
 cancellationSubmissionConfirmation.para2 = The office of departure will respond to your request within a few minutes.
 cancellationSubmissionConfirmation.linkText = Check the status of departure declarations
