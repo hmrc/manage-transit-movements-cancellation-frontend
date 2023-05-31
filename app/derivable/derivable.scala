@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-package queries
+package derivable
 
-import models.{DepartureCacheUserAnswers, UserAnswers}
-import play.api.libs.json.JsPath
+import queries.Gettable
 
-import scala.util.{Success, Try}
+trait Derivable[A, B] extends Gettable[A] {
 
-sealed trait Query {
+  val derive: A => B
 
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
-
-  //TODO need to refactor to use type
-  def cleanup(value: Option[A], userAnswers: DepartureCacheUserAnswers): Try[DepartureCacheUserAnswers] =
-    Success(userAnswers)
 }

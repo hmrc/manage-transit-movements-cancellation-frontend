@@ -16,9 +16,11 @@
 
 package controllers
 
+import connectors.ApiConnector
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
+import models.DepartureId
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,6 +36,7 @@ class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
   sessionRepository: SessionRepository,
+  apiConnector: ApiConnector,
   navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
   val controllerComponents: MessagesControllerComponents,
@@ -63,7 +66,13 @@ class CancellationReasonController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+              //TODO fix departureId
+              result <- apiConnector.submit(updatedAnswers, DepartureId(departureId.toInt))
+            } yield result match {
+              case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
+              case Left(_)          => Redirect(controllers.routes.ErrorController.technicalDifficulties())
+              case Right(_)         => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+            }
         )
   }
 }
