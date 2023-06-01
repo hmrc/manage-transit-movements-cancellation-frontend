@@ -41,11 +41,11 @@ package object connectors extends Logging {
           response.json.validate[T] match {
             case JsSuccess(value, _) => Right(value)
             case JsError(_) =>
-              logger.error(s"Body cannot be parsed into model, invalid body for url: $url and  departure id: ${departureId.index}")
+              logger.error(s"Body cannot be parsed into model, invalid body for url: $url and  departure id: ${departureId.value}")
               Left(MalformedBody)
           }
         case status =>
-          logger.warn(s"receive invalid status for url $url and departureId ${departureId.index}")
+          logger.warn(s"receive invalid status for url $url and departureId ${departureId.value}")
           Left(InvalidStatus(status))
       }
 
@@ -54,7 +54,7 @@ package object connectors extends Logging {
       response.status match {
         case status if is2xx(status) => Right(response)
         case status =>
-          logger.warn(s"receive invalid status for url $url and departureId ${departureId.index}")
+          logger.warn(s"receive invalid status for url $url and departureId ${departureId.value}")
           Left(InvalidStatus(status))
       }
 

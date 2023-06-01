@@ -29,7 +29,7 @@ trait ModelGenerators extends UserAnswersEntryGenerators {
   implicit lazy val arbitraryDepartureId: Arbitrary[DepartureId] =
     Arbitrary {
       for {
-        departureId <- intsBelowValue(1000000)
+        departureId <- stringsWithMaxLength(17)
       } yield new DepartureId(departureId)
     }
 

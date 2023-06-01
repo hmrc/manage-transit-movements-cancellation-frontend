@@ -66,8 +66,7 @@ class CancellationReasonController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-              //TODO fix departureId
-              result <- apiConnector.submit(updatedAnswers, DepartureId(departureId.toInt))
+              result <- apiConnector.submit(updatedAnswers, DepartureId(departureId))
             } yield result match {
               case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
               case Left(_)          => Redirect(controllers.routes.ErrorController.technicalDifficulties())

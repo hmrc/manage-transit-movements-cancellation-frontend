@@ -36,7 +36,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
 
   def submit(userAnswers: UserAnswers, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[Either[Result, HttpResponse]] = {
 
-    val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.index}/messages"
+    val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
 
     httpClient
       .POSTString[HttpResponse](serviceUrl, userAnswers.data.toString, requestHeaders)
