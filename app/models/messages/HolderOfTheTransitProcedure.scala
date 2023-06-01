@@ -19,7 +19,7 @@ package models.messages
 import play.api.libs.json.{Json, OFormat}
 
 case class HolderOfTheTransitProcedure(
-  identificationNumber: Option[String] = None,
+  identificationNumber: String,
   TIRHolderIdentificationNumber: Option[String] = None,
   name: Option[String] = None,
   Address: Option[Address] = None,

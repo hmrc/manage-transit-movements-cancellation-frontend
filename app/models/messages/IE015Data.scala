@@ -32,7 +32,7 @@ object IE015Data {
         preparationDateAndTime = preparationDateAndTime,
         TransitOperation = messageData.TransitOperation,
         CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(messageData.CustomsOfficeOfDeparture.referenceNumber),
-        HolderOfTheTransitProcedure = HolderOfTheTransitProcedure(),
+        HolderOfTheTransitProcedure = messageData.HolderOfTheTransitProcedure,
         Invalidation = Invalidation(justification = reason)
       )
     )
