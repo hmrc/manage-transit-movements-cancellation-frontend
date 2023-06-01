@@ -21,11 +21,13 @@ import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
 import models.DepartureId
+import models.messages.{IE014Data, IE014MessageData, IE015Data, Invalidation}
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.DepartureMessageService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
 
@@ -39,6 +41,7 @@ class CancellationReasonController @Inject() (
   apiConnector: ApiConnector,
   navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
+  departureMessageService: DepartureMessageService,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView
 )(implicit ec: ExecutionContext)
@@ -66,7 +69,9 @@ class CancellationReasonController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-              result         <- apiConnector.submit(updatedAnswers, DepartureId(departureId))
+              ie015Data      <- departureMessageService.getIE015FromDeclarationMessage(departureId)
+              ie014Data = IE015Data.fromIE015Data(messageData = ie015Data.get.data, reason = value)
+              result <- apiConnector.submit(ie014Data, DepartureId(departureId))
             } yield result match {
               case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
               case Left(_)          => Redirect(controllers.routes.ErrorController.technicalDifficulties())

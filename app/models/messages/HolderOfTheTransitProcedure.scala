@@ -18,16 +18,12 @@ package models.messages
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDateTime
-
-case class Invalidation(requestDateAndTime: LocalDateTime = LocalDateTime.now(),
-                        decisionDateAndTime: LocalDateTime = LocalDateTime.now(),
-                        decision: String = "0",
-                        initiatedByCustoms: String = "0",
-                        justification: String
+case class HolderOfTheTransitProcedure(
+  identificationNumber: Option[String] = None
 )
 
-object Invalidation {
-  implicit val formats: OFormat[Invalidation] = Json.format[Invalidation]
+object HolderOfTheTransitProcedure {
+
+  implicit val formats: OFormat[HolderOfTheTransitProcedure] = Json.format[HolderOfTheTransitProcedure]
 
 }

@@ -16,11 +16,25 @@
 
 package models.messages
 
-import play.api.libs.json.{Json, OWrites, Reads, __}
+import play.api.libs.json.{__, Json, OWrites, Reads}
+
+import java.time.LocalDateTime
 
 case class IE015Data(data: IE015MessageData)
 
 object IE015Data {
+
+  def fromIE015Data(messageData: IE015MessageData, preparationDateAndTime: LocalDateTime = LocalDateTime.now(), reason: String): IE014Data =
+    IE014Data(
+      IE014MessageData(
+        preparationDateAndTime = preparationDateAndTime,
+        TransitOperation = messageData.TransitOperation,
+        CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(messageData.CustomsOfficeOfDeparture.referenceNumber),
+        HolderOfTheTransitProcedure = HolderOfTheTransitProcedure(),
+        Invalidation = Invalidation(justification = reason)
+      )
+    )
+
   implicit val reads: Reads[IE015Data]    = (__ \ "body" \ "n1:CC015C").read[IE015MessageData].map(IE015Data.apply)
   implicit val writes: OWrites[IE015Data] = Json.writes[IE015Data]
 }

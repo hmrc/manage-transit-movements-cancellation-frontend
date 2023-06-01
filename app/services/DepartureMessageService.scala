@@ -60,7 +60,7 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
     (
       for {
         declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
-        ie015 <- OptionT.liftF(connectors.getIE015(declarationMessage.path))
+        ie015              <- OptionT.liftF(connectors.getIE015(declarationMessage.path))
       } yield ie015
-      ).value
+    ).value
 }

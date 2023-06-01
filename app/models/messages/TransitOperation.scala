@@ -19,7 +19,9 @@ package models.messages
 import models.LocalReferenceNumber
 import play.api.libs.json.{Json, OFormat}
 
-case class TransitOperation(LRN: LocalReferenceNumber)
+import java.time.LocalDateTime
+
+case class TransitOperation(MRN: Option[String], LRN: Option[String])
 
 object TransitOperation {
   implicit val formats: OFormat[TransitOperation] = Json.format[TransitOperation]

@@ -17,9 +17,11 @@
 package connectors
 
 import config.FrontendAppConfig
+import models.messages.{IE014Data, IE015Data}
 import models.{DepartureCacheUserAnswers, DepartureId, UserAnswers}
 import play.api.Logging
 import play.api.http.HeaderNames
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
@@ -34,13 +36,13 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
     HeaderNames.CONTENT_TYPE -> "application/json"
   )
 
-  def submit(userAnswers: UserAnswers, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[Either[Result, HttpResponse]] = {
+  def submit(ie014Data: IE014Data, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[Either[Result, HttpResponse]] = {
 
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
 
-    println(s"********************UserAnswers is $userAnswers")
+    println(s"********************ie014Data is $ie014Data")
     httpClient
-      .POSTString[HttpResponse](serviceUrl, userAnswers.data.toString, requestHeaders)
+      .POSTString[HttpResponse](serviceUrl, Json.toJsObject(ie014Data).toString, requestHeaders)
       .map {
         response =>
           logger.debug(s"ApiConnector:submit: success: ${response.status}-${response.body}")

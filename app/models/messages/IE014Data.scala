@@ -24,6 +24,5 @@ case class IE014Data(`n1:CC014C`: IE014MessageData)
 
 object IE014Data {
 
-
   implicit val writes: OWrites[IE014Data] = Json.writes[IE014Data]
 }
