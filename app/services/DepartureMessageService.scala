@@ -19,7 +19,7 @@ package services
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
 import models.DepartureMessageType.DepartureNotification
-import models.messages.CancellationDecisionUpdate
+import models.messages.{CancellationDecisionUpdate, IE015Data}
 import models.{DepartureId, DepartureMessageMetaData, DepartureMessageType, LocalReferenceNumber}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -55,4 +55,12 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
         lrn                <- OptionT.liftF(connectors.getLRN(declarationMessage.path))
       } yield lrn
     ).value
+
+  def getIE015FromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE015Data]] =
+    (
+      for {
+        declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
+        ie015 <- OptionT.liftF(connectors.getIE015(declarationMessage.path))
+      } yield ie015
+      ).value
 }

@@ -38,6 +38,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
 
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
 
+    println(s"********************UserAnswers is $userAnswers")
     httpClient
       .POSTString[HttpResponse](serviceUrl, userAnswers.data.toString, requestHeaders)
       .map {
