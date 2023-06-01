@@ -18,16 +18,13 @@ package models.messages
 
 import play.api.libs.json.{Json, OFormat}
 
-case class HolderOfTheTransitProcedure(
-  identificationNumber: Option[String] = None,
-  TIRHolderIdentificationNumber: Option[String] = None,
-  name: Option[String] = None,
-  Address: Option[Address] = None,
-  ContactPerson: Option[ContactPerson] = None
+case class ContactPerson(
+  name: String,
+  phoneNumber: String
 )
 
-object HolderOfTheTransitProcedure {
+object ContactPerson {
 
-  implicit val formats: OFormat[HolderOfTheTransitProcedure] = Json.format[HolderOfTheTransitProcedure]
+  implicit val formats: OFormat[ContactPerson] = Json.format[ContactPerson]
 
 }

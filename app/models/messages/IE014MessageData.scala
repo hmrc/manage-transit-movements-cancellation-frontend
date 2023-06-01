@@ -16,12 +16,14 @@
 
 package models.messages
 
-import play.api.libs.json.{Json, OFormat, OWrites}
+import play.api.libs.json.{Json, OWrites}
 import utils.Format.dateTimeFormatIE014
 
 import java.time.LocalDateTime
 
-case class IE014MessageData(preparationDateAndTime: LocalDateTime,
+case class IE014MessageData(messageSender: String,
+                            messageRecipient: String,
+                            preparationDateAndTime: LocalDateTime,
                             TransitOperation: TransitOperation,
                             CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,
                             HolderOfTheTransitProcedure: HolderOfTheTransitProcedure,
@@ -33,8 +35,8 @@ object IE014MessageData {
   implicit val writes: OWrites[IE014MessageData] = OWrites {
     messageData =>
       Json.obj(
-        "messageSender"               -> "NCTS", // TODO double check this
-        "messageRecipient"            -> "NCTS", // TODO double check this
+        "messageSender"               -> messageData.messageSender,
+        "messageRecipient"            -> messageData.messageRecipient,
         "preparationDateAndTime"      -> messageData.preparationDateAndTime.format(dateTimeFormatIE014),
         "messageIdentification"       -> "CC014C", // TODO double check this
         "messageType"                 -> "CC014C",

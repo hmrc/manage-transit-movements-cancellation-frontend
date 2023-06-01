@@ -75,9 +75,7 @@ class CancellationReasonController @Inject() (
             } yield result match {
               case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
               case Left(_)          => Redirect(controllers.routes.ErrorController.technicalDifficulties())
-              case Right(x) =>
-                println(s"************************Got a valid response $x")
-                Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+              case Right(x)         => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
             }
         )
   }

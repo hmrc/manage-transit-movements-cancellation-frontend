@@ -21,9 +21,13 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDateTime
 
 case class IE015MessageData(
+  messageSender: String,
+  messageRecipient: String,
   preparationDateAndTime: LocalDateTime,
+  messageIdentification: String,
   TransitOperation: TransitOperation,
-  CustomsOfficeOfDeparture: CustomsOfficeOfDeparture
+  CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,
+  HolderOfTheTransitProcedure: HolderOfTheTransitProcedure
 )
 
 object IE015MessageData {

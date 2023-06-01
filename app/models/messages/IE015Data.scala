@@ -27,6 +27,8 @@ object IE015Data {
   def fromIE015Data(messageData: IE015MessageData, preparationDateAndTime: LocalDateTime = LocalDateTime.now(), reason: String): IE014Data =
     IE014Data(
       IE014MessageData(
+        messageSender = messageData.messageSender,
+        messageRecipient = messageData.messageRecipient,
         preparationDateAndTime = preparationDateAndTime,
         TransitOperation = messageData.TransitOperation,
         CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(messageData.CustomsOfficeOfDeparture.referenceNumber),
