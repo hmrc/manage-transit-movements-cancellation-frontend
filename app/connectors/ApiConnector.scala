@@ -17,8 +17,8 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.messages.{IE014Data, IE015Data}
-import models.{DepartureCacheUserAnswers, DepartureId, UserAnswers}
+import models.DepartureId
+import models.messages.IE014Data
 import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.libs.json.Json

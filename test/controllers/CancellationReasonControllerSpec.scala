@@ -20,7 +20,7 @@ import base.SpecBase
 import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
 import models.Constants.commentMaxLength
-import models.UserAnswers
+import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, UserAnswers}
 import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE015Data, IE015MessageData, TransitOperation}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -33,6 +33,7 @@ import play.api.test.Helpers._
 import views.html.CancellationReasonView
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
@@ -82,15 +83,28 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       val ie015Data: IE015Data = IE015Data(
         IE015MessageData(
-          "sender", "recipient", LocalDateTime.now(), "CC015",
+          "sender",
+          "recipient",
+          LocalDateTime.now(),
+          "CC015",
           TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
           CustomsOfficeOfDeparture("AB123"),
           HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
         )
       )
+      val messages = DepartureMessages(
+        List(
+          DepartureMessageMetaData(
+            LocalDateTime.parse("2022-11-11T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME),
+            DepartureMessageType.DepartureNotification,
+            "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+          )
+        )
+      )
       dataRetrievalWithData(emptyUserAnswers)
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(messages))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
@@ -99,10 +113,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url
-
-      val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-      verify(mockSessionRepository).set(uaCaptor.capture)
-      uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

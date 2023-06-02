@@ -16,7 +16,7 @@
 
 package base
 
-import connectors.ApiConnector
+import connectors.{ApiConnector, DepartureMovementConnector}
 import controllers.actions._
 import models.requests.{AuthorisedRequest, OptionalDataRequest}
 import models.{LocalReferenceNumber, UserAnswers}
@@ -43,9 +43,10 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
   val mockGetLRNActionProvider: GetLRNActionProvider               = mock[GetLRNActionProvider]
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
-  val mockApiConnector: ApiConnector = mock[ApiConnector]
+  val mockApiConnector: ApiConnector           = mock[ApiConnector]
 
-  val mockDepartureMessageService: DepartureMessageService = mock[DepartureMessageService]
+  val mockDepartureMessageService: DepartureMessageService       = mock[DepartureMessageService]
+  val mockDepartureMovementConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
 
   val getLRNAction: FakeGetLRNAction = new FakeGetLRNAction(
     "ab123",
