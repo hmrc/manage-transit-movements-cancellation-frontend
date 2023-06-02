@@ -17,6 +17,7 @@
 package base
 
 import config.FrontendAppConfig
+import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE014Data, IE014MessageData, IE015Data, Invalidation, TransitOperation}
 import models.{EoriNumber, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -29,7 +30,7 @@ import play.api.libs.json.{Json, Reads, Writes}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 
-import java.time.Instant
+import java.time.{Instant, LocalDateTime}
 
 trait SpecBase
     extends AnyFreeSpec
@@ -47,6 +48,17 @@ trait SpecBase
 
   def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj(), Instant.now())
 
+  val ie014Data: IE014Data = IE014Data(
+    IE014MessageData(
+      "sender",
+      "recipient",
+      LocalDateTime.now(),
+      TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+      CustomsOfficeOfDeparture("AB123"),
+      HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123"),
+      Invalidation(justification = "Hello this is a rejection.")
+    )
+  )
   def injector: Injector = app.injector
 
   def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
