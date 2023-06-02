@@ -24,13 +24,13 @@ case class IE015Data(data: IE015MessageData)
 
 object IE015Data {
 
-  def fromIE015Data(data: Option[IE015Data], preparationDateAndTime: LocalDateTime = LocalDateTime.now(), reason: String): Option[IE014Data] = {
+  def fromIE015Data(data: Option[IE015Data], reason: String): Option[IE014Data] = {
     data.map(messageData =>
     IE014Data(
       IE014MessageData(
         messageSender = messageData.data.messageSender,
         messageRecipient = messageData.data.messageRecipient,
-        preparationDateAndTime = preparationDateAndTime,
+        preparationDateAndTime = messageData.data.preparationDateAndTime,
         TransitOperation = messageData.data.TransitOperation,
         CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(messageData.data.CustomsOfficeOfDeparture.referenceNumber),
         HolderOfTheTransitProcedure = messageData.data.HolderOfTheTransitProcedure,
