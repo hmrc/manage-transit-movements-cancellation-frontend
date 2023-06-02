@@ -68,10 +68,9 @@ class CancellationReasonController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
               ie015Data      <- departureMessageService.getIE015FromDeclarationMessage(departureId)
-              ie014Data = IE015Data.fromIE015Data(messageData = ie015Data.get.data, reason = value)
-              result <- apiConnector.submit(ie014Data, DepartureId(departureId))
+              ie014Data       = IE015Data.fromIE015Data(ie015Data, value)
+              result         <- ie014Data.map(apiConnector.submit(_, DepartureId(departureId)))
             } yield result match {
               case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
               case Left(_)          => Redirect(controllers.routes.ErrorController.technicalDifficulties())

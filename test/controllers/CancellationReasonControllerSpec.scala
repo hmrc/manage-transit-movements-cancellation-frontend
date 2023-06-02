@@ -21,14 +21,19 @@ import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
 import models.Constants.commentMaxLength
 import models.UserAnswers
+import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE015Data, IE015MessageData, TransitOperation}
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.verify
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.CancellationReasonView
+
+import java.time.LocalDateTime
+import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
@@ -75,7 +80,17 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must redirect to the next page when valid data is submitted" in {
 
+      val ie015Data: IE015Data = IE015Data(
+        IE015MessageData(
+          "sender", "recipient", LocalDateTime.now(), "CC015",
+          TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+          CustomsOfficeOfDeparture("AB123"),
+          HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
+        )
+      )
       dataRetrievalWithData(emptyUserAnswers)
+
+      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
