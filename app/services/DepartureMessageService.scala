@@ -19,8 +19,8 @@ package services
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
 import models.DepartureMessageType.DepartureNotification
-import models.messages.{CancellationDecisionUpdate, IE015Data}
-import models.{DepartureId, DepartureMessageMetaData, DepartureMessageType, LocalReferenceNumber}
+import models.messages.IE015Data
+import models.{DepartureMessageMetaData, DepartureMessageType, LocalReferenceNumber}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 

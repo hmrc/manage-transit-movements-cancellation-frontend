@@ -16,10 +16,7 @@
 
 package models.messages
 
-import models.LocalReferenceNumber
 import play.api.libs.json.{Json, OFormat}
-
-import java.time.LocalDateTime
 
 case class TransitOperation(MRN: Option[String], LRN: Option[String])
 

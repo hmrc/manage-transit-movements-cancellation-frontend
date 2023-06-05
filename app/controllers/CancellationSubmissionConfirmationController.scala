@@ -33,8 +33,7 @@ class CancellationSubmissionConfirmationController @Inject() (
   appConfig: FrontendAppConfig,
   confirmationView: CancellationSubmissionConfirmationView,
   getLRNAction: GetLRNActionProvider
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(departureId: String): Action[AnyContent] = (identify andThen getLRNAction(departureId)) {

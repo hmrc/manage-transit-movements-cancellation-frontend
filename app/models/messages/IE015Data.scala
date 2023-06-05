@@ -18,8 +18,6 @@ package models.messages
 
 import play.api.libs.json.{__, Json, OWrites, Reads}
 
-import java.time.LocalDateTime
-
 case class IE015Data(data: IE015MessageData)
 
 object IE015Data {

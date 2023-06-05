@@ -20,11 +20,10 @@ import base.SpecBase
 import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
 import models.Constants.commentMaxLength
-import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, UserAnswers}
-import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE015Data, IE015MessageData, TransitOperation}
-import org.mockito.ArgumentCaptor
+import models.messages._
+import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
 import play.api.data.Form
