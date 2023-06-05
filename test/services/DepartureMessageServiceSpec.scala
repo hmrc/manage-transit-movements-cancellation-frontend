@@ -19,13 +19,21 @@ package services
 import base.SpecBase
 import connectors.DepartureMovementConnector
 import generators.Generators
-import org.mockito.Mockito.reset
+import models.DepartureMessageMetaData
+import models.DepartureMessageType.DepartureNotification
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.http.HeaderCarrier
+
+import java.time.LocalDateTime
+import scala.concurrent.Future
 
 class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAndAfterEach {
 
   private val mockConnector = mock[DepartureMovementConnector]
+  private val service = new DepartureMessageService(mockConnector)
+
+  private val departureMessage = DepartureMessageMetaData(LocalDateTime.now(), DepartureNotification, "path/url")
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -33,8 +41,13 @@ class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAn
   }
 
   "DepartureMessageService" - {
-    "getLRNFromDeclarationMessage" - {
-      // TODO
+    "getDepartureNotificationMetaData" in {
+      val date = LocalDateTime.now
+      val departureNotificationMetaData: DepartureMessageMetaData = DepartureMessageMetaData(date, DepartureNotification, "path/url")
+
+      when(mockConnector.getMessageMetaData(departureId)(any(), any())).thenReturn(Future.successful(departureNotificationMetaData)))
+      service.getLRNFromDeclarationMessage(departureId)(_,_).futureValue mustBe Some(departureMessage)
     }
   }
 }
+
