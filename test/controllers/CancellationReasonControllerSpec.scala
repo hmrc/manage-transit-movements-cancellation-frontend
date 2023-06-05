@@ -80,12 +80,13 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      val date = LocalDateTime.now
 
       val ie015Data: IE015Data = IE015Data(
         IE015MessageData(
           "sender",
           "recipient",
-          LocalDateTime.now(),
+          date,
           "CC015",
           TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
           CustomsOfficeOfDeparture("AB123"),
@@ -95,7 +96,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val messages = DepartureMessages(
         List(
           DepartureMessageMetaData(
-            LocalDateTime.parse("2022-11-11T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME),
+            LocalDateTime.parse(s"$date", DateTimeFormatter.ISO_DATE_TIME),
             DepartureMessageType.DepartureNotification,
             "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
           )
