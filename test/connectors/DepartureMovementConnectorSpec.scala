@@ -17,9 +17,10 @@
 package connectors
 
 import base.SpecBase
-import com.github.tomakehurst.wiremock.client.WireMock.{get, okJson, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{containing, get, okJson, urlEqualTo}
 import generators.Generators
 import helper.WireMockServerHandler
+import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE015Data, IE015MessageData, TransitOperation}
 import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -162,5 +163,91 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
       }
     }
 
+    "getIE015data" - {
+
+      "must return messages" in {
+        val dateTime     = LocalDateTime.now
+        val responseJson = Json.parse(s"""
+
+    {
+            "body": {
+                "n1:CC015C": {
+                    "messageSender": "message sender",
+                    "messageRecipient": "message recipient",
+                    "preparationDateAndTime": "$dateTime",
+                    "messageIdentification": "messageId",
+                    "messageType": "CC015C",
+                    "TransitOperation": {
+                        "LRN": "LRN",
+                        "declarationType": "Pbg",
+                        "additionalDeclarationType": "O",
+                        "security": 8,
+                        "reducedDatasetIndicator": 1,
+                        "bindingItinerary": 0
+                    },
+                    "CustomsOfficeOfDeparture": {
+                        "referenceNumber": "GB000060"
+                    },
+                    "CustomsOfficeOfDestinationDeclared": {
+                        "referenceNumber": "GB000060"
+                    },
+                    "HolderOfTheTransitProcedure": {
+                        "identificationNumber": "idNumber"
+                    },
+                    "Guarantee": {
+                        "sequenceNumber": 48711,
+                        "guaranteeType": 1,
+                        "otherGuaranteeReference": "1qJMA6MbhnnrOJJjHBHX"
+                    },
+                    "Consignment": {
+                        "grossMass": 6430669292.48125,
+                        "HouseConsignment": {
+                            "sequenceNumber": 48711,
+                            "grossMass": 6430669292.48125,
+                            "ConsignmentItem": {
+                                "goodsItemNumber": 18914,
+                                "declarationGoodsItemNumber": 1458,
+                                "Commodity": {
+                                    "descriptionOfGoods": "ZMyM5HTSTnLqT5FT9aHXwScqXKC1VitlWeO5gs91cVXBXOB8xBdXG5aGhG9VFjjDGiraIETFfbQWeA7VUokO7ngDOrKZ23ccKKMA6C3GpXciUTt9nS2pzCFFFeg4BXdkIe"
+                                },
+                                "Packaging": {
+                                    "sequenceNumber": 48711,
+                                    "typeOfPackages": "Oi"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    """)
+
+        server.stubFor(
+          get(urlEqualTo(s"/$departureId"))
+            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
+            .willReturn(okJson(responseJson.toString()))
+        )
+
+        val result: IE015Data = connector.getIE015(departureId).futureValue
+
+        val expectedResult = IE015Data(
+          IE015MessageData(
+            "message sender",
+            "message recipient",
+            dateTime,
+            "messageId",
+            TransitOperation(None, Some("LRN")),
+            CustomsOfficeOfDeparture("GB000060"),
+            HolderOfTheTransitProcedure("idNumber", None, None, None, None)
+          )
+        )
+
+        result mustBe expectedResult
+
+      }
+    }
+
   }
+
 }
