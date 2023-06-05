@@ -17,7 +17,7 @@
 package base
 
 import config.FrontendAppConfig
-import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE014Data, IE014MessageData, IE015Data, Invalidation, TransitOperation}
+import models.messages._
 import models.{EoriNumber, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec

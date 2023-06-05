@@ -27,8 +27,6 @@ class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAn
 
   private val mockConnector = mock[DepartureMovementConnector]
 
-  implicit private val hc: HeaderCarrier = HeaderCarrier()
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConnector)

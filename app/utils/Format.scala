@@ -17,52 +17,17 @@
 package utils
 
 import logging.Logging
-import play.api.libs.json._
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 object Format {
 
-  val dateFormatter: DateTimeFormatter       = DateTimeFormatter.ofPattern("yyyyMMdd")
-  def dateFormatted(date: LocalDate): String = date.format(dateFormatter)
-
-  val timeFormatter: DateTimeFormatter       = DateTimeFormatter.ofPattern("HHmm")
-  def timeFormatted(time: LocalTime): String = time.format(timeFormatter)
-
-  val cyaDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 
   val dateTimeFormatIE014: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
-  implicit class RichString(string: String) {
-    def parseWithIE044Format: LocalDateTime = LocalDateTime.parse(string, dateTimeFormatIE014)
-  }
-
-  val booleanToIntWrites: Writes[Boolean] = (result: Boolean) => {
-    val toInt = if (result) "0" else "1"
-    JsString(toInt)
-  }
-
-  val intToBooleanReads: Reads[Boolean] = (json: JsValue) => {
-    json.validate[String].flatMap {
-      case "0"   => JsSuccess(true)
-      case "1"   => JsSuccess(false)
-      case other => JsError(s"Failed to parse $other to boolean")
-    }
-  }
+  implicit class RichString(string: String) {}
 
 }
 
-object Date extends Logging {
-
-  def getDate(date: String): Option[LocalDate] =
-    try Some(LocalDate.parse(date, Format.dateFormatter))
-    catch { case _: Exception => logger.debug("Failed to parse the date"); None }
-}
-
-object IntValue extends Logging {
-
-  def getInt(value: String): Option[Int] =
-    try Some(value.toInt)
-    catch { case _: Exception => logger.debug("failed to get string as Int"); None }
-}
+object Date extends Logging {}

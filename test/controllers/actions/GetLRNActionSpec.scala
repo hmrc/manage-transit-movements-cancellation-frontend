@@ -18,8 +18,8 @@ package controllers.actions
 
 import base.SpecBase
 import controllers.routes
+import models.requests.IdentifierRequest
 import models.{EoriNumber, LocalReferenceNumber}
-import models.requests.{AuthorisedRequest, IdentifierRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
