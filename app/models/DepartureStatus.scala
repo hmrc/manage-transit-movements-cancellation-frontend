@@ -16,6 +16,8 @@
 
 package models
 
+import play.api.libs.json.{JsError, JsString, JsSuccess, Reads}
+
 sealed trait DepartureStatus
 
 object DepartureStatus extends Enumerable.Implicits {
@@ -45,8 +47,9 @@ object DepartureStatus extends Enumerable.Implicits {
   case object DepartureSubmittedNegativeAcknowledgement extends DepartureStatus
 
   case object DeclarationCancellationRequestNegativeAcknowledgement extends DepartureStatus
+  private case object OtherStatus extends DepartureStatus
 
-  val values = Seq(
+  val values: Seq[DepartureStatus] = Seq(
     DepartureSubmitted,
     PositiveAcknowledgement,
     MrnAllocated,
@@ -68,4 +71,18 @@ object DepartureStatus extends Enumerable.Implicits {
         v => v.toString -> v
       ): _*
     )
+
+  implicit val reads: Reads[DepartureStatus] =
+    Reads {
+      case JsString(str) =>
+        enumerable
+          .withName(str)
+          .map {
+            s =>
+              JsSuccess(s)
+          }
+          .getOrElse(JsSuccess(OtherStatus))
+      case _ =>
+        JsError("error.invalid")
+    }
 }

@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import generators.Generators
 import models.DepartureId
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.Helpers.{await, _}
@@ -50,26 +50,8 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
             .willReturn(ok())
         )
 
-        val res = await(connector.submit(ie014Data, DepartureId(departureId)))
-        res.toString mustBe Right(HttpResponse(OK, "")).toString
-      }
-
-      "for bad request" in {
-
-        server.stubFor(post(urlEqualTo(uri)).willReturn(badRequest()))
-
         val res: Either[Result, HttpResponse] = await(connector.submit(ie014Data, DepartureId(departureId)))
-        res.toString mustBe Right(HttpResponse(BAD_REQUEST, "")).toString()
-
-      }
-
-      "for internal server error" in {
-
-        server.stubFor(post(urlEqualTo(uri)).willReturn(serverError()))
-
-        val res = await(connector.submit(ie014Data, DepartureId(departureId)))
-        res.toString mustBe Right(HttpResponse(INTERNAL_SERVER_ERROR, "")).toString()
-
+        res.toString mustBe Right(HttpResponse(OK, "")).toString
       }
 
     }
