@@ -17,15 +17,20 @@
 package connectors
 
 import base.SpecBase
-import com.github.tomakehurst.wiremock.client.WireMock.{containing, get, okJson, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, containing, get, okJson, post, urlEqualTo}
+import com.github.tomakehurst.wiremock.http.Fault
 import generators.Generators
 import helper.WireMockServerHandler
 import models.messages._
-import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
+import models.{DepartureId, DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
+import play.api.mvc.Results.InternalServerError
+import play.api.test.Helpers.await
+import uk.gov.hmrc.http.HttpResponse
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -82,6 +87,18 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
         val result = connector.getLRN(s"movements/departures/$departureId/messages/ab123").futureValue
 
         result mustBe Some(LocalReferenceNumber("AB123"))
+      }
+
+      "must return None instead of LRN when future fails" in {
+
+        server.stubFor(
+          get(urlEqualTo(s"/$departureId"))
+            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
+            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE))
+        )
+
+        val res = connector.getLRN(departureId).futureValue
+        res mustBe None
       }
 
     }
@@ -245,6 +262,19 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
         result mustBe expectedResult
 
       }
+
+      "must throw exception" in {
+
+        server.stubFor(
+          get(urlEqualTo(s"/$departureId"))
+            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
+            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE))
+        )
+
+        val res = connector.getIE015(departureId).futureValue
+        res mustBe None
+      }
+
     }
 
   }

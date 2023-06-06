@@ -48,9 +48,6 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
           Right(response)
       }
       .recover {
-        case httpEx: BadRequestException =>
-          logger.warn(s"ApiConnector:submit: bad request: ${httpEx.responseCode}-${httpEx.getMessage}")
-          Left(BadRequest("ApiConnector:submit: bad request"))
         case e: Exception =>
           logger.error(s"ApiConnector:submit: failed with exception: ${e.getMessage}")
           Left(InternalServerError(s"ApiConnector:submit: failed with exception: ${e.getMessage}"))
