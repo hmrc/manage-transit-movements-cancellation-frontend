@@ -20,23 +20,20 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.{containing, get, okJson, urlEqualTo}
 import generators.Generators
 import helper.WireMockServerHandler
-import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE015Data, IE015MessageData, TransitOperation}
+import models.messages._
 import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler with ScalaCheckPropertyChecks with Generators with EitherValues {
 
   private lazy val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
-
-  implicit val hc: HeaderCarrier = HeaderCarrier(Some(Authorization("BearerToken")))
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super

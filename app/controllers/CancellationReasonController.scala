@@ -68,13 +68,20 @@ class CancellationReasonController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
-              ie015Data      <- departureMessageService.getIE015FromDeclarationMessage(departureId)
+              ie015Data <-
+                departureMessageService.getIE015FromDeclarationMessage(departureId)
               ie014Data = IE015Data.fromIE015Data(ie015Data, value)
-              result <- if (ie014Data.isDefined) apiConnector.submit(ie014Data.get, DepartureId(departureId)) else Future.successful(Left(InternalServerError))
+              result <-
+                if (ie014Data.isDefined) {
+                  apiConnector.submit(ie014Data.get, DepartureId(departureId))
+                } else {
+                  Future.successful(Left(InternalServerError))
+                }
             } yield result match {
               case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
-              case Left(_)          => Redirect(controllers.routes.ErrorController.technicalDifficulties())
-              case Right(x)         => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+              case Left(_) =>
+                Redirect(controllers.routes.ErrorController.technicalDifficulties())
+              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
             }
         )
   }

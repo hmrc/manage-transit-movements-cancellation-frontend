@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import connectors.ApiConnector
 import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
 import models.Constants.commentMaxLength
@@ -27,8 +28,11 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
 import play.api.data.Form
+import play.api.inject._
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.HttpResponse
 import views.html.CancellationReasonView
 
 import java.time.LocalDateTime
@@ -39,8 +43,13 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
   private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
   private val form: Form[String]                   = new CancellationReasonFormProvider()()
+  private val mockApiConnector: ApiConnector       = mock[ApiConnector]
+  private val validAnswer                          = "answer"
 
-  private val validAnswer = "answer"
+  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
+    super
+      .guiceApplicationBuilder()
+      .overrides(bind[ApiConnector].toInstance(mockApiConnector))
 
   "CancellationReason Controller" - {
 
@@ -79,6 +88,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
     }
 
     "must redirect to the next page when valid data is submitted" in {
+
       val date = LocalDateTime.now
 
       val ie015Data: IE015Data = IE015Data(
@@ -101,10 +111,12 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
           )
         )
       )
+
       dataRetrievalWithData(emptyUserAnswers)
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(messages))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))

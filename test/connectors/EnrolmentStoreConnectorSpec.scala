@@ -22,13 +22,10 @@ import helper.WireMockServerHandler
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 
 import scala.concurrent.Future
 
 class EnrolmentStoreConnectorSpec extends SpecBase with WireMockServerHandler {
-
-  implicit val hc: HeaderCarrier = HeaderCarrier(Some(Authorization("BearerToken")))
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(

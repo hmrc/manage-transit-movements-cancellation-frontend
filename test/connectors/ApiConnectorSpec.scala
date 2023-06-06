@@ -24,7 +24,7 @@ import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HttpResponse
 
 class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
@@ -35,8 +35,7 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
   private lazy val connector: ApiConnector = app.injector.instanceOf[ApiConnector]
 
-  val uri                        = s"/movements/departures/$departureId/messages"
-  implicit val hc: HeaderCarrier = HeaderCarrier(Some(Authorization("BearerToken")))
+  val uri = s"/movements/departures/$departureId/messages"
 
   "ApiConnector" - {
 

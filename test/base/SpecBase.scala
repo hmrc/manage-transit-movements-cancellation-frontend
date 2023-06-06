@@ -29,6 +29,7 @@ import play.api.inject.Injector
 import play.api.libs.json.{Json, Reads, Writes}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Instant, LocalDateTime}
 
@@ -44,7 +45,8 @@ trait SpecBase
 
   val departureId: String = "AB123"
 
-  val eoriNumber: EoriNumber = EoriNumber("eoriNumber")
+  val eoriNumber: EoriNumber     = EoriNumber("eoriNumber")
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj(), Instant.now())
 
@@ -57,6 +59,18 @@ trait SpecBase
       CustomsOfficeOfDeparture("AB123"),
       HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123"),
       Invalidation(justification = "Hello this is a rejection.")
+    )
+  )
+
+  val ie015Data: IE015Data = IE015Data(
+    IE015MessageData(
+      "sender",
+      "recipient",
+      LocalDateTime.now(),
+      "messageId",
+      TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+      CustomsOfficeOfDeparture("AB123"),
+      HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
     )
   )
   def injector: Injector = app.injector

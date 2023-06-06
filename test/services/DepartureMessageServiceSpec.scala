@@ -19,21 +19,33 @@ package services
 import base.SpecBase
 import connectors.DepartureMovementConnector
 import generators.Generators
-import models.DepartureMessageMetaData
 import models.DepartureMessageType.DepartureNotification
+import models.{DepartureMessageMetaData, DepartureMessages}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAndAfterEach {
 
-  private val mockConnector = mock[DepartureMovementConnector]
-  private val service = new DepartureMessageService(mockConnector)
+  private val mockConnector                                       = mock[DepartureMovementConnector]
+  private val service                                             = new DepartureMessageService(mockConnector)
+  private val departureMessageMetaData1: DepartureMessageMetaData = DepartureMessageMetaData(LocalDateTime.now(), DepartureNotification, "path/url")
 
-  private val departureMessage = DepartureMessageMetaData(LocalDateTime.now(), DepartureNotification, "path/url")
+  private val departureMessageMetaData2: DepartureMessageMetaData =
+    DepartureMessageMetaData(LocalDateTime.now().minusDays(1), DepartureNotification, "path/url")
+
+  private val departureMessages: DepartureMessages = DepartureMessages(List(departureMessageMetaData1, departureMessageMetaData2))
+
+  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
+    super
+      .guiceApplicationBuilder()
+      .overrides(bind[DepartureMovementConnector].toInstance(mockConnector))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -42,12 +54,9 @@ class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAn
 
   "DepartureMessageService" - {
     "getDepartureNotificationMetaData" in {
-      val date = LocalDateTime.now
-      val departureNotificationMetaData: DepartureMessageMetaData = DepartureMessageMetaData(date, DepartureNotification, "path/url")
 
-      when(mockConnector.getMessageMetaData(departureId)(any(), any())).thenReturn(Future.successful(departureNotificationMetaData)))
-      service.getLRNFromDeclarationMessage(departureId)(_,_).futureValue mustBe Some(departureMessage)
+      when(mockConnector.getMessageMetaData(departureId)(any(), any())).thenReturn(Future.successful(departureMessages))
+      service.getLRNFromDeclarationMessage(departureId).futureValue mustBe Future.successful(ie015Data)
     }
   }
 }
-
