@@ -115,7 +115,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       dataRetrievalWithData(emptyUserAnswers)
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
-      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(messages))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
       when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
@@ -125,6 +125,35 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url
+    }
+
+    "must redirect to the technicalDifficulties page when no ieo15Data found" in {
+
+      val date = LocalDateTime.now
+
+      val messages = DepartureMessages(
+        List(
+          DepartureMessageMetaData(
+            LocalDateTime.parse(s"$date", DateTimeFormatter.ISO_DATE_TIME),
+            DepartureMessageType.DepartureNotification,
+            "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+          )
+        )
+      )
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(None))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
+
+      val request = FakeRequest(POST, cancellationReasonRoute)
+        .withFormUrlEncodedBody(("value", validAnswer))
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

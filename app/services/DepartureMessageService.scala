@@ -41,18 +41,21 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
     connectors
       .getMessageMetaData(departureId)
       .map(
-        _.messages
-          .filter(_.messageType == messageType)
-          .sortBy(_.received)
-          .reverse
-          .headOption
+        x =>
+          x.flatMap(
+            _.messages
+              .filter(_.messageType == messageType)
+              .sortBy(_.received)
+              .reverse
+              .headOption
+          )
       )
 
   def getLRNFromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[LocalReferenceNumber]] =
     (
       for {
         declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
-        lrn                <- OptionT.liftF(connectors.getLRN(declarationMessage.path))
+        lrn                <- OptionT(connectors.getLRN(declarationMessage.path))
       } yield lrn
     ).value
 
@@ -60,7 +63,7 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
     (
       for {
         declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
-        ie015              <- OptionT.liftF(connectors.getIE015(declarationMessage.path))
+        ie015              <- OptionT(connectors.getIE015(declarationMessage.path))
       } yield ie015
     ).value
 }

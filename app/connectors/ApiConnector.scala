@@ -44,7 +44,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
       .POSTString[HttpResponse](serviceUrl, Json.toJsObject(ie014Data).toString, requestHeaders)
       .map {
         response =>
-          logger.debug(s"ApiConnector:submit: success: ${response.status}-${response.body}")
+          logger.info(s"ApiConnector:submit: success: ${response.status}-${response.body}")
           Right(response)
       }
       .recover {

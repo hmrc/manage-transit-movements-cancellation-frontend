@@ -37,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
-  sessionRepository: SessionRepository,
   apiConnector: ApiConnector,
   navigator: Navigator,
   formProvider: CancellationReasonFormProvider,

@@ -18,7 +18,7 @@ package base
 
 import config.FrontendAppConfig
 import models.messages._
-import models.{EoriNumber, UserAnswers}
+import models.{EoriNumber, LocalReferenceNumber, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -73,6 +73,7 @@ trait SpecBase
       HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
     )
   )
+
   def injector: Injector = app.injector
 
   def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]

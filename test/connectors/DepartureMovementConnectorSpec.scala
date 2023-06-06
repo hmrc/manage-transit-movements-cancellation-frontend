@@ -81,7 +81,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
         val result = connector.getLRN(s"movements/departures/$departureId/messages/ab123").futureValue
 
-        result mustBe LocalReferenceNumber("AB123")
+        result mustBe Some(LocalReferenceNumber("AB123"))
       }
 
     }
@@ -155,7 +155,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
             .willReturn(okJson(responseJson.toString()))
         )
 
-        connector.getMessageMetaData(departureId).futureValue mustBe expectedResult
+        connector.getMessageMetaData(departureId).futureValue mustBe Some(expectedResult)
 
       }
     }
@@ -226,17 +226,19 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
             .willReturn(okJson(responseJson.toString()))
         )
 
-        val result: IE015Data = connector.getIE015(departureId).futureValue
+        val result: Option[IE015Data] = connector.getIE015(departureId).futureValue
 
-        val expectedResult = IE015Data(
-          IE015MessageData(
-            "message sender",
-            "message recipient",
-            dateTime,
-            "messageId",
-            TransitOperation(None, Some("LRN")),
-            CustomsOfficeOfDeparture("GB000060"),
-            HolderOfTheTransitProcedure("idNumber", None, None, None, None)
+        val expectedResult = Some(
+          IE015Data(
+            IE015MessageData(
+              "message sender",
+              "message recipient",
+              dateTime,
+              "messageId",
+              TransitOperation(None, Some("LRN")),
+              CustomsOfficeOfDeparture("GB000060"),
+              HolderOfTheTransitProcedure("idNumber", None, None, None, None)
+            )
           )
         )
 

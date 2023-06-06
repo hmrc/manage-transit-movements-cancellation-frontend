@@ -22,7 +22,7 @@ import generators.Generators
 import models.DepartureMessageType.DepartureNotification
 import models.{DepartureMessageMetaData, DepartureMessages}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -53,10 +53,58 @@ class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAn
   }
 
   "DepartureMessageService" - {
-    "getDepartureNotificationMetaData" in {
+    "getIE015FromDeclarationMessage success" in {
 
-      when(mockConnector.getMessageMetaData(departureId)(any(), any())).thenReturn(Future.successful(departureMessages))
-      service.getLRNFromDeclarationMessage(departureId).futureValue mustBe Future.successful(ie015Data)
+      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
+      when(mockConnector.getIE015(any())(any())).thenReturn(Future.successful(Some(ie015Data)))
+      service.getIE015FromDeclarationMessage(departureId).futureValue mustBe Some(ie015Data)
+      verify(mockConnector).getIE015(any())(any())
+      verify(mockConnector).getMessageMetaData(any())(any(), any())
+
+    }
+
+    "getIE015FromDeclarationMessage returns none when getMessageMetaData connector fails" in {
+
+      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(None))
+      service.getIE015FromDeclarationMessage(departureId).futureValue mustBe None
+      verify(mockConnector).getMessageMetaData(any())(any(), any())
+
+    }
+
+    "getIE015FromDeclarationMessage returns none when getIE015 connector fails" in {
+
+      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
+      when(mockConnector.getIE015(any())(any())).thenReturn(Future.successful(None))
+      service.getIE015FromDeclarationMessage(departureId).futureValue mustBe None
+      verify(mockConnector).getMessageMetaData(any())(any(), any())
+      verify(mockConnector).getIE015(any())(any())
+    }
+
+    "getLRNFromDeclarationMessage success" in {
+
+      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
+      when(mockConnector.getLRN(any())(any())).thenReturn(Future.successful(Some(lrn)))
+      service.getLRNFromDeclarationMessage(departureId).futureValue mustBe Some(lrn)
+      verify(mockConnector).getLRN(any())(any())
+      verify(mockConnector).getMessageMetaData(any())(any(), any())
+
+    }
+
+    "getLRNFromDeclarationMessage returns none when getMessageMetaData connector fails" in {
+
+      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(None))
+      service.getLRNFromDeclarationMessage(departureId).futureValue mustBe None
+      verify(mockConnector).getMessageMetaData(any())(any(), any())
+
+    }
+
+    "getLRNFromDeclarationMessage returns none when getLRN connector fails" in {
+
+      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
+      when(mockConnector.getLRN(any())(any())).thenReturn(Future.successful(None))
+      service.getLRNFromDeclarationMessage(departureId).futureValue mustBe None
+      verify(mockConnector).getMessageMetaData(any())(any(), any())
+      verify(mockConnector).getLRN(any())(any())
     }
   }
 }
