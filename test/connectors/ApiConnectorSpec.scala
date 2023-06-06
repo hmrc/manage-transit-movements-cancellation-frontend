@@ -44,27 +44,6 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
   val uri = s"/movements/departures/$departureId/messages"
 
-  private def checkErrorResponse(url: String, result: => Future[_]): Assertion = {
-    val errorResponses: Gen[Int] = Gen
-      .chooseNum(400: Int, 599: Int)
-      .suchThat(_ != 404)
-
-    //forAll(errorResponses) {
-    //errorResponse =>
-    server.stubFor(
-      get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-            .withStatus(BAD_REQUEST)
-        )
-    )
-
-    whenReady(result.failed) {
-      _ mustBe an[Exception]
-    }
-    //}
-  }
-
   "ApiConnector" - {
 
     "submit" - {
