@@ -18,6 +18,8 @@ package models.messages
 
 import play.api.libs.json.{__, Json, OWrites, Reads}
 
+import java.time.LocalDateTime
+
 case class IE015Data(data: IE015MessageData)
 
 object IE015Data {
@@ -29,7 +31,7 @@ object IE015Data {
           IE014MessageData(
             messageSender = messageData.data.messageSender,
             messageRecipient = messageData.data.messageRecipient,
-            preparationDateAndTime = messageData.data.preparationDateAndTime,
+            preparationDateAndTime = LocalDateTime.now,
             TransitOperation = messageData.data.TransitOperation,
             CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(messageData.data.CustomsOfficeOfDeparture.referenceNumber),
             HolderOfTheTransitProcedure = messageData.data.HolderOfTheTransitProcedure,
