@@ -243,7 +243,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
             .willReturn(okJson(responseJson.toString()))
         )
 
-        val result: Option[IE015Data] = connector.getIE015(departureId).futureValue
+        val result: IE015Data = connector.getIE015(departureId).futureValue
 
         val expectedResult = Some(
           IE015Data(

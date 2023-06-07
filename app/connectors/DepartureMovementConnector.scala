@@ -27,30 +27,22 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
 
-  def getLRN(location: String)(implicit hc: HeaderCarrier): Future[Option[LocalReferenceNumber]] = {
+  def getLRN(location: String)(implicit hc: HeaderCarrier): Future[LocalReferenceNumber] = {
 
     val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
 
     val url = s"${appConfig.commonTransitConventionTradersUrl}$location"
 
-    http.GET[Option[LocalReferenceNumber]](url)(HttpReads[Option[LocalReferenceNumber]], headers, ec) recover {
-      case exception =>
-        logger.warn("getLRN failed with exception", exception)
-        None
-    }
+    http.GET[LocalReferenceNumber](url)(HttpReads[LocalReferenceNumber], headers, ec)
   }
 
-  def getIE015(location: String)(implicit hc: HeaderCarrier): Future[Option[IE015Data]] = {
+  def getIE015(location: String)(implicit hc: HeaderCarrier): Future[IE015Data] = {
 
     val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
 
     val url = s"${appConfig.commonTransitConventionTradersUrl}$location"
 
-    http.GET[Option[IE015Data]](url)(HttpReads[Option[IE015Data]], headers, ec) recover {
-      case exception =>
-        logger.warn("getIE015 failed with exception", exception)
-        None
-    }
+    http.GET[IE015Data](url)(HttpReads[IE015Data], headers, ec)
   }
 
   def getMessageMetaData(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessages]] = {

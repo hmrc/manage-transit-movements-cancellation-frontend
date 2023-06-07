@@ -26,8 +26,4 @@ object Format {
 
   val dateTimeFormatIE014: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
-  implicit class RichString(string: String) {}
-
 }
-
-object Date extends Logging {}
