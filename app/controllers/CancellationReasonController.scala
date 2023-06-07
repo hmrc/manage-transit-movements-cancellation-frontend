@@ -69,7 +69,7 @@ class CancellationReasonController @Inject() (
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
               ie015Data <-
                 departureMessageService.getIE015FromDeclarationMessage(departureId)
-              ie014Data = IE015Data.fromIE015Data(ie015Data, value)
+              ie014Data = IE015Data.fromIE015Data(ie015Data, value.trim)
               result <-
                 if (ie014Data.isDefined) {
                   apiConnector.submit(ie014Data.get, DepartureId(departureId))
