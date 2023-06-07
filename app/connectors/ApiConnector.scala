@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.InternalServerError
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
-
+import play.api.libs.json.JsValue
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +41,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
 
     httpClient
-      .POSTString[HttpResponse](serviceUrl, Json.toJsObject(ie014Data).toString, requestHeaders)
+      .POST[JsValue, HttpResponse](serviceUrl, Json.toJsObject(ie014Data), requestHeaders)
       .map {
         response =>
           logger.info(s"ApiConnector:submit: success: ${response.status}-${response.body}")
