@@ -41,7 +41,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
 
     httpClient
-      .POST[String, HttpResponse](serviceUrl, Json.toJsObject(ie014Data).toString, requestHeaders)
+      .POSTString[HttpResponse](serviceUrl, Json.toJsObject(ie014Data).toString, requestHeaders)
       .map {
         response =>
           logger.info(s"ApiConnector:submit: success: ${response.status}-${response.body}")
