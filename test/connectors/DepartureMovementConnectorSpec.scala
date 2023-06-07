@@ -86,19 +86,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
         val result = connector.getLRN(s"movements/departures/$departureId/messages/ab123").futureValue
 
-        result mustBe Some(LocalReferenceNumber("AB123"))
-      }
-
-      "must return None instead of LRN when future fails" in {
-
-        server.stubFor(
-          get(urlEqualTo(s"/$departureId"))
-            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE))
-        )
-
-        val res = connector.getLRN(departureId).futureValue
-        res mustBe None
+        result mustBe LocalReferenceNumber("AB123")
       }
 
     }
@@ -245,7 +233,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
         val result: IE015Data = connector.getIE015(departureId).futureValue
 
-        val expectedResult = Some(
+        val expectedResult =
           IE015Data(
             IE015MessageData(
               "message sender",
@@ -257,22 +245,9 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
               HolderOfTheTransitProcedure("idNumber", None, None, None, None)
             )
           )
-        )
 
         result mustBe expectedResult
 
-      }
-
-      "must throw exception" in {
-
-        server.stubFor(
-          get(urlEqualTo(s"/$departureId"))
-            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE))
-        )
-
-        val res = connector.getIE015(departureId).futureValue
-        res mustBe None
       }
 
     }

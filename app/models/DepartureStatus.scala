@@ -24,52 +24,13 @@ object DepartureStatus extends Enumerable.Implicits {
 
   case object DepartureSubmitted extends DepartureStatus
 
-  case object PositiveAcknowledgement extends DepartureStatus
-
-  case object MrnAllocated extends DepartureStatus
-
-  case object DepartureRejected extends DepartureStatus
-
-  case object ControlDecisionNotification extends DepartureStatus
-
-  case object NoReleaseForTransit extends DepartureStatus
-
-  case object ReleaseForTransit extends DepartureStatus
-
-  case object DeclarationCancellationRequest extends DepartureStatus
-
-  case object CancellationDecision extends DepartureStatus
-
-  case object WriteOffNotification extends DepartureStatus
-
-  case object GuaranteeNotValid extends DepartureStatus
-
-  case object DepartureSubmittedNegativeAcknowledgement extends DepartureStatus
-
-  case object DeclarationCancellationRequestNegativeAcknowledgement extends DepartureStatus
   private case object OtherStatus extends DepartureStatus
 
-  val values: Seq[DepartureStatus] = Seq(
-    DepartureSubmitted,
-    PositiveAcknowledgement,
-    MrnAllocated,
-    DepartureRejected,
-    ControlDecisionNotification,
-    NoReleaseForTransit,
-    ReleaseForTransit,
-    DeclarationCancellationRequest,
-    CancellationDecision,
-    WriteOffNotification,
-    GuaranteeNotValid,
-    DepartureSubmittedNegativeAcknowledgement,
-    DeclarationCancellationRequestNegativeAcknowledgement
-  )
+  val values: DepartureStatus = DepartureSubmitted
 
   implicit val enumerable: Enumerable[DepartureStatus] =
     Enumerable(
-      values.map(
-        v => v.toString -> v
-      ): _*
+      values.toString -> values
     )
 
   implicit val reads: Reads[DepartureStatus] =
