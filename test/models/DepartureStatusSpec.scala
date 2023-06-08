@@ -14,23 +14,31 @@
  * limitations under the License.
  */
 
-package queries
+package models
 
-import models.UserAnswers
-import play.api.libs.json.JsPath
+import base.SpecBase
+import models.DepartureStatus.DepartureSubmitted
+import play.api.libs.json.{JsString, Json}
 
-import scala.util.{Success, Try}
+class DepartureStatusSpec extends SpecBase {
 
-sealed trait Query {
+  "DepartureStatus" - {
 
-  def path: JsPath
-}
+    "must serialise" - {
 
-trait Gettable[A] extends Query
+      "to an DepartureSubmitted" in {
 
-trait Settable[A] extends Query {
+        val json = JsString("DepartureSubmitted")
 
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
+        json.validate[DepartureStatus].asOpt.value mustBe DepartureStatus.DepartureSubmitted
+      }
 
+    }
+
+    "must deserialise" in {
+
+      Json.toJson(DepartureStatus.values) mustBe JsString(DepartureStatus.values.toString)
+
+    }
+  }
 }

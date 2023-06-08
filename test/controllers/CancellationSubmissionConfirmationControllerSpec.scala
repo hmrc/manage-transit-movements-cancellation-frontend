@@ -18,8 +18,6 @@ package controllers
 
 import base.SpecBase
 import connectors.DepartureMovementConnector
-import models.DepartureStatus.DepartureSubmitted
-import models.response.ResponseDeparture
 import org.mockito.Mockito.reset
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind

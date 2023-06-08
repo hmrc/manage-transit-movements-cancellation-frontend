@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package queries
+package models.messages
 
-import models.UserAnswers
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-import scala.util.{Success, Try}
+case class HolderOfTheTransitProcedure(
+  identificationNumber: String,
+  TIRHolderIdentificationNumber: Option[String] = None,
+  name: Option[String] = None,
+  Address: Option[Address] = None,
+  ContactPerson: Option[ContactPerson] = None
+)
 
-sealed trait Query {
+object HolderOfTheTransitProcedure {
 
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
+  implicit val formats: OFormat[HolderOfTheTransitProcedure] = Json.format[HolderOfTheTransitProcedure]
 
 }

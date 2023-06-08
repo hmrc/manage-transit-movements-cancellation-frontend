@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package queries
+package models.messages
 
-import models.UserAnswers
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-import scala.util.{Success, Try}
+case class TransitOperation(MRN: Option[String], LRN: Option[String])
 
-sealed trait Query {
-
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
-
+object TransitOperation {
+  implicit val formats: OFormat[TransitOperation] = Json.format[TransitOperation]
 }

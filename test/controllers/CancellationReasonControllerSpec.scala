@@ -17,25 +17,39 @@
 package controllers
 
 import base.SpecBase
+import connectors.ApiConnector
 import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
 import models.Constants.commentMaxLength
-import models.UserAnswers
-import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.verify
+import models.messages._
+import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CancellationReasonPage
 import play.api.data.Form
+import play.api.inject._
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.HttpResponse
 import views.html.CancellationReasonView
+
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
   private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
   private val form: Form[String]                   = new CancellationReasonFormProvider()()
+  private val mockApiConnector: ApiConnector       = mock[ApiConnector]
+  private val validAnswer                          = "answer"
 
-  private val validAnswer = "answer"
+  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
+    super
+      .guiceApplicationBuilder()
+      .overrides(bind[ApiConnector].toInstance(mockApiConnector))
 
   "CancellationReason Controller" - {
 
@@ -75,7 +89,34 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must redirect to the next page when valid data is submitted" in {
 
+      val date = LocalDateTime.now
+
+      val ie015Data: IE015Data = IE015Data(
+        IE015MessageData(
+          "sender",
+          "recipient",
+          date,
+          "CC015",
+          TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+          CustomsOfficeOfDeparture("AB123"),
+          HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
+        )
+      )
+      val messages = DepartureMessages(
+        List(
+          DepartureMessageMetaData(
+            LocalDateTime.parse(s"$date", DateTimeFormatter.ISO_DATE_TIME),
+            DepartureMessageType.DepartureNotification,
+            "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+          )
+        )
+      )
+
       dataRetrievalWithData(emptyUserAnswers)
+
+      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
@@ -84,10 +125,35 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url
+    }
 
-      val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-      verify(mockSessionRepository).set(uaCaptor.capture)
-      uaCaptor.getValue.get(CancellationReasonPage).get mustBe validAnswer
+    "must redirect to the technicalDifficulties page when no ieo15Data found" in {
+
+      val date = LocalDateTime.now
+
+      val messages = DepartureMessages(
+        List(
+          DepartureMessageMetaData(
+            LocalDateTime.parse(s"$date", DateTimeFormatter.ISO_DATE_TIME),
+            DepartureMessageType.DepartureNotification,
+            "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+          )
+        )
+      )
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(None))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
+
+      val request = FakeRequest(POST, cancellationReasonRoute)
+        .withFormUrlEncodedBody(("value", validAnswer))
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

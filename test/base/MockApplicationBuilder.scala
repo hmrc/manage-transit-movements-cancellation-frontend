@@ -16,6 +16,7 @@
 
 package base
 
+import connectors.DepartureMovementConnector
 import controllers.actions._
 import models.requests.{AuthorisedRequest, OptionalDataRequest}
 import models.{LocalReferenceNumber, UserAnswers}
@@ -43,7 +44,8 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
-  val mockDepartureMessageService: DepartureMessageService = mock[DepartureMessageService]
+  val mockDepartureMessageService: DepartureMessageService       = mock[DepartureMessageService]
+  val mockDepartureMovementConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
 
   val getLRNAction: FakeGetLRNAction = new FakeGetLRNAction(
     "ab123",
@@ -56,7 +58,6 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     reset(mockGetLRNActionProvider)
     reset(mockSessionRepository)
     reset(mockDepartureMessageService)
-
     when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
     when(mockGetLRNActionProvider.apply(any())).thenReturn(getLRNAction)
   }

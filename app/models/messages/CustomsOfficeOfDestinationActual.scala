@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package connectors.responses
+package models.messages
 
-sealed trait ConnectorErrorResponse
+import play.api.libs.json.{Json, OFormat}
 
-case object MalformedBody extends ConnectorErrorResponse
-case class InvalidStatus(status: Int) extends ConnectorErrorResponse
+case class CustomsOfficeOfDestinationDeclared(
+  referenceNumber: String
+)
+
+object CustomsOfficeOfDestinationDeclared {
+
+  implicit val formats: OFormat[CustomsOfficeOfDestinationDeclared] = Json.format[CustomsOfficeOfDestinationDeclared]
+
+}

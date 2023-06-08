@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package queries
+package models.messages
 
-import models.UserAnswers
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-import scala.util.{Success, Try}
+import java.time.LocalDateTime
 
-sealed trait Query {
+case class Invalidation(requestDateAndTime: LocalDateTime = LocalDateTime.now(),
+                        decisionDateAndTime: LocalDateTime = LocalDateTime.now(),
+                        decision: String = "0",
+                        initiatedByCustoms: String = "0",
+                        justification: String
+)
 
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
+object Invalidation {
+  implicit val formats: OFormat[Invalidation] = Json.format[Invalidation]
 
 }

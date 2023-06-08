@@ -16,14 +16,18 @@
 
 package controllers
 
+import connectors.ApiConnector
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
+import models.DepartureId
+import models.messages.IE015Data
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.DepartureMessageService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
 
@@ -33,9 +37,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
-  sessionRepository: SessionRepository,
+  apiConnector: ApiConnector,
   navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
+  departureMessageService: DepartureMessageService,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView
 )(implicit ec: ExecutionContext)
@@ -62,8 +67,21 @@ class CancellationReasonController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+              ie015Data <-
+                departureMessageService.getIE015FromDeclarationMessage(departureId)
+              ie014Data = IE015Data.fromIE015Data(ie015Data, value.trim)
+              result <-
+                if (ie014Data.isDefined) {
+                  apiConnector.submit(ie014Data.get, DepartureId(departureId))
+                } else {
+                  Future.successful(Left(InternalServerError))
+                }
+            } yield result match {
+              case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
+              case Left(_) =>
+                Redirect(controllers.routes.ErrorController.technicalDifficulties())
+              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
+            }
         )
   }
 }

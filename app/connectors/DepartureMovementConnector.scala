@@ -18,6 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import logging.Logging
+import models.messages.IE015Data
 import models.{DepartureMessages, LocalReferenceNumber}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads}
 
@@ -35,10 +36,23 @@ class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, ht
     http.GET[LocalReferenceNumber](url)(HttpReads[LocalReferenceNumber], headers, ec)
   }
 
-  def getMessageMetaData(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[DepartureMessages] = {
+  def getIE015(location: String)(implicit hc: HeaderCarrier): Future[IE015Data] = {
+
+    val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
+
+    val url = s"${appConfig.commonTransitConventionTradersUrl}$location"
+
+    http.GET[IE015Data](url)(HttpReads[IE015Data], headers, ec)
+  }
+
+  def getMessageMetaData(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessages]] = {
     val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
 
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/$departureId/messages"
-    http.GET[DepartureMessages](serviceUrl)(implicitly, headers, ec)
+    http.GET[Option[DepartureMessages]](serviceUrl)(implicitly, headers, ec) recover {
+      case exception =>
+        logger.warn("getMessageMetaData failed with exception", exception)
+        None
+    }
   }
 }

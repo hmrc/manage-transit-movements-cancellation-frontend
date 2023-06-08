@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package queries
+package models.messages
 
-import models.UserAnswers
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OWrites}
 
-import scala.util.{Success, Try}
+case class IE014Data(`n1:CC014C`: IE014MessageData)
 
-sealed trait Query {
+object IE014Data {
 
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
-
+  implicit val writes: OWrites[IE014Data] = Json.writes[IE014Data]
 }

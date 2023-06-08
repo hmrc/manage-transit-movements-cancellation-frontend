@@ -24,7 +24,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationSubmissionConfirmationView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class CancellationSubmissionConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
@@ -33,8 +32,7 @@ class CancellationSubmissionConfirmationController @Inject() (
   appConfig: FrontendAppConfig,
   confirmationView: CancellationSubmissionConfirmationView,
   getLRNAction: GetLRNActionProvider
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(departureId: String): Action[AnyContent] = (identify andThen getLRNAction(departureId)) {

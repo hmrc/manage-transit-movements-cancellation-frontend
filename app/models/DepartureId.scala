@@ -17,23 +17,31 @@
 package models
 
 import play.api.libs.json._
-import play.api.mvc.PathBindable
+import play.api.mvc.{JavascriptLiteral, PathBindable}
 
-case class DepartureId(index: Int)
+final case class DepartureId(value: String)
 
 object DepartureId {
-  implicit def reads: Reads[DepartureId] = __.read[Int] map DepartureId.apply
 
-  implicit def writes: Writes[DepartureId] = Writes(
-    departureId => JsNumber(departureId.index)
-  )
+  implicit val formatsDepartureId: Format[DepartureId] = new Format[DepartureId] {
+
+    override def reads(json: JsValue): JsResult[DepartureId] = json match {
+      case JsString(value) => JsSuccess(DepartureId(value))
+      case e =>
+        JsError(s"Error in deserialization of Json value to an DepartureId, expected JsString got ${e.getClass}")
+    }
+
+    override def writes(o: DepartureId): JsString = JsString(o.value)
+  }
 
   implicit lazy val pathBindable: PathBindable[DepartureId] = new PathBindable[DepartureId] {
 
     override def bind(key: String, value: String): Either[String, DepartureId] =
-      implicitly[PathBindable[Int]].bind(key, value).map(DepartureId(_))
+      implicitly[PathBindable[String]].bind(key, value).map(DepartureId(_))
 
-    override def unbind(key: String, value: DepartureId): String =
-      value.index.toString
+    override def unbind(key: String, departureId: DepartureId): String = departureId.value
   }
+
+  implicit val departureIdJSLBinder: JavascriptLiteral[DepartureId] = (value: DepartureId) => s"""'${value.toString}'"""
+
 }
