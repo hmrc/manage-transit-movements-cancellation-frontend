@@ -21,11 +21,9 @@ import models.DepartureId
 import models.messages.IE014Data
 import play.api.Logging
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.InternalServerError
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpReads, HttpReadsLegacyRawReads, HttpResponse}
-import play.api.libs.json.JsValue
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -18,7 +18,7 @@ package base
 
 import config.FrontendAppConfig
 import models.messages._
-import models.{EoriNumber, LocalReferenceNumber, UserAnswers}
+import models.{EoriNumber, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
