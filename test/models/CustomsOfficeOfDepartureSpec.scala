@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-package models.messages
+package models
 
-import play.api.libs.json.{Json, OFormat}
+import models.messages.CustomsOfficeOfDeparture
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-case class CustomsOfficeOfDeparture(
-  referenceNumber: String
-) {
-  val countryCode: String = referenceNumber.take(2)
-}
+class CustomsOfficeOfDepartureSpec extends AnyFreeSpec with Matchers {
 
-object CustomsOfficeOfDeparture {
+  "CustomsOfficeOfDepartureSpec" - {
 
-  implicit val formats: OFormat[CustomsOfficeOfDeparture] = Json.format[CustomsOfficeOfDeparture]
+    "countryCode" - {
 
+      "must take first two characters of reference number" in {
+
+        val result1 = new CustomsOfficeOfDeparture("GB123456")
+        val result2 = new CustomsOfficeOfDeparture("XI123456")
+
+        result1.countryCode mustBe "GB"
+        result2.countryCode mustBe "XI"
+      }
+    }
+  }
 }
