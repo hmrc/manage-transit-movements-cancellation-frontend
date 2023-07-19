@@ -10,8 +10,7 @@ lazy val appName: String = "manage-transit-movements-cancellation-frontend"
 lazy val root = (project in file("."))
   .enablePlugins(
     PlayScala,
-    SbtAutoBuildPlugin,
-    SbtDistributablesPlugin
+    SbtAutoBuildPlugin
   )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
@@ -21,7 +20,6 @@ lazy val root = (project in file("."))
   .settings(inConfig(A11yTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings): _*)
   .settings(DefaultBuildSettings.scalaSettings: _*)
   .settings(DefaultBuildSettings.defaultSettings(): _*)
-  .settings(SbtDistributablesPlugin.publishingSettings: _*)
   .settings(inConfig(Test)(testSettings): _*)
   .settings(headerSettings(IntegrationTest): _*)
   .settings(automateHeaderSettings(IntegrationTest))
