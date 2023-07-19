@@ -17,7 +17,6 @@
 package models
 
 import base.SpecBase
-import models.DepartureStatus.DepartureSubmitted
 import play.api.libs.json.{JsString, Json}
 
 class DepartureStatusSpec extends SpecBase {

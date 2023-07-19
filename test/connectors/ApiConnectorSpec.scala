@@ -21,17 +21,12 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import generators.Generators
 import models.DepartureId
-import org.scalacheck.Gen
-import org.scalatest.Assertion
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
-import play.api.mvc.Results.{BadRequest, InternalServerError}
+import play.api.mvc.Results.InternalServerError
 import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.http.{BadRequestException, HttpResponse}
-
-import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 

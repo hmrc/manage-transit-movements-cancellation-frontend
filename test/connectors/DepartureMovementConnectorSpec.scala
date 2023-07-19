@@ -17,20 +17,15 @@
 package connectors
 
 import base.SpecBase
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, containing, get, okJson, post, urlEqualTo}
-import com.github.tomakehurst.wiremock.http.Fault
+import com.github.tomakehurst.wiremock.client.WireMock.{containing, get, okJson, urlEqualTo}
 import generators.Generators
 import helper.WireMockServerHandler
 import models.messages._
-import models.{DepartureId, DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
+import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
-import play.api.mvc.Results.InternalServerError
-import play.api.test.Helpers.await
-import uk.gov.hmrc.http.HttpResponse
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
