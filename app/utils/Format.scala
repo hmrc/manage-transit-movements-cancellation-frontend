@@ -16,8 +16,6 @@
 
 package utils
 
-import logging.Logging
-
 import java.time.format.DateTimeFormatter
 
 object Format {

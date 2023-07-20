@@ -21,6 +21,7 @@ import logging.Logging
 import models.messages.IE015Data
 import models.{DepartureMessages, LocalReferenceNumber}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
