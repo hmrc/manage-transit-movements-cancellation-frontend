@@ -10,7 +10,8 @@ lazy val appName: String = "manage-transit-movements-cancellation-frontend"
 lazy val root = (project in file("."))
   .enablePlugins(
     PlayScala,
-    SbtAutoBuildPlugin
+    SbtAutoBuildPlugin,
+    SbtDistributablesPlugin
   )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
