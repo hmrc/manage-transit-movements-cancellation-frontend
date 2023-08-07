@@ -51,6 +51,22 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
           )
       )
 
+  def getMessageMetaDataHead(departureId: String)(implicit
+                                                                                         ec: ExecutionContext,
+                                                                                         hc: HeaderCarrier
+  ): Future[Option[DepartureMessageMetaData]] =
+    connectors
+      .getMessageMetaData(departureId)
+      .map(
+        x =>
+          x.flatMap(
+            _.messages
+              .sortBy(_.received)
+              .reverse
+              .headOption
+          )
+      )
+
   def getLRNFromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[LocalReferenceNumber]] =
     (
       for {
