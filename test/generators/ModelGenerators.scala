@@ -33,6 +33,11 @@ trait ModelGenerators extends UserAnswersEntryGenerators {
       } yield new DepartureId(departureId)
     }
 
+  implicit lazy val arbitraryDepartureMessageType: Arbitrary[DepartureMessageType] =
+    Arbitrary {
+      Gen.oneOf(DepartureMessageType.values)
+    }
+
   implicit lazy val arbitraryLocalReferenceNumber: Arbitrary[LocalReferenceNumber] =
     Arbitrary {
       for {

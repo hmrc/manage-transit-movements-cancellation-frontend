@@ -52,8 +52,8 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
       )
 
   def getMessageMetaDataHead(departureId: String)(implicit
-                                                                                         ec: ExecutionContext,
-                                                                                         hc: HeaderCarrier
+    ec: ExecutionContext,
+    hc: HeaderCarrier
   ): Future[Option[DepartureMessageMetaData]] =
     connectors
       .getMessageMetaData(departureId)

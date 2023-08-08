@@ -18,24 +18,24 @@ package controllers.actions
 
 import models.DepartureMessageMetaData
 import models.DepartureMessageType._
-import services.DepartureMessageService
 import models.requests.IdentifierRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
+import services.DepartureMessageService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckCancellationStatusProvider @Inject() (  departureMessageService: DepartureMessageService)(implicit ec: ExecutionContext) {
+class CheckCancellationStatusProvider @Inject() (departureMessageService: DepartureMessageService)(implicit ec: ExecutionContext) {
 
   def apply(departureId: String): ActionFilter[IdentifierRequest] =
     new CheckCancellationStatus(departureId, departureMessageService)
 }
 
 class CheckCancellationStatus(
-                               departureId: String,
+  departureId: String,
   departureMessageService: DepartureMessageService
 )(implicit protected val executionContext: ExecutionContext)
     extends ActionFilter[IdentifierRequest] {
@@ -44,11 +44,11 @@ class CheckCancellationStatus(
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     departureMessageService.getMessageMetaDataHead(departureId).map {
-      case Some(DepartureMessageMetaData(_, messageType, _)) => messageType match {
-        case DepartureNotification | AllocatedMRN | GuaranteeRejected | GoodsUnderControl | DeclarationSent => None
-        case _ =>  Option(Redirect(controllers.routes.ErrorController.internalServerError())) // TODO Redirect to new page
-
-      }
+      case Some(DepartureMessageMetaData(_, messageType, _)) =>
+        messageType match {
+          case DepartureNotification | AllocatedMRN | GuaranteeRejected | GoodsUnderControl | DeclarationSent => None
+          case _                                                                                              => Option(Redirect(controllers.routes.ErrorController.internalServerError())) // TODO Redirect to new page
+        }
       case _ => Option(Redirect(controllers.routes.ErrorController.technicalDifficulties())) // TODO: If message cant be found redirect to tech diff?
     }
   }
