@@ -26,7 +26,7 @@ import views.html.ConfirmCancellationView
 
 class ConfirmCancellationControllerSpec extends SpecBase {
 
-  private lazy val confirmCancellationRoute: String = routes.ConfirmCancellationController.onPageLoad(departureId).url
+  private lazy val confirmCancellationRoute: String = routes.ConfirmCancellationController.onPageLoad(departureId, lrn).url
   private val form: Form[Boolean]                   = new ConfirmCancellationFormProvider()()
 
   "ConfirmCancellation Controller" - {
@@ -76,7 +76,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.CancellationReasonController.onPageLoad(departureId).url
+      redirectLocation(result).value mustEqual routes.CancellationReasonController.onPageLoad(departureId, lrn).url
     }
 
     "must redirect to the next page when valid data is submitted and user selects No" in {

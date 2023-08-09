@@ -18,7 +18,7 @@ package base
 
 import connectors.DepartureMovementConnector
 import controllers.actions._
-import models.requests.{AuthorisedRequest, OptionalDataRequest}
+import models.requests.{IdentifierRequest, OptionalDataRequest}
 import models.{LocalReferenceNumber, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -40,26 +40,18 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
   val lrn: LocalReferenceNumber = LocalReferenceNumber("lrn")
 
   val mockDataRetrievalActionProvider: DataRetrievalActionProvider = mock[DataRetrievalActionProvider]
-  val mockGetLRNActionProvider: GetLRNActionProvider               = mock[GetLRNActionProvider]
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
   val mockDepartureMessageService: DepartureMessageService       = mock[DepartureMessageService]
   val mockDepartureMovementConnector: DepartureMovementConnector = mock[DepartureMovementConnector]
 
-  val getLRNAction: FakeGetLRNAction = new FakeGetLRNAction(
-    "ab123",
-    mockDepartureMessageService
-  )
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockDataRetrievalActionProvider)
-    reset(mockGetLRNActionProvider)
     reset(mockSessionRepository)
     reset(mockDepartureMessageService)
     when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-    when(mockGetLRNActionProvider.apply(any())).thenReturn(getLRNAction)
   }
 
   def dataRetrievalWithData(userAnswers: UserAnswers): Unit = dataRetrieval(Some(userAnswers))
@@ -67,9 +59,9 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
   def dataRetrievalNoData(): Unit = dataRetrieval(None)
 
   private def dataRetrieval(userAnswers: Option[UserAnswers]): Unit = {
-    val fakeDataRetrievalAction = new ActionTransformer[AuthorisedRequest, OptionalDataRequest] {
-      override protected def transform[A](request: AuthorisedRequest[A]): Future[OptionalDataRequest[A]] =
-        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, lrn, userAnswers))
+    val fakeDataRetrievalAction = new ActionTransformer[IdentifierRequest, OptionalDataRequest] {
+      override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
+        Future.successful(OptionalDataRequest(request.request, request.eoriNumber, userAnswers))
 
       override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
     }
@@ -81,14 +73,12 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     guiceApplicationBuilder()
       .build()
 
-  // Override to provide custom binding
   def guiceApplicationBuilder(): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalActionProvider].toInstance(mockDataRetrievalActionProvider),
-        bind[GetLRNActionProvider].toInstance(mockGetLRNActionProvider),
         bind[DepartureMessageService].toInstance(mockDepartureMessageService),
         bind[SessionRepository].toInstance(mockSessionRepository)
       )

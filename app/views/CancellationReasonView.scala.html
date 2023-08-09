@@ -33,7 +33,7 @@
     showBackLink = true
 ) {
 
-    @formHelper(action = routes.CancellationReasonController.onSubmit(departureId), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.CancellationReasonController.onSubmit(departureId, lrn), Symbol("autoComplete") -> "off") {
 
         @errorSummary(form.errors)
 

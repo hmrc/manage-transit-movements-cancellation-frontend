@@ -41,7 +41,7 @@ import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
-  private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
+  private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId, lrn).url
   private val form: Form[String]                   = new CancellationReasonFormProvider()()
   private val mockApiConnector: ApiConnector       = mock[ApiConnector]
   private val validAnswer                          = "answer"
@@ -116,7 +116,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
-      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "success")))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
@@ -124,7 +124,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url
+      redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
     }
 
     "must redirect to the technicalDifficulties page when no ieo15Data found" in {
@@ -145,7 +145,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(None))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
-      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "success")))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))

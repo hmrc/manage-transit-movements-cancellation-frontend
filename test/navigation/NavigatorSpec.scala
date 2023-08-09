@@ -38,8 +38,8 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
       forAll(arbitrary[UserAnswers]) {
         answers =>
           navigator
-            .nextPage(UnknownPage, answers, departureId)
-            .mustBe(routes.ConfirmCancellationController.onPageLoad(departureId))
+            .nextPage(UnknownPage, answers, departureId, lrn)
+            .mustBe(routes.ConfirmCancellationController.onPageLoad(departureId, lrn))
       }
     }
 
@@ -49,8 +49,8 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
           val updatedAnswers = answers
             .setValue(ConfirmCancellationPage, true)
           navigator
-            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId)
-            .mustBe(routes.CancellationReasonController.onPageLoad(departureId))
+            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId, lrn)
+            .mustBe(routes.CancellationReasonController.onPageLoad(departureId, lrn))
       }
     }
 
@@ -60,7 +60,7 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
           val updatedAnswers = answers
             .setValue(ConfirmCancellationPage, false)
           navigator
-            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId)
+            .nextPage(ConfirmCancellationPage, updatedAnswers, departureId, lrn)
             .mustBe(Call(GET, frontendAppConfig.manageTransitMovementsViewDeparturesUrl))
       }
     }
@@ -71,8 +71,8 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
           val updatedAnswers = answers
             .setValue(CancellationReasonPage, "Test reason")
           navigator
-            .nextPage(CancellationReasonPage, updatedAnswers, departureId)
-            .mustBe(routes.CancellationSubmissionConfirmationController.onPageLoad(departureId))
+            .nextPage(CancellationReasonPage, updatedAnswers, departureId, lrn)
+            .mustBe(routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
       }
     }
   }

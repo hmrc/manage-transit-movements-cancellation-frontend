@@ -10,13 +10,13 @@ GET        /unauthorised                                            controllers.
 
 GET        /unauthorised-group-access                               controllers.UnauthorisedWithGroupAccessController.onPageLoad()
 
-GET        /:departureId/cancel-declaration                         controllers.ConfirmCancellationController.onPageLoad(departureId: String)
-POST       /:departureId/cancel-declaration                         controllers.ConfirmCancellationController.onSubmit(departureId: String)
+GET        /:departureId/cancel-declaration/:lrn                    controllers.ConfirmCancellationController.onPageLoad(departureId: String, lrn: LocalReferenceNumber)
+POST       /:departureId/cancel-declaration/:lrn                    controllers.ConfirmCancellationController.onSubmit(departureId: String, lrn: LocalReferenceNumber)
 
-GET        /:departureId/reason                                     controllers.CancellationReasonController.onPageLoad(departureId: String)
-POST       /:departureId/reason                                     controllers.CancellationReasonController.onSubmit(departureId: String)
+GET        /:departureId/reason/:lrn                                controllers.CancellationReasonController.onPageLoad(departureId: String, lrn: LocalReferenceNumber)
+POST       /:departureId/reason/:lrn                                controllers.CancellationReasonController.onSubmit(departureId: String, lrn: LocalReferenceNumber)
 
-GET        /:departureId/request-sent       controllers.CancellationSubmissionConfirmationController.onPageLoad(departureId: String)
+GET        /request-sent/:lrn                                       controllers.CancellationSubmissionConfirmationController.onPageLoad(lrn: LocalReferenceNumber)
 
 GET        /keep-alive                                              controllers.KeepAliveController.keepAlive()
 
@@ -29,4 +29,4 @@ GET        /internal-server-error                                   controllers.
 
 ->         /hmrc-frontend                                           hmrcfrontend.Routes
 
-GET        /:departureId                                            controllers.StartController.start(departureId: String)
+GET        /:departureId/index/:lrn                                 controllers.StartController.start(departureId: String, lrn: LocalReferenceNumber)

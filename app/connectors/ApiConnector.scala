@@ -21,10 +21,8 @@ import models.DepartureId
 import models.messages.IE014Data
 import play.api.Logging
 import play.api.http.HeaderNames
-import play.api.mvc.Result
-import play.api.mvc.Results.InternalServerError
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +34,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
     HeaderNames.CONTENT_TYPE -> "application/json"
   )
 
-  def submit(ie014Data: IE014Data, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[Either[Result, HttpResponse]] = {
+  def submit(ie014Data: IE014Data, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
     httpClient
@@ -44,12 +42,7 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
       .map {
         response =>
           logger.info(s"ApiConnector:submit: success: ${response.status}-${response.body}")
-          Right(response)
-      }
-      .recover {
-        case e: Exception =>
-          logger.error(s"ApiConnector:submit: failed with exception: ${e.getMessage}")
-          Left(InternalServerError(s"ApiConnector:submit: failed with exception: ${e.getMessage}"))
+          response
       }
   }
 }

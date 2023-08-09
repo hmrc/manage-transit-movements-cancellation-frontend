@@ -18,11 +18,11 @@ package controllers
 
 import controllers.actions._
 import forms.ConfirmCancellationFormProvider
+import models.LocalReferenceNumber
 import navigation.Navigator
 import pages.ConfirmCancellationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ConfirmCancellationView
 
@@ -32,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class ConfirmCancellationController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
-  sessionRepository: SessionRepository,
   formProvider: ConfirmCancellationFormProvider,
   navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
@@ -43,25 +42,25 @@ class ConfirmCancellationController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
+  def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
       val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-      Ok(view(preparedForm, departureId, request.lrn))
+      Ok(view(preparedForm, departureId, lrn))
   }
 
-  def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
+  def onSubmit(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireData(departureId).async {
     implicit request =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, lrn))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmCancellationPage, value))
-            } yield Redirect(navigator.nextPage(ConfirmCancellationPage, updatedAnswers, departureId))
+            } yield Redirect(navigator.nextPage(ConfirmCancellationPage, updatedAnswers, departureId, lrn))
         )
   }
 }

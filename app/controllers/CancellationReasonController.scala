@@ -16,12 +16,13 @@
 
 package controllers
 
+import cats.data.OptionT
 import connectors.ApiConnector
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
-import models.DepartureId
 import models.messages.IE015Data
+import models.{DepartureId, LocalReferenceNumber}
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -48,39 +49,32 @@ class CancellationReasonController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
+  def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
       val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-      Ok(view(preparedForm, departureId, request.lrn, commentMaxLength))
+      Ok(view(preparedForm, departureId, lrn, commentMaxLength))
   }
 
-  def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
+  def onSubmit(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireData(departureId).async {
     implicit request =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn, commentMaxLength))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, lrn, commentMaxLength))),
           value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
-              ie015Data <-
-                departureMessageService.getIE015FromDeclarationMessage(departureId)
-              ie014Data = IE015Data.fromIE015Data(ie015Data, value.trim)
-              result <-
-                if (ie014Data.isDefined) {
-                  apiConnector.submit(ie014Data.get, DepartureId(departureId))
-                } else {
-                  Future.successful(Left(InternalServerError))
-                }
-            } yield result match {
-              case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
-              case Left(_) =>
-                Redirect(controllers.routes.ErrorController.technicalDifficulties())
-              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
-            }
+            (
+              for {
+                userAnswers <- OptionT.liftF(Future.fromTry(request.userAnswers.set(CancellationReasonPage, value)))
+                ie015Data   <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
+                ie014Data   <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
+                _           <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
+              } yield Redirect(navigator.nextPage(CancellationReasonPage, userAnswers, departureId, lrn))
+            ).getOrElse(
+              Redirect(controllers.routes.ErrorController.technicalDifficulties())
+            )
         )
   }
 }

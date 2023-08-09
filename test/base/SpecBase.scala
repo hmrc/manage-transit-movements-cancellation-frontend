@@ -48,7 +48,7 @@ trait SpecBase
   val eoriNumber: EoriNumber     = EoriNumber("eoriNumber")
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, Json.obj(), Instant.now())
+  def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, lrn, Json.obj(), Instant.now())
 
   val ie014Data: IE014Data = IE014Data(
     IE014MessageData(

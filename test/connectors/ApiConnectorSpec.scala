@@ -18,15 +18,13 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.http.Fault
 import generators.Generators
 import models.DepartureId
-import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Result
-import play.api.mvc.Results.InternalServerError
-import play.api.test.Helpers.{await, _}
+import play.api.test.Helpers._
 import uk.gov.hmrc.http.HttpResponse
+
+import scala.concurrent.Future
 
 class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
@@ -51,22 +49,10 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
             .willReturn(ok())
         )
 
-        val res: Either[Result, HttpResponse] = await(connector.submit(ie014Data, DepartureId(departureId)))
-        res.toString mustBe Right(HttpResponse(OK, "")).toString
+        val result: HttpResponse = await(connector.submit(ie014Data, DepartureId(departureId)))
+
+        result.status mustBe OK
       }
-
-      "return badrequest response" in {
-
-        server.stubFor(
-          post(uri)
-            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE))
-        )
-
-        val res: Either[Result, HttpResponse] = await(connector.submit(ie014Data, DepartureId(departureId)))
-        res.toString mustBe Left(InternalServerError("ApiConnector:submit: failed with exception: Remotely closed")).toString
-      }
-
     }
   }
 

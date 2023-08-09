@@ -46,7 +46,7 @@ class CancellationSubmissionConfirmationControllerSpec extends SpecBase with Moc
 
     "return OK and the correct view for a GET" in {
 
-      val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url)
+      val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url)
 
       val result = route(app, request).value
 
