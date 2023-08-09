@@ -78,7 +78,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustBe controllers.routes.ErrorController.internalServerError().url // TODO: Change to new error page
+      redirectLocation(result).value mustBe controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
     }
 
     "must return 303 and redirect to error page when message returns none" in {

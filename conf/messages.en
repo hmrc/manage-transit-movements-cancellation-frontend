@@ -93,3 +93,13 @@ cancellationDecisionUpdate.cancellationDecisionDate = Date of decision
 cancellationDecisionUpdate.cancellationJustification = Reason
 cancellationDecisionUpdate.contact.p = You must
 cancellationDecisionUpdate.contact.link = contact the New Computerised Transit System helpdesk to get this fixed (opens in a new tab)
+
+cannotSendCancellationRequest.title = You cannot cancel this declaration
+cannotSendCancellationRequest.heading = You cannot cancel this declaration
+cannotSendCancellationRequest.paragraph = This may be because the goods have already been released or the office of departure has rejected the declaration.
+cannotSendCancellationRequest.officeNameAvailableAndPhoneNumberAvailable  = If you have any questions, contact Customs at {0} on {1}.
+cannotSendCancellationRequest.officeNameAvailableButNoPhoneNumberAvailable  = If you have any questions, contact Customs at {0}.
+cannotSendCancellationRequest.officeNameNotAvailAndPhoneNumberAvailable  = If you have any questions, contact Customs office {0} on {1}.
+cannotSendCancellationRequest.officeNameNotAvailAndPhoneNumberNotAvailable  = If you have any questions, contact Customs office {0}.
+cannotSendCancellationRequest.officeNotAvailable  = If you have any questions, contact Customs office {0}.
+cannotSendCancellationRequest.linkText = View the status of this declaration

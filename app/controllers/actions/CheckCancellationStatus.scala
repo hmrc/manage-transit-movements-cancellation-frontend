@@ -47,7 +47,8 @@ class CheckCancellationStatus(
       case Some(DepartureMessageMetaData(_, messageType, _)) =>
         messageType match {
           case DepartureNotification | AllocatedMRN | GuaranteeRejected | GoodsUnderControl | DeclarationSent => None
-          case _                                                                                              => Option(Redirect(controllers.routes.ErrorController.internalServerError())) // TODO Redirect to new page
+          case _ =>
+            Option(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId)))
         }
       case _ => Option(Redirect(controllers.routes.ErrorController.technicalDifficulties())) // TODO: If message cant be found redirect to tech diff?
     }

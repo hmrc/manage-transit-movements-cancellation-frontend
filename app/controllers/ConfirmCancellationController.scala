@@ -35,22 +35,25 @@ class ConfirmCancellationController @Inject() (
   sessionRepository: SessionRepository,
   formProvider: ConfirmCancellationFormProvider,
   navigator: Navigator,
+  identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
-  view: ConfirmCancellationView
+  view: ConfirmCancellationView,
+  checkCancellationStatus: CheckCancellationStatusProvider
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
-    implicit request =>
-      val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
-      Ok(view(preparedForm, departureId, request.lrn))
-  }
+  def onPageLoad(departureId: String): Action[AnyContent] =
+    (identify andThen checkCancellationStatus(departureId) andThen actions.requireData(departureId)) {
+      implicit request =>
+        val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(preparedForm, departureId, request.lrn))
+    }
 
   def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
     implicit request =>
