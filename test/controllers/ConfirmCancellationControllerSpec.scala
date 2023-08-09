@@ -31,7 +31,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
   "ConfirmCancellation Controller" - {
 
-    "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable" in {
+    "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a GET" in {
 
       cancellationStatusNotSubmittable(departureId)
 
