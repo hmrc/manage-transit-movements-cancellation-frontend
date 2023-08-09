@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{EoriNumber, UserAnswers}
+import models.{EoriNumber, LocalReferenceNumber, UserAnswers}
 import org.mongodb.scala.model.Filters
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -45,9 +45,9 @@ class SessionRepositorySpec
 
   override protected val repository = new SessionRepository(mongoComponent, config, timeMachine)
 
-  private lazy val userAnswers1 = UserAnswers("AB123", EoriNumber("EoriNumber1"), Json.obj(), timeMachine.now())
-  private lazy val userAnswers2 = UserAnswers("CD123", EoriNumber("EoriNumber2"), Json.obj(), timeMachine.now())
-  private lazy val userAnswers3 = UserAnswers("EF123", EoriNumber("EoriNumber3"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers1 = UserAnswers("AB123", EoriNumber("EoriNumber1"), LocalReferenceNumber("AB123"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers2 = UserAnswers("CD123", EoriNumber("EoriNumber2"), LocalReferenceNumber("AB123"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers3 = UserAnswers("EF123", EoriNumber("EoriNumber3"), LocalReferenceNumber("AB123"), Json.obj(), timeMachine.now())
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -110,6 +110,18 @@ class SessionRepositorySpec
         firstGet.eoriNumber mustBe secondGet.eoriNumber
         firstGet.data mustNot equal(secondGet.data)
         firstGet.lastUpdated isBefore secondGet.lastUpdated mustBe true
+      }
+    }
+
+    "remove" - {
+
+      "must remove document when given a valid LocalReferenceNumber and EoriNumber" in {
+
+        repository.get(userAnswers1.id).futureValue mustBe defined
+
+        repository.remove(userAnswers1.id, userAnswers1.eoriNumber).futureValue
+
+        repository.get(userAnswers1.id).futureValue must not be defined
       }
     }
   }

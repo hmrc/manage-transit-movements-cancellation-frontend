@@ -27,6 +27,7 @@ import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.DepartureMessageService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
@@ -38,9 +39,9 @@ class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
   apiConnector: ApiConnector,
-  navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
   departureMessageService: DepartureMessageService,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView
 )(implicit ec: ExecutionContext)
@@ -51,11 +52,7 @@ class CancellationReasonController @Inject() (
 
   def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireData(departureId) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
-      Ok(view(preparedForm, departureId, lrn, commentMaxLength))
+      Ok(view(form, departureId, lrn, commentMaxLength))
   }
 
   def onSubmit(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireData(departureId).async {
@@ -67,11 +64,11 @@ class CancellationReasonController @Inject() (
           value =>
             (
               for {
-                userAnswers <- OptionT.liftF(Future.fromTry(request.userAnswers.set(CancellationReasonPage, value)))
-                ie015Data   <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
-                ie014Data   <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
-                _           <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
-              } yield Redirect(navigator.nextPage(CancellationReasonPage, userAnswers, departureId, lrn))
+                ie015Data <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
+                ie014Data <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
+                _         <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
+                _         <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
+              } yield Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
             ).getOrElse(
               Redirect(controllers.routes.ErrorController.technicalDifficulties())
             )

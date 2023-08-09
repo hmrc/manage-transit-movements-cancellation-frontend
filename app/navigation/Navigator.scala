@@ -31,8 +31,6 @@ class Navigator @Inject() (val appConfig: FrontendAppConfig) {
 
     case ConfirmCancellationPage =>
       ua => confirmCancellationRoute(ua, departureId, lrn)
-    case CancellationReasonPage =>
-      _ => Some(routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
   }
 
   def confirmCancellationRoute(ua: UserAnswers, departureId: String, lrn: LocalReferenceNumber): Option[Call] =

@@ -64,16 +64,5 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
             .mustBe(Call(GET, frontendAppConfig.manageTransitMovementsViewDeparturesUrl))
       }
     }
-
-    "Must go from CancellationReason page to Confirmation page " in {
-      forAll(arbitrary[UserAnswers]) {
-        answers =>
-          val updatedAnswers = answers
-            .setValue(CancellationReasonPage, "Test reason")
-          navigator
-            .nextPage(CancellationReasonPage, updatedAnswers, departureId, lrn)
-            .mustBe(routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
-      }
-    }
   }
 }

@@ -69,24 +69,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
         view(form, departureId, lrn, commentMaxLength)(request, messages).toString
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, validAnswer)
-
-      dataRetrievalWithData(userAnswers)
-
-      val request = FakeRequest(GET, cancellationReasonRoute)
-
-      val result = route(app, request).value
-
-      val view = injector.instanceOf[CancellationReasonView]
-
-      status(result) mustEqual OK
-
-      contentAsString(result) mustEqual
-        view(form.fill(validAnswer), departureId, lrn, commentMaxLength)(request, messages).toString
-    }
-
     "must redirect to the next page when valid data is submitted" in {
 
       val date = LocalDateTime.now
@@ -116,6 +98,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
+      when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
       when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "success")))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
