@@ -158,6 +158,9 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
       assertElementDoesNotExist(doc, "govuk-back-link")
     }
 
+  def pageWithContent(doc: Document, tag: String, expectedText: String): Unit =
+    pageWithContent(doc, tag, expectedText, _ equals _)
+
   def pageWithContent(tag: String, expectedText: String): Unit =
     pageWithContent(doc, tag, expectedText, _ equals _)
 

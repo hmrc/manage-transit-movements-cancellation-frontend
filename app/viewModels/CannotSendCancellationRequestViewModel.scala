@@ -19,19 +19,19 @@ package viewModels
 import models.CustomsOffice
 import play.api.i18n.Messages
 
-case class CannotSendCancellationRequestViewModel(customsOffice: Option[CustomsOffice], customsOfficeId: String) {
+case class CannotSendCancellationRequestViewModel(customsOfficeId: String, customsOffice: Option[CustomsOffice]) {
 
   // scalastyle:off cyclomatic.complexity
   def customsOfficeMessage(implicit messages: Messages): String = customsOffice match {
     case Some(CustomsOffice(_, name, _, Some(phone))) if name.nonEmpty && phone.nonEmpty =>
-      messages("cannotSendCancellationRequest.officeNameAvailableAndPhoneNumberAvailable", name, phone)
+      messages("cannotSendCancellationRequest.nameExistsAndPhoneExist", name, phone)
     case Some(CustomsOffice(_, name, _, Some(phone))) if name.nonEmpty && phone.isEmpty =>
-      messages("cannotSendCancellationRequest.officeNameAvailableButNoPhoneNumberAvailable", name)
+      messages("cannotSendCancellationRequest.NameExists", name)
     case Some(CustomsOffice(_, name, _, None)) if name.nonEmpty =>
-      messages("cannotSendCancellationRequest.officeNameAvailableButNoPhoneNumberAvailable", name)
+      messages("cannotSendCancellationRequest.NameExists", name)
     case Some(CustomsOffice(id, "", _, Some(phone))) if phone.nonEmpty =>
-      messages("cannotSendCancellationRequest.officeNameNotAvailAndPhoneNumberAvailable", id, phone)
-    case _ => messages("cannotSendCancellationRequest.officeNotAvailable", customsOfficeId)
+      messages("cannotSendCancellationRequest.PhoneExists", id, phone)
+    case _ => messages("cannotSendCancellationRequest.NoneExist", customsOfficeId)
   }
   // scalastyle:on cyclomatic.complexity
 

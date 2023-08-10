@@ -48,7 +48,7 @@ class CancellationReasonController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
+  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireDataAndCheckCancellationStatus(departureId) {
     implicit request =>
       val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
         case None        => form
@@ -57,7 +57,7 @@ class CancellationReasonController @Inject() (
       Ok(view(preparedForm, departureId, request.lrn, commentMaxLength))
   }
 
-  def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
+  def onSubmit(departureId: String): Action[AnyContent] = actions.requireDataAndCheckCancellationStatus(departureId).async {
     implicit request =>
       form
         .bindFromRequest()
