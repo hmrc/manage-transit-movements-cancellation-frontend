@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import connectors.ReferenceDataConnectorSpec._
-import models.{Country, CustomsOffice}
+import models.CustomsOffice
 import org.scalacheck.Gen
 import org.scalatest.{Assertion, BeforeAndAfterEach}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
@@ -52,31 +52,9 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
     "data.id" -> equalTo(code)
   )
 
-  private val queryParamsCustomsCountry: Seq[(String, StringValuePattern)] = Seq(
-    "data.code" -> equalTo(countryCode)
-  )
-
   "Reference Data" - {
 
     "GET" - {
-
-      "should handle a 200 response for countries" in {
-        server.stubFor(
-          get(urlEqualTo(s"/$baseUrl/lists/CountryCodesFullList"))
-            .willReturn(okJson(countryListResponseJson))
-        )
-
-        val expectedResult = Seq(
-          Country("GB", Some("United Kingdom")),
-          Country("AD", Some("Andorra"))
-        )
-
-        connector.getCountries().futureValue mustBe expectedResult
-      }
-
-      "should handle client and server errors for countries" in {
-        checkErrorResponse(s"/$baseUrl/lists/CountryCodesFullList", connector.getCountries())
-      }
 
       "should handle a 200 response for customs office with code end point with valid phone number" in {
         server.stubFor(
@@ -106,24 +84,6 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
         checkErrorResponse(s"/$baseUrl/filtered-lists/CustomsOffices", connector.getCustomsOffice(code))
       }
 
-      "getCountryByCode" - {
-        "should handle a 200 response" in {
-
-          server.stubFor(
-            get(urlPathMatching(s"/$baseUrl/filtered-lists/CountryCodesFullList"))
-              .withQueryParams(queryParamsCustomsCountry.toMap.asJava)
-              .willReturn(okJson(countryCodeResponseJson))
-          )
-
-          val expectedResult = Seq(Country(countryCode, Some("United Kingdom")))
-
-          connector.getCountryNameByCode(countryCode).futureValue mustBe expectedResult
-        }
-
-        "should handle a error response" in {
-          checkErrorResponse(s"/$baseUrl/filtered-lists/CountryCodesFullList", connector.getCountryNameByCode(countryCode))
-        }
-      }
     }
   }
 
@@ -150,25 +110,6 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
 }
 
 object ReferenceDataConnectorSpec {
-
-  private val countryListResponseJson: String =
-    """
-      |{
-      | "data":
-      | [
-      |  {
-      |    "code":"GB",
-      |    "state":"valid",
-      |    "description":"United Kingdom"
-      |  },
-      |  {
-      |    "code":"AD",
-      |    "state":"valid",
-      |    "description":"Andorra"
-      |  }
-      | ]
-      |}
-      |""".stripMargin
 
   private val customsOfficeResponseJsonWithPhone: String =
     """

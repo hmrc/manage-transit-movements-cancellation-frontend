@@ -18,21 +18,12 @@ package services
 
 import com.google.inject.Inject
 import connectors.ReferenceDataConnector
-import models.{Country, CustomsOffice}
+import models.CustomsOffice
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReferenceDataServiceImpl @Inject() (connector: ReferenceDataConnector) extends ReferenceDataService {
-
-  def getCountries()(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Seq[Country]] =
-    connector.getCountries().map(sort)
-
-  def getCountryByCode(code: Option[String])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[Country]] =
-    code match {
-      case Some(countryCode) => getCountries().map(_.find(_.code.equals(countryCode)))
-      case None              => Future.successful(None)
-    }
 
   def getCustomsOfficeByCode(customsOfficeCode: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CustomsOffice]] = {
     val customsOfficesResult: Future[Seq[CustomsOffice]] = connector.getCustomsOffice(customsOfficeCode)
@@ -42,34 +33,10 @@ class ReferenceDataServiceImpl @Inject() (connector: ReferenceDataConnector) ext
     )
   }
 
-  def getCountryNameByCode(code: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[String] = {
-    val countriesResult: Future[Seq[Country]] = connector.getCountryNameByCode(code)
-
-    countriesResult.flatMap(
-      countries =>
-        if (countries.isEmpty) {
-          throw new IllegalArgumentException("Get country by code request failed to return data")
-        } else {
-          Future.successful(countries.head.code)
-        }
-    )
-  }
-
-  private def sort(countries: Seq[Country]): Seq[Country] =
-    countries.sortBy(
-      country =>
-        country.description match {
-          case Some(desc) => desc.toLowerCase()
-          case None       => country.code
-        }
-    )
 }
 
 trait ReferenceDataService {
-  def getCountries()(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Seq[Country]]
-  def getCountryByCode(code: Option[String])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[Country]]
 
   def getCustomsOfficeByCode(code: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CustomsOffice]]
 
-  def getCountryNameByCode(code: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[String]
 }

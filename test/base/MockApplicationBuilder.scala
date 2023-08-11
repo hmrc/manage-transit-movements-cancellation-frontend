@@ -32,8 +32,6 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, ActionTransformer, Result}
 import repositories.SessionRepository
 import services.DepartureMessageService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 

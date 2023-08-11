@@ -17,7 +17,7 @@
 package services
 
 import connectors.ReferenceDataConnector
-import models.{Country, CustomsOffice}
+import models.CustomsOffice
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -35,62 +35,9 @@ class ReferenceDataServiceSpec extends AnyFreeSpec with ScalaFutures with Matche
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  private val uk      = Country("GB", Some("United Kingdom"))
-  private val andorra = Country("AD", Some("Andorra"))
-  private val france  = Country("FR", Some("France"))
-
-  private val countries = Seq(uk, andorra, france)
-
   private val customsOffice = CustomsOffice("ID1", "NAME001", "GB", None)
 
   "ReferenceDataService" - {
-
-    "getCountries should" - {
-      "return a list of sorted countries" in {
-
-        when(mockConnector.getCountries()(any(), any())).thenReturn(Future.successful(countries))
-
-        val service = new ReferenceDataServiceImpl(mockConnector)
-
-        service.getCountries().futureValue mustBe
-          Seq(andorra, france, uk)
-
-        verify(mockConnector).getCountries()(any(), any())
-      }
-    }
-
-    "getCountryByCode should" - {
-
-      "return None if country can't be found" in {
-
-        when(mockConnector.getCountries()).thenReturn(Future.successful(Nil))
-
-        val service = new ReferenceDataServiceImpl(mockConnector)
-
-        service.getCountryByCode(Some("GB")).futureValue mustBe None
-      }
-
-      "return None if country code is not passed in" in {
-
-        when(mockConnector.getCountries()).thenReturn(Future.successful(Nil))
-
-        val service = new ReferenceDataServiceImpl(mockConnector)
-
-        service.getCountryByCode(None).futureValue mustBe None
-      }
-
-      "return Country if country code exists" in {
-
-        when(mockConnector.getCountries()).thenReturn(Future.successful(countries))
-
-        val service = new ReferenceDataServiceImpl(mockConnector)
-
-        service.getCountryByCode(Some("GB")).futureValue mustBe Some(
-          Country("GB", Some("United Kingdom"))
-        )
-      }
-
-    }
 
     "getCustomsOfficeByCode should" - {
       "return a customsOffice" in {
