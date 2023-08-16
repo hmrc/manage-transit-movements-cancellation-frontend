@@ -17,7 +17,7 @@
 package forms
 
 import forms.mappings.Mappings
-import models.Constants.{commentMaxLength, stringFieldRegex}
+import models.Constants.{commentMaxLength, stringFieldRegexComma}
 import play.api.data.Form
 
 import javax.inject.Inject
@@ -28,6 +28,6 @@ class CancellationReasonFormProvider @Inject() extends Mappings {
     Form(
       "value" -> text("cancellationReason.error.required")
         .verifying(maxLength(commentMaxLength, "cancellationReason.error.length"))
-        .verifying(regexp(stringFieldRegex, "cancellationReason.error.invalidCharacters"))
+        .verifying(regexp(stringFieldRegexComma, "cancellationReason.error.invalidCharacters"))
     )
 }

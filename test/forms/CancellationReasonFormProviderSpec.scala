@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.Constants.{commentMaxLength, stringFieldRegex}
+import models.Constants.{commentMaxLength, stringFieldRegexComma}
 import org.scalacheck.Gen
 import play.api.data.{Field, FormError}
 import wolfendale.scalacheck.regexp.RegexpGen
@@ -49,8 +49,8 @@ class CancellationReasonFormProviderSpec extends StringFieldBehaviours {
 
       val invalidKey = "cancellationReason.error.invalidCharacters"
 
-      val expectedError: FormError = FormError(fieldName, invalidKey, Seq(stringFieldRegex))
-      val generator: Gen[String]   = RegexpGen.from(s"[!£^*(){}_+=:;|`~,±üçñèé@]{35}")
+      val expectedError: FormError = FormError(fieldName, invalidKey, Seq(stringFieldRegexComma))
+      val generator: Gen[String]   = RegexpGen.from(s"[!£^*(){}_+=:;|`~±üçñèé@]{35}")
       forAll(generator) {
         invalidString =>
           val result: Field = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
