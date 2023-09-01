@@ -43,14 +43,15 @@ class ConfirmCancellationController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireData(departureId) {
-    implicit request =>
-      val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
-      Ok(view(preparedForm, departureId, request.lrn))
-  }
+  def onPageLoad(departureId: String): Action[AnyContent] =
+    actions.requireDataAndCheckCancellationStatus(departureId) {
+      implicit request =>
+        val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(preparedForm, departureId, request.lrn))
+    }
 
   def onSubmit(departureId: String): Action[AnyContent] = actions.requireData(departureId).async {
     implicit request =>
