@@ -69,4 +69,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   lazy val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
   lazy val replaceIndexes: Boolean = configuration.get[Boolean]("feature-flags.replace-indexes")
+
+  lazy val referenceDataUrl: String = configuration.get[Service]("microservice.services.customs-reference-data").fullServiceUrl
+
 }

@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package forms
+package models
 
-import forms.mappings.Mappings
-import models.Constants.{commentMaxLength, stringFieldRegexComma}
-import play.api.data.Form
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 
-import javax.inject.Inject
+case class CustomsOffice(
+  id: String,
+  name: String,
+  countryId: String,
+  phoneNumber: Option[String]
+)
 
-class CancellationReasonFormProvider @Inject() extends Mappings {
+object CustomsOffice {
 
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("cancellationReason.error.required")
-        .verifying(maxLength(commentMaxLength, "cancellationReason.error.length"))
-        .verifying(regexp(stringFieldRegexComma, "cancellationReason.error.invalidCharacters"))
-    )
+  implicit val writes: OWrites[CustomsOffice] = Json.writes[CustomsOffice]
+
+  implicit val readFromFile: Reads[CustomsOffice] =
+    (
+      (__ \ "id").read[String] and
+        (__ \ "name").read[String] and
+        (__ \ "countryId").read[String] and
+        (__ \ "phoneNumber").readNullable[String]
+    )(CustomsOffice.apply _)
+
 }

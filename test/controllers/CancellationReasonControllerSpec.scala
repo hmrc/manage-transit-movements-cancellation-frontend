@@ -53,7 +53,40 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
   "CancellationReason Controller" - {
 
+    "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a GET" in {
+
+      cancellationStatusNotSubmittable(departureId)
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      val request = FakeRequest(GET, cancellationReasonRoute)
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+    }
+
+    "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a POST" in {
+
+      cancellationStatusNotSubmittable(departureId)
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      val request = FakeRequest(POST, cancellationReasonRoute)
+        .withFormUrlEncodedBody(("value", validAnswer))
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+    }
+
     "must return OK and the correct view for a GET" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -69,7 +102,29 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
         view(form, departureId, lrn, commentMaxLength)(request, messages).toString
     }
 
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      cancellationStatusSubmittable(departureId)
+
+      val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, validAnswer)
+
+      dataRetrievalWithData(userAnswers)
+
+      val request = FakeRequest(GET, cancellationReasonRoute)
+
+      val result = route(app, request).value
+
+      val view = injector.instanceOf[CancellationReasonView]
+
+      status(result) mustEqual OK
+
+      contentAsString(result) mustEqual
+        view(form.fill(validAnswer), departureId, lrn, commentMaxLength)(request, messages).toString
+    }
+
     "must redirect to the next page when valid data is submitted" in {
+
+      cancellationStatusSubmittable(departureId)
 
       val date = LocalDateTime.now
 
@@ -112,6 +167,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must redirect to the technicalDifficulties page when no ieo15Data found" in {
 
+      cancellationStatusSubmittable(departureId)
+
       val date = LocalDateTime.now
 
       val messages = DepartureMessages(
@@ -141,6 +198,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
+      cancellationStatusSubmittable(departureId)
+
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, cancellationReasonRoute).withFormUrlEncodedBody(("value", ""))
@@ -151,6 +210,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
     }
 
     "redirect to Session Expired for a GET if no existing data is found" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalNoData()
 
@@ -164,6 +225,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
     }
 
     "redirect to Session Expired for a POST if no existing data is found" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalNoData()
 

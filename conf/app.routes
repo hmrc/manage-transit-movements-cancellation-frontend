@@ -18,6 +18,8 @@ POST       /:departureId/reason/:lrn                                controllers.
 
 GET        /request-sent/:lrn                                       controllers.CancellationSubmissionConfirmationController.onPageLoad(lrn: LocalReferenceNumber)
 
+GET        /:departureId/cannot-cancel-declaration                  controllers.CannotSendCancellationRequestController.onPageLoad(departureId: String)
+
 GET        /keep-alive                                              controllers.KeepAliveController.keepAlive()
 
 GET        /can-not-cancel                                          controllers.CanNotCancelController.onPageLoad()

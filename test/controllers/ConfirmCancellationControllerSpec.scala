@@ -31,7 +31,24 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
   "ConfirmCancellation Controller" - {
 
+    "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a GET" in {
+
+      cancellationStatusNotSubmittable(departureId)
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      val request = FakeRequest(GET, confirmCancellationRoute)
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+    }
+
     "must return OK and the correct view for a GET" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -48,6 +65,8 @@ class ConfirmCancellationControllerSpec extends SpecBase {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      cancellationStatusSubmittable(departureId)
 
       val answer      = true
       val userAnswers = emptyUserAnswers.setValue(ConfirmCancellationPage, answer)
@@ -67,6 +86,8 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted and user selects Yes" in {
 
+      cancellationStatusSubmittable(departureId)
+
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, confirmCancellationRoute)
@@ -80,6 +101,8 @@ class ConfirmCancellationControllerSpec extends SpecBase {
     }
 
     "must redirect to the next page when valid data is submitted and user selects No" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -95,6 +118,8 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
+      cancellationStatusSubmittable(departureId)
+
       dataRetrievalWithData(emptyUserAnswers)
 
       val request = FakeRequest(POST, confirmCancellationRoute).withFormUrlEncodedBody(("value", ""))
@@ -105,6 +130,8 @@ class ConfirmCancellationControllerSpec extends SpecBase {
     }
 
     "redirect to Session Expired for a GET if no existing data is found" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalNoData()
 
@@ -118,6 +145,8 @@ class ConfirmCancellationControllerSpec extends SpecBase {
     }
 
     "redirect to Session Expired for a POST if no existing data is found" in {
+
+      cancellationStatusSubmittable(departureId)
 
       dataRetrievalNoData()
 

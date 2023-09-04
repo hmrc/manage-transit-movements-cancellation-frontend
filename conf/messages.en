@@ -42,10 +42,10 @@ technicalDifficulties.savedAnswers = We saved your answers. They will be availab
 technicalDifficulties.contact = You can
 technicalDifficulties.contact.link = contact the New Computerised Transit System helpdesk if you need to speak to someone about your transit movement (opens in a new tab)
 
-confirmCancellation.title = Are you sure you want to cancel this departure declaration?
-confirmCancellation.heading = Are you sure you want to cancel this departure declaration?
+confirmCancellation.title = Are you sure you want to cancel this declaration?
+confirmCancellation.heading = Are you sure you want to cancel this declaration?
 confirmCancellation.checkYourAnswersLabel = Are you sure you want to cancel this departure declaration?
-confirmCancellation.error.required = Select yes if you want to cancel this departure declaration
+confirmCancellation.error.required = Select yes if you want to cancel this declaration
 
 pageNotFound.title = Page not found
 pageNotFound.heading = Page not found
@@ -54,10 +54,10 @@ pageNotFound.paragraph2 = If you pasted the web address, check you copied the en
 pageNotFound.paragraph3Start = If the web address is correct or you selected a link or button,
 pageNotFound.contactLink=contact the New Computerised Transit System(NCTS) helpdesk if you need to speak to someone about your transit movement (opens in a new tab)
 
-cancellationReason.title = Why do you want to cancel this departure declaration?
-cancellationReason.heading = Why do you want to cancel this departure declaration?
+cancellationReason.title = Why do you want to cancel this declaration?
+cancellationReason.heading = Why do you want to cancel this declaration?
 cancellationReason.checkYourAnswersLabel = Why do you want to cancel this departure declaration?
-cancellationReason.error.required = Enter why you want to cancel this departure declaration
+cancellationReason.error.required = Enter why you want to cancel this declaration
 cancellationReason.error.length = Your reason must be {0} characters or less
 cancellationReason.error.invalidCharacters = Your reason must only include letters a to z without accents, numbers 0 to 9, ampersands (&), apostrophes, at signs (@), commas, forward slashes, full stops, hyphens, question marks and spaces
 
@@ -93,3 +93,12 @@ cancellationDecisionUpdate.cancellationDecisionDate = Date of decision
 cancellationDecisionUpdate.cancellationJustification = Reason
 cancellationDecisionUpdate.contact.p = You must
 cancellationDecisionUpdate.contact.link = contact the New Computerised Transit System helpdesk to get this fixed (opens in a new tab)
+
+cannotSendCancellationRequest.title = You cannot cancel this declaration
+cannotSendCancellationRequest.heading = You cannot cancel this declaration
+cannotSendCancellationRequest.paragraph = This may be because the goods have already been released or the office of departure has rejected the declaration.
+cannotSendCancellationRequest.nameExistsAndPhoneExist  = If you have any questions, contact Customs at {0} on {1}.
+cannotSendCancellationRequest.NameExists  = If you have any questions, contact Customs at {0}.
+cannotSendCancellationRequest.PhoneExists  = If you have any questions, contact Customs office {0} on {1}.
+cannotSendCancellationRequest.NoneExist  = If you have any questions, contact Customs office {0}.
+cannotSendCancellationRequest.linkText = View the status of this declaration

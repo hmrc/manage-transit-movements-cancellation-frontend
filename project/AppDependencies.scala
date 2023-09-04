@@ -12,7 +12,7 @@ object AppDependencies {
     "uk.gov.hmrc.mongo"    %% "hmrc-mongo-play-28"            % mongoVersion,
     "uk.gov.hmrc"          %% "play-conditional-form-mapping" % "1.13.0-play-28",
     "uk.gov.hmrc"          %% "bootstrap-frontend-play-28"    % bootstrapVersion,
-    "uk.gov.hmrc"          %% "play-frontend-hmrc"            % "7.14.0-play-28",
+    "uk.gov.hmrc"          %% "play-frontend-hmrc"            % "7.19.0-play-28",
     "com.lucidchart"       %% "xtract"                        % "2.2.1",
   )
 

@@ -24,7 +24,8 @@ import javax.inject.Inject
 class Actions @Inject() (
   identifierAction: IdentifierAction,
   dataRetrievalActionProvider: DataRetrievalActionProvider,
-  dataRequiredAction: DataRequiredAction
+  dataRequiredAction: DataRequiredAction,
+  checkCancellationStatusProvider: CheckCancellationStatusProvider
 ) {
 
   def getData(departureId: String): ActionBuilder[OptionalDataRequest, AnyContent] =
@@ -32,4 +33,7 @@ class Actions @Inject() (
 
   def requireData(departureId: String): ActionBuilder[DataRequest, AnyContent] =
     getData(departureId) andThen dataRequiredAction
+
+  def requireDataAndCheckCancellationStatus(departureId: String): ActionBuilder[DataRequest, AnyContent] =
+    identifierAction andThen checkCancellationStatusProvider(departureId) andThen requireData(departureId)
 }
