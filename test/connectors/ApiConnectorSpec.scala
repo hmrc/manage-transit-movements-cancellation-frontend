@@ -20,6 +20,8 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import generators.Generators
 import models.DepartureId
+import org.scalacheck.Gen
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HttpResponse
@@ -41,7 +43,7 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
     "submit" - {
 
-      "return successful response" in {
+      "return true for positive response" in {
 
         server.stubFor(
           post(uri)
@@ -52,6 +54,25 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
         val result: Boolean = await(connector.submit(ie014Data, DepartureId(departureId)))
 
         result mustBe true
+      }
+
+      "return false for negative response" in {
+
+        val genError: Gen[Int] = Gen
+          .chooseNum(400: Int, 599: Int)
+
+        forAll(genError) {
+          error =>
+            server.stubFor(
+              post(uri)
+                .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
+                .willReturn(aResponse().withStatus(error))
+            )
+
+            val result: Boolean = await(connector.submit(ie014Data, DepartureId(departureId)))
+
+            result mustBe false
+        }
       }
     }
   }

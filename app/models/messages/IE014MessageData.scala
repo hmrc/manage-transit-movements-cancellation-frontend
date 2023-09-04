@@ -22,7 +22,6 @@ import utils.Format.dateTimeFormatIE014
 import java.time.LocalDateTime
 
 case class IE014MessageData(messageSender: String,
-                            messageRecipient: String,
                             preparationDateAndTime: LocalDateTime,
                             TransitOperation: TransitOperation,
                             CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,

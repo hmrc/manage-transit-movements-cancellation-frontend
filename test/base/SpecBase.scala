@@ -53,7 +53,6 @@ trait SpecBase
   val ie014Data: IE014Data = IE014Data(
     IE014MessageData(
       "sender",
-      "recipient",
       LocalDateTime.now(),
       TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
       CustomsOfficeOfDeparture("AB123"),

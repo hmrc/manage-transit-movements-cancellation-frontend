@@ -16,7 +16,8 @@
 
 package models.messages
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OWrites}
+import utils.Format.dateTimeFormatIE014
 
 import java.time.LocalDateTime
 
@@ -28,6 +29,16 @@ case class Invalidation(requestDateAndTime: LocalDateTime = LocalDateTime.now(),
 )
 
 object Invalidation {
-  implicit val formats: OFormat[Invalidation] = Json.format[Invalidation]
+
+  implicit val writes: OWrites[Invalidation] = OWrites {
+    invalidation =>
+      Json.obj(
+        "requestDateAndTime"  -> invalidation.requestDateAndTime.format(dateTimeFormatIE014),
+        "decisionDateAndTime" -> invalidation.decisionDateAndTime.format(dateTimeFormatIE014),
+        "decision"            -> invalidation.decision,
+        "initiatedByCustoms"  -> invalidation.initiatedByCustoms,
+        "justification"       -> invalidation.justification
+      )
+  }
 
 }

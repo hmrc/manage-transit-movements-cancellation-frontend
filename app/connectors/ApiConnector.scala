@@ -22,7 +22,7 @@ import models.messages.IE014Data
 import play.api.Logging
 import play.api.http.HeaderNames
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

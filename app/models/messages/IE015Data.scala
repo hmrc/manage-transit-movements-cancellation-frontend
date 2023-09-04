@@ -28,7 +28,6 @@ object IE015Data {
     IE014Data(
       IE014MessageData(
         messageSender = ie015.data.messageSender,
-        messageRecipient = ie015.data.messageRecipient,
         preparationDateAndTime = LocalDateTime.now,
         TransitOperation = ie015.data.TransitOperation,
         CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(ie015.data.CustomsOfficeOfDeparture.referenceNumber),
