@@ -134,7 +134,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
       when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
-      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "success")))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(true))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
@@ -143,6 +143,49 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
+    }
+
+    "must redirect to technical difficulties when cannot submit" in {
+
+      cancellationStatusSubmittable(departureId, lrn)
+
+      val date = LocalDateTime.now
+
+      val ie015Data: IE015Data = IE015Data(
+        IE015MessageData(
+          "sender",
+          "recipient",
+          date,
+          "CC015",
+          TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+          CustomsOfficeOfDeparture("AB123"),
+          HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
+        )
+      )
+      val messages = DepartureMessages(
+        List(
+          DepartureMessageMetaData(
+            LocalDateTime.parse(s"$date", DateTimeFormatter.ISO_DATE_TIME),
+            DepartureMessageType.DepartureNotification,
+            "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+          )
+        )
+      )
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
+      when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(false))
+
+      val request = FakeRequest(POST, cancellationReasonRoute)
+        .withFormUrlEncodedBody(("value", validAnswer))
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
     }
 
     "must redirect to the technicalDifficulties page when no ieo15Data found" in {
@@ -165,7 +208,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(None))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
-      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "success")))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(true))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))

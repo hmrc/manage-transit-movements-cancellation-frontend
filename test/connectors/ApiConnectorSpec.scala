@@ -49,9 +49,9 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
             .willReturn(ok())
         )
 
-        val result: HttpResponse = await(connector.submit(ie014Data, DepartureId(departureId)))
+        val result: Boolean = await(connector.submit(ie014Data, DepartureId(departureId)))
 
-        result.status mustBe OK
+        result mustBe true
       }
     }
   }

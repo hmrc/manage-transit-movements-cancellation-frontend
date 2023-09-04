@@ -34,15 +34,19 @@ class ApiConnector @Inject() (httpClient: HttpClient, appConfig: FrontendAppConf
     HeaderNames.CONTENT_TYPE -> "application/json"
   )
 
-  def submit(ie014Data: IE014Data, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def submit(ie014Data: IE014Data, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[Boolean] = {
 
     val serviceUrl = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
     httpClient
       .POST(serviceUrl, ie014Data, requestHeaders)
       .map {
         response =>
-          logger.info(s"ApiConnector:submit: success: ${response.status}-${response.body}")
-          response
+          response.status match {
+            case code if is2xx(code) => true
+            case _ =>
+              logger.info(s"ApiConnector:submit: failed: ${response.status}-${response.body}")
+              false
+          }
       }
   }
 }

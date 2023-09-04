@@ -64,11 +64,14 @@ class CancellationReasonController @Inject() (
           value =>
             (
               for {
-                ie015Data <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
-                ie014Data <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
-                _         <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
-                _         <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
-              } yield Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
+                ie015Data    <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
+                ie014Data    <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
+                _            <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
+                hasSubmitted <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
+              } yield hasSubmitted match {
+                case true  => Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
+                case false => Redirect(controllers.routes.ErrorController.technicalDifficulties())
+              }
             ).getOrElse(
               Redirect(controllers.routes.ErrorController.technicalDifficulties())
             )
