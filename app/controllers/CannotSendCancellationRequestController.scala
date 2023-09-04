@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions._
+import models.LocalReferenceNumber
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{DepartureMessageService, ReferenceDataService}
@@ -38,7 +39,7 @@ class CannotSendCancellationRequestController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions
+  def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions
     .requireData(departureId)
     .async {
       implicit request =>
@@ -48,7 +49,7 @@ class CannotSendCancellationRequestController @Inject() (
 
             referenceDataService.getCustomsOfficeByCode(customsOfficeRefNumber).map {
               customsOffice =>
-                Ok(view(request.lrn, departureId, CannotSendCancellationRequestViewModel(customsOfficeRefNumber, customsOffice)))
+                Ok(view(lrn, departureId, CannotSendCancellationRequestViewModel(customsOfficeRefNumber, customsOffice)))
             }
           case _ => Future.successful(Redirect(controllers.routes.ErrorController.technicalDifficulties()))
         }

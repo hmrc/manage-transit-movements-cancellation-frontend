@@ -42,8 +42,6 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
 
   val mockDataRetrievalActionProvider: DataRetrievalActionProvider         = mock[DataRetrievalActionProvider]
   val mockCheckCancellationStatusProvider: CheckCancellationStatusProvider = mock[CheckCancellationStatusProvider]
-  val mockGetLRNActionProvider: GetLRNActionProvider                       = mock[GetLRNActionProvider]
-  val mockDataRetrievalActionProvider: DataRetrievalActionProvider = mock[DataRetrievalActionProvider]
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
@@ -54,7 +52,6 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     super.beforeEach()
     reset(mockDataRetrievalActionProvider)
     reset(mockCheckCancellationStatusProvider)
-    reset(mockGetLRNActionProvider)
     reset(mockSessionRepository)
     reset(mockDepartureMessageService)
     when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
@@ -75,23 +72,23 @@ trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach
     when(mockDataRetrievalActionProvider.apply(any())).thenReturn(fakeDataRetrievalAction)
   }
 
-  def cancellationStatusSubmittable(departureId: String): Unit    = checkCancellationStatus(isSubmittable = true, departureId)
-  def cancellationStatusNotSubmittable(departureId: String): Unit = checkCancellationStatus(isSubmittable = false, departureId)
+  def cancellationStatusSubmittable(departureId: String, lrn: LocalReferenceNumber): Unit    = checkCancellationStatus(isSubmittable = true, departureId, lrn)
+  def cancellationStatusNotSubmittable(departureId: String, lrn: LocalReferenceNumber): Unit = checkCancellationStatus(isSubmittable = false, departureId, lrn)
 
-  private def checkCancellationStatus(isSubmittable: Boolean, departureId: String): Unit = {
+  private def checkCancellationStatus(isSubmittable: Boolean, departureId: String, lrn: LocalReferenceNumber): Unit = {
     val fakeCheckCancellationStatus = new ActionFilter[IdentifierRequest] {
       override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
         if (isSubmittable) {
           Future.successful(None)
         } else {
-          Future.successful(Option(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId))))
+          Future.successful(Option(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn))))
         }
 
       override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
 
     }
 
-    when(mockCheckCancellationStatusProvider.apply(any())).thenReturn(fakeCheckCancellationStatus)
+    when(mockCheckCancellationStatusProvider.apply(any(), any())).thenReturn(fakeCheckCancellationStatus)
   }
 
   override def fakeApplication(): Application =

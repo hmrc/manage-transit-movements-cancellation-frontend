@@ -33,7 +33,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a GET" in {
 
-      cancellationStatusNotSubmittable(departureId)
+      cancellationStatusNotSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -43,12 +43,12 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url
     }
 
     "must return OK and the correct view for a GET" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -66,7 +66,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       val answer      = true
       val userAnswers = emptyUserAnswers.setValue(ConfirmCancellationPage, answer)
@@ -86,7 +86,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted and user selects Yes" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -102,7 +102,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted and user selects No" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -118,7 +118,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -131,7 +131,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "redirect to Session Expired for a GET if no existing data is found" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalNoData()
 
@@ -146,7 +146,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
     "redirect to Session Expired for a POST if no existing data is found" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalNoData()
 

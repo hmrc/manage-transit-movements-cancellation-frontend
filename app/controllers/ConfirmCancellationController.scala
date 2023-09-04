@@ -43,7 +43,7 @@ class ConfirmCancellationController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] =
-    actions.requireDataAndCheckCancellationStatus(departureId) {
+    actions.requireDataAndCheckCancellationStatus(departureId, lrn) {
       implicit request =>
         val preparedForm = request.userAnswers.get(ConfirmCancellationPage) match {
           case None        => form
