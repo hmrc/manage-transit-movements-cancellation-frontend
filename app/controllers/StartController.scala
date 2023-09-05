@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions._
-import models.UserAnswers
+import models.{LocalReferenceNumber, UserAnswers}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,11 +38,14 @@ class StartController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def start(departureId: String): Action[AnyContent] = actions.getData(departureId).async {
+  def start(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.getData(departureId).async {
     implicit request =>
-      sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(departureId, request.eoriNumber, Json.obj(), timeMachine.now()))) map {
-        _ =>
-          Redirect(routes.ConfirmCancellationController.onPageLoad(departureId))
-      }
+      sessionRepository.set(
+        request.userAnswers.getOrElse(
+          UserAnswers(departureId, request.eoriNumber, lrn, Json.obj(), timeMachine.now())
+        )
+      ) map (
+        _ => Redirect(routes.ConfirmCancellationController.onPageLoad(departureId, lrn))
+      )
   }
 }

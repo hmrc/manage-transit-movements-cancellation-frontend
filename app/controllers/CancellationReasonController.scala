@@ -16,16 +16,18 @@
 
 package controllers
 
+import cats.data.OptionT
 import connectors.ApiConnector
 import controllers.actions._
 import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
-import models.DepartureId
 import models.messages.IE015Data
+import models.{DepartureId, LocalReferenceNumber}
 import navigation.Navigator
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.DepartureMessageService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
@@ -37,9 +39,9 @@ class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
   apiConnector: ApiConnector,
-  navigator: Navigator,
   formProvider: CancellationReasonFormProvider,
   departureMessageService: DepartureMessageService,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView
 )(implicit ec: ExecutionContext)
@@ -48,39 +50,31 @@ class CancellationReasonController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(departureId: String): Action[AnyContent] = actions.requireDataAndCheckCancellationStatus(departureId) {
+  def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireDataAndCheckCancellationStatus(departureId, lrn) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(CancellationReasonPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
-      Ok(view(preparedForm, departureId, request.lrn, commentMaxLength))
+      Ok(view(form, departureId, lrn, commentMaxLength))
   }
 
-  def onSubmit(departureId: String): Action[AnyContent] = actions.requireDataAndCheckCancellationStatus(departureId).async {
+  def onSubmit(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = actions.requireDataAndCheckCancellationStatus(departureId, lrn).async {
     implicit request =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, request.lrn, commentMaxLength))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, departureId, lrn, commentMaxLength))),
           value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(CancellationReasonPage, value))
-              ie015Data <-
-                departureMessageService.getIE015FromDeclarationMessage(departureId)
-              ie014Data = IE015Data.fromIE015Data(ie015Data, value.trim)
-              result <-
-                if (ie014Data.isDefined) {
-                  apiConnector.submit(ie014Data.get, DepartureId(departureId))
-                } else {
-                  Future.successful(Left(InternalServerError))
-                }
-            } yield result match {
-              case Left(BadRequest) => Redirect(controllers.routes.ErrorController.badRequest())
-              case Left(_) =>
-                Redirect(controllers.routes.ErrorController.technicalDifficulties())
-              case Right(_) => Redirect(navigator.nextPage(CancellationReasonPage, updatedAnswers, departureId))
-            }
+            (
+              for {
+                ie015Data    <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
+                ie014Data    <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
+                _            <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
+                hasSubmitted <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
+              } yield hasSubmitted match {
+                case true  => Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
+                case false => Redirect(controllers.routes.ErrorController.technicalDifficulties())
+              }
+            ).getOrElse(
+              Redirect(controllers.routes.ErrorController.technicalDifficulties())
+            )
         )
   }
 }

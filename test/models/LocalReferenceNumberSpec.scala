@@ -18,15 +18,55 @@ package models
 
 import generators.Generators
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
 import org.scalatest.EitherValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.libs.json.{JsString, Json}
+import play.api.mvc.PathBindable
 
 class LocalReferenceNumberSpec extends AnyFreeSpec with Generators with Matchers with EitherValues {
 
-  "a Local Reference Number" - {
+  "LocalReferenceNumber" - {
+
+    "must bind from url" in {
+      val pathBindable = implicitly[PathBindable[LocalReferenceNumber]]
+      val departureId  = LocalReferenceNumber("AB123")
+
+      val bind: Either[String, LocalReferenceNumber] = pathBindable.bind("localReferenceNumber", "AB123")
+      bind.value mustBe departureId
+    }
+
+    "must not bind from url when LRN is too long" in {
+
+      forAll(stringsLongerThan(LocalReferenceNumber.maxLength)) {
+        string =>
+          val pathBindable = implicitly[PathBindable[LocalReferenceNumber]]
+
+          val bind: Either[String, LocalReferenceNumber] = pathBindable.bind("localReferenceNumber", string)
+          bind.left.value mustBe "Invalid Local Reference Number"
+      }
+    }
+
+    "must not bind from url when LRN has invalid chars" in {
+
+      forAll(Gen.oneOf(Seq("!", "\"", "£", "%", "^", "&", ">", "<", "*", "(", ")"))) {
+        string =>
+          val pathBindable = implicitly[PathBindable[LocalReferenceNumber]]
+
+          val bind: Either[String, LocalReferenceNumber] = pathBindable.bind("localReferenceNumber", string)
+          bind.left.value mustBe "Invalid Local Reference Number"
+      }
+    }
+
+    "unbind to path value" in {
+      val pathBindable = implicitly[PathBindable[LocalReferenceNumber]]
+      val departureId  = LocalReferenceNumber("AB123")
+
+      val bindValue = pathBindable.unbind("localReferenceNumber", departureId)
+      bindValue mustBe "AB123"
+    }
 
     "must serialise" in {
       forAll(arbitrary[LocalReferenceNumber]) {

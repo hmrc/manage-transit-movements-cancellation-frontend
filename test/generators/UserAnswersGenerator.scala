@@ -45,6 +45,7 @@ trait UserAnswersGenerator extends UserAnswersEntryGenerators with TryValues {
           case Nil => Gen.const(Map[QuestionPage[_], JsValue]())
           case _   => Gen.mapOf(oneOf(generators))
         }
+        lrn <- Gen.alphaNumStr
       } yield UserAnswers(
         id = id,
         eoriNumber = eoriNumber,
@@ -52,7 +53,8 @@ trait UserAnswersGenerator extends UserAnswersEntryGenerators with TryValues {
           case (obj, (path, value)) =>
             obj.setObject(path.path, value).get
         },
-        lastUpdated = Instant.now()
+        lastUpdated = Instant.now(),
+        lrn = LocalReferenceNumber.apply(lrn)
       )
     }
   }

@@ -57,7 +57,7 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with JsonMatc
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockReferenceDataService.getCustomsOfficeByCode(any())(any(), any())).thenReturn(Future.successful(Some(customsOffice)))
 
-      val request = FakeRequest(GET, routes.CannotSendCancellationRequestController.onPageLoad(departureId).url)
+      val request = FakeRequest(GET, routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url)
 
       val result = route(app, request).value
 

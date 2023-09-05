@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import models.{DepartureId, EoriNumber, LocalReferenceNumber, UserAnswers}
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -56,6 +56,18 @@ class SessionRepository @Inject() (
 
     collection
       .replaceOne(filter, updatedUserAnswers, ReplaceOptions().upsert(true))
+      .toFuture()
+      .map(_.wasAcknowledged())
+  }
+
+  def remove(departureId: String, eoriNumber: EoriNumber): Future[Boolean] = {
+    val filter = Filters.and(
+      Filters.eq("_id", departureId),
+      Filters.eq("eoriNumber", eoriNumber.value)
+    )
+
+    collection
+      .deleteOne(filter)
       .toFuture()
       .map(_.wasAcknowledged())
   }

@@ -54,7 +54,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
           val testRequest = IdentifierRequest(FakeRequest(GET, "/"), EoriNumber("eori"))
 
-          val result: Future[Result] = checkCancellationStatus.apply(departureId).invokeBlock(testRequest, fakeOkResult)
+          val result: Future[Result] = checkCancellationStatus.apply(departureId, lrn).invokeBlock(testRequest, fakeOkResult)
 
           status(result) mustEqual OK
       }
@@ -74,11 +74,11 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
       val testRequest = IdentifierRequest(FakeRequest(GET, "/"), EoriNumber("eori"))
 
-      val result: Future[Result] = checkCancellationStatus.apply(departureId).invokeBlock(testRequest, fakeOkResult)
+      val result: Future[Result] = checkCancellationStatus.apply(departureId, lrn).invokeBlock(testRequest, fakeOkResult)
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustBe controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+      redirectLocation(result).value mustBe controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url
     }
 
     "must return 303 and redirect to error page when message returns none" in {
@@ -90,7 +90,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
       val testRequest = IdentifierRequest(FakeRequest(GET, "/"), EoriNumber("eori"))
 
-      val result: Future[Result] = checkCancellationStatus.apply(departureId).invokeBlock(testRequest, fakeOkResult)
+      val result: Future[Result] = checkCancellationStatus.apply(departureId, lrn).invokeBlock(testRequest, fakeOkResult)
 
       status(result) mustEqual SEE_OTHER
 

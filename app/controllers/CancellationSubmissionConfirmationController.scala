@@ -18,6 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions._
+import models.LocalReferenceNumber
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -30,14 +31,13 @@ class CancellationSubmissionConfirmationController @Inject() (
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
   appConfig: FrontendAppConfig,
-  confirmationView: CancellationSubmissionConfirmationView,
-  getLRNAction: GetLRNActionProvider
+  confirmationView: CancellationSubmissionConfirmationView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(departureId: String): Action[AnyContent] = (identify andThen getLRNAction(departureId)) {
+  def onPageLoad(lrn: LocalReferenceNumber): Action[AnyContent] = identify {
     implicit request =>
       lazy val departureListUrl = appConfig.manageTransitMovementsViewDeparturesUrl
-      Ok(confirmationView(departureListUrl, request.lrn))
+      Ok(confirmationView(departureListUrl, lrn))
   }
 }

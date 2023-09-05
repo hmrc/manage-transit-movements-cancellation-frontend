@@ -16,6 +16,7 @@
 
 package controllers.actions
 
+import models.LocalReferenceNumber
 import models.requests.{DataRequest, OptionalDataRequest}
 import play.api.mvc.{ActionBuilder, AnyContent}
 
@@ -23,18 +24,17 @@ import javax.inject.Inject
 
 class Actions @Inject() (
   identifierAction: IdentifierAction,
-  getLRNAction: GetLRNActionProvider,
   dataRetrievalActionProvider: DataRetrievalActionProvider,
   dataRequiredAction: DataRequiredAction,
   checkCancellationStatusProvider: CheckCancellationStatusProvider
 ) {
 
   def getData(departureId: String): ActionBuilder[OptionalDataRequest, AnyContent] =
-    identifierAction andThen getLRNAction(departureId) andThen dataRetrievalActionProvider(departureId)
+    identifierAction andThen dataRetrievalActionProvider(departureId)
 
   def requireData(departureId: String): ActionBuilder[DataRequest, AnyContent] =
     getData(departureId) andThen dataRequiredAction
 
-  def requireDataAndCheckCancellationStatus(departureId: String): ActionBuilder[DataRequest, AnyContent] =
-    identifierAction andThen checkCancellationStatusProvider(departureId) andThen requireData(departureId)
+  def requireDataAndCheckCancellationStatus(departureId: String, lrn: LocalReferenceNumber): ActionBuilder[DataRequest, AnyContent] =
+    identifierAction andThen checkCancellationStatusProvider(departureId, lrn) andThen requireData(departureId)
 }

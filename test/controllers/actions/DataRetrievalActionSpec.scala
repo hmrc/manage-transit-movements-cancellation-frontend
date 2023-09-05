@@ -18,7 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import generators.Generators
-import models.requests.{AuthorisedRequest, OptionalDataRequest}
+import models.requests.{IdentifierRequest, OptionalDataRequest}
 import models.{EoriNumber, LocalReferenceNumber}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -53,7 +53,7 @@ class DataRetrievalActionSpec extends SpecBase with GuiceOneAppPerSuite with Gen
 
     actionProvider(departureId)
       .invokeBlock(
-        AuthorisedRequest(FakeRequest(GET, "/").asInstanceOf[Request[AnyContent]], EoriNumber(""), LocalReferenceNumber("")),
+        IdentifierRequest(FakeRequest(GET, "/").asInstanceOf[Request[AnyContent]], EoriNumber("")),
         {
           request: OptionalDataRequest[AnyContent] =>
             f(request)

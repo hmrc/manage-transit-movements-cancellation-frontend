@@ -41,7 +41,7 @@ import scala.concurrent.Future
 
 class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with JsonMatchers {
 
-  private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId).url
+  private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId, lrn).url
   private val form: Form[String]                   = new CancellationReasonFormProvider()()
   private val mockApiConnector: ApiConnector       = mock[ApiConnector]
   private val validAnswer                          = "answer"
@@ -55,7 +55,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a GET" in {
 
-      cancellationStatusNotSubmittable(departureId)
+      cancellationStatusNotSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -65,12 +65,12 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url
     }
 
     "must redirect to CannotSendCancellationRequest page when cancellation status is not submittable on a POST" in {
 
-      cancellationStatusNotSubmittable(departureId)
+      cancellationStatusNotSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -81,12 +81,12 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId).url
+      redirectLocation(result).value mustEqual routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url
     }
 
     "must return OK and the correct view for a GET" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -102,29 +102,9 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
         view(form, departureId, lrn, commentMaxLength)(request, messages).toString
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      cancellationStatusSubmittable(departureId)
-
-      val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, validAnswer)
-
-      dataRetrievalWithData(userAnswers)
-
-      val request = FakeRequest(GET, cancellationReasonRoute)
-
-      val result = route(app, request).value
-
-      val view = injector.instanceOf[CancellationReasonView]
-
-      status(result) mustEqual OK
-
-      contentAsString(result) mustEqual
-        view(form.fill(validAnswer), departureId, lrn, commentMaxLength)(request, messages).toString
-    }
-
     "must redirect to the next page when valid data is submitted" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       val date = LocalDateTime.now
 
@@ -153,7 +133,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
-      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
+      when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(true))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
@@ -161,12 +142,55 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId).url
+      redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
+    }
+
+    "must redirect to technical difficulties when cannot submit" in {
+
+      cancellationStatusSubmittable(departureId, lrn)
+
+      val date = LocalDateTime.now
+
+      val ie015Data: IE015Data = IE015Data(
+        IE015MessageData(
+          "sender",
+          "recipient",
+          date,
+          "CC015",
+          TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+          CustomsOfficeOfDeparture("AB123"),
+          HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
+        )
+      )
+      val messages = DepartureMessages(
+        List(
+          DepartureMessageMetaData(
+            LocalDateTime.parse(s"$date", DateTimeFormatter.ISO_DATE_TIME),
+            DepartureMessageType.DepartureNotification,
+            "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+          )
+        )
+      )
+
+      dataRetrievalWithData(emptyUserAnswers)
+
+      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
+      when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
+      when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(false))
+
+      val request = FakeRequest(POST, cancellationReasonRoute)
+        .withFormUrlEncodedBody(("value", validAnswer))
+
+      val result = route(app, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
     }
 
     "must redirect to the technicalDifficulties page when no ieo15Data found" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       val date = LocalDateTime.now
 
@@ -184,7 +208,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(None))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
-      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "success"))))
+      when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(true))
 
       val request = FakeRequest(POST, cancellationReasonRoute)
         .withFormUrlEncodedBody(("value", validAnswer))
@@ -197,7 +221,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalWithData(emptyUserAnswers)
 
@@ -210,7 +234,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "redirect to Session Expired for a GET if no existing data is found" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalNoData()
 
@@ -225,7 +249,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
     "redirect to Session Expired for a POST if no existing data is found" in {
 
-      cancellationStatusSubmittable(departureId)
+      cancellationStatusSubmittable(departureId, lrn)
 
       dataRetrievalNoData()
 

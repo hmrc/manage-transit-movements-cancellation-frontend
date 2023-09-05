@@ -24,20 +24,16 @@ case class IE015Data(data: IE015MessageData)
 
 object IE015Data {
 
-  def fromIE015Data(data: Option[IE015Data], reason: String): Option[IE014Data] =
-    data.map(
-      messageData =>
-        IE014Data(
-          IE014MessageData(
-            messageSender = messageData.data.messageSender,
-            messageRecipient = messageData.data.messageRecipient,
-            preparationDateAndTime = LocalDateTime.now,
-            TransitOperation = messageData.data.TransitOperation,
-            CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(messageData.data.CustomsOfficeOfDeparture.referenceNumber),
-            HolderOfTheTransitProcedure = messageData.data.HolderOfTheTransitProcedure,
-            Invalidation = Invalidation(justification = reason)
-          )
-        )
+  def toIE014(ie015: IE015Data, reason: String): IE014Data =
+    IE014Data(
+      IE014MessageData(
+        messageSender = ie015.data.messageSender,
+        preparationDateAndTime = LocalDateTime.now,
+        TransitOperation = ie015.data.TransitOperation,
+        CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(ie015.data.CustomsOfficeOfDeparture.referenceNumber),
+        HolderOfTheTransitProcedure = ie015.data.HolderOfTheTransitProcedure,
+        Invalidation = Invalidation(justification = reason)
+      )
     )
 
   implicit val reads: Reads[IE015Data]    = (__ \ "body" \ "n1:CC015C").read[IE015MessageData].map(IE015Data.apply)

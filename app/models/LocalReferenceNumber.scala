@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json._
+import play.api.mvc.PathBindable
 
 final case class LocalReferenceNumber(value: String) {
   override def toString: String = value
@@ -24,12 +25,38 @@ final case class LocalReferenceNumber(value: String) {
 
 object LocalReferenceNumber {
 
-  implicit val reads: Reads[LocalReferenceNumber] =
-    (__ \ "body" \\ "TransitOperation" \ "LRN").read[String].map(LocalReferenceNumber(_))
+  val maxLength: Int    = 22
+  private val lrnFormat = """^([a-zA-Z0-9-_]{1,22})$""".r
 
-  implicit val writes: Writes[LocalReferenceNumber] = Writes {
+  def format(input: String): Option[LocalReferenceNumber] =
+    input match {
+      case lrnFormat(input) => Some(new LocalReferenceNumber(input))
+      case _                => None
+    }
+
+  implicit def reads: Reads[LocalReferenceNumber] =
+    __.read[String].map(LocalReferenceNumber.format).flatMap {
+      case Some(lrn) =>
+        Reads(
+          _ => JsSuccess(lrn)
+        )
+      case None =>
+        Reads(
+          _ => JsError("Invalid Local Reference Number")
+        )
+    }
+
+  implicit def writes: Writes[LocalReferenceNumber] = Writes {
     lrn =>
       JsString(lrn.value)
   }
 
+  implicit lazy val pathBindable: PathBindable[LocalReferenceNumber] = new PathBindable[LocalReferenceNumber] {
+
+    override def bind(key: String, value: String): Either[String, LocalReferenceNumber] =
+      LocalReferenceNumber.format(value).toRight("Invalid Local Reference Number")
+
+    override def unbind(key: String, lrn: LocalReferenceNumber): String =
+      lrn.value
+  }
 }

@@ -17,7 +17,7 @@
 package navigation
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import models.{LocalReferenceNumber, UserAnswers}
 import pages.Page
 import play.api.mvc.Call
 
@@ -25,6 +25,6 @@ import javax.inject.Inject
 
 class FakeNavigator @Inject() (desiredRoute: Call, appConfig: FrontendAppConfig) extends Navigator(appConfig) {
 
-  override def nextPage(page: Page, userAnswers: UserAnswers, departureId: String): Call = desiredRoute
+  override def nextPage(page: Page, userAnswers: UserAnswers, departureId: String, lrn: LocalReferenceNumber): Call = desiredRoute
 
 }

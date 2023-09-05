@@ -25,7 +25,7 @@ import play.api.test.Helpers._
 
 class StartControllerSpec extends SpecBase {
 
-  private lazy val startRoute: String = routes.StartController.start(departureId).url
+  private lazy val startRoute: String = routes.StartController.start(departureId, lrn).url
 
   private val existingUserAnswers = emptyUserAnswers
 
@@ -42,7 +42,7 @@ class StartControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.ConfirmCancellationController.onPageLoad(departureId).url
+        redirectLocation(result).value mustEqual routes.ConfirmCancellationController.onPageLoad(departureId, lrn).url
 
         val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(uaCaptor.capture)
@@ -59,7 +59,7 @@ class StartControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.ConfirmCancellationController.onPageLoad(departureId).url
+        redirectLocation(result).value mustEqual routes.ConfirmCancellationController.onPageLoad(departureId, lrn).url
 
         val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(uaCaptor.capture)

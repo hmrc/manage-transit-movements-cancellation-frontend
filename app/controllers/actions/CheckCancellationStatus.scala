@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.DepartureMessageMetaData
+import models.{DepartureMessageMetaData, LocalReferenceNumber}
 import models.DepartureMessageType._
 import models.requests.IdentifierRequest
 import play.api.mvc.Results.Redirect
@@ -30,12 +30,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CheckCancellationStatusProvider @Inject() (departureMessageService: DepartureMessageService)(implicit ec: ExecutionContext) {
 
-  def apply(departureId: String): ActionFilter[IdentifierRequest] =
-    new CheckCancellationStatus(departureId, departureMessageService)
+  def apply(departureId: String, lrn: LocalReferenceNumber): ActionFilter[IdentifierRequest] =
+    new CheckCancellationStatus(departureId, lrn, departureMessageService)
 }
 
 class CheckCancellationStatus(
   departureId: String,
+  lrn: LocalReferenceNumber,
   departureMessageService: DepartureMessageService
 )(implicit protected val executionContext: ExecutionContext)
     extends ActionFilter[IdentifierRequest] {
@@ -48,7 +49,7 @@ class CheckCancellationStatus(
         messageType match {
           case DepartureNotification | AllocatedMRN | GuaranteeRejected | GoodsUnderControl | DeclarationSent => None
           case _ =>
-            Option(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId)))
+            Option(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn)))
         }
       case _ => Option(Redirect(controllers.routes.ErrorController.technicalDifficulties())) // TODO: If message cant be found redirect to tech diff?
     }
