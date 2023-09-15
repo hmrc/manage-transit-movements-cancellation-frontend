@@ -21,23 +21,16 @@ import utils.Format.dateTimeFormatIE014
 
 import java.time.LocalDateTime
 
-case class Invalidation(requestDateAndTime: LocalDateTime = LocalDateTime.now(),
-                        decisionDateAndTime: LocalDateTime = LocalDateTime.now(),
-                        decision: String = "0",
-                        initiatedByCustoms: String = "0",
-                        justification: String
-)
+case class Invalidation(requestDateAndTime: LocalDateTime = LocalDateTime.now(), initiatedByCustoms: String = "0", justification: String)
 
 object Invalidation {
 
   implicit val writes: OWrites[Invalidation] = OWrites {
     invalidation =>
       Json.obj(
-        "requestDateAndTime"  -> invalidation.requestDateAndTime.format(dateTimeFormatIE014),
-        "decisionDateAndTime" -> invalidation.decisionDateAndTime.format(dateTimeFormatIE014),
-        "decision"            -> invalidation.decision,
-        "initiatedByCustoms"  -> invalidation.initiatedByCustoms,
-        "justification"       -> invalidation.justification
+        "requestDateAndTime" -> invalidation.requestDateAndTime.format(dateTimeFormatIE014),
+        "initiatedByCustoms" -> invalidation.initiatedByCustoms,
+        "justification"      -> invalidation.justification
       )
   }
 

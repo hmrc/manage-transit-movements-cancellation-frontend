@@ -30,9 +30,8 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
 
     "must serialize" in {
 
-      val prepDateTime: LocalDateTime        = LocalDateTime.of(2023, 2, 1, 10, 20, 30)
-      val requestDateAndTime: LocalDateTime  = LocalDateTime.of(2022, 8, 5, 12, 11, 10)
-      val decisionDateAndTime: LocalDateTime = LocalDateTime.of(2021, 11, 25, 1, 2, 3)
+      val prepDateTime: LocalDateTime       = LocalDateTime.of(2023, 2, 1, 10, 20, 30)
+      val requestDateAndTime: LocalDateTime = LocalDateTime.of(2022, 8, 5, 12, 11, 10)
 
       val ie014Data = IE014Data(
         IE014MessageData(
@@ -43,8 +42,7 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
           HolderOfTheTransitProcedure("idNo"),
           Invalidation(
             justification = "reason for cancellation",
-            requestDateAndTime = requestDateAndTime,
-            decisionDateAndTime = decisionDateAndTime
+            requestDateAndTime = requestDateAndTime
           )
         )
       )
@@ -71,8 +69,6 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
            |       },
            |       "Invalidation" : {
            |         "requestDateAndTime" : "2022-08-05T12:11:10",
-           |         "decisionDateAndTime" : "2021-11-25T01:02:03",
-           |         "decision" : "0",
            |         "initiatedByCustoms" : "0",
            |         "justification" : "reason for cancellation"
            |       }
