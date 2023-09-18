@@ -54,7 +54,7 @@ trait SpecBase
     IE014MessageData(
       "sender",
       LocalDateTime.now(),
-      TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+      TransitOperationIE014(Some("LRNCD3232"), None),
       CustomsOfficeOfDeparture("AB123"),
       HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123"),
       Invalidation(justification = "Hello this is a rejection.")
@@ -67,9 +67,15 @@ trait SpecBase
       "recipient",
       LocalDateTime.now(),
       "messageId",
-      TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+      TransitOperationIE015("LRNAB123", None),
       CustomsOfficeOfDeparture("AB123"),
       HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
+    )
+  )
+
+  val ie028Data: IE028Data = IE028Data(
+    IE028MessageData(
+      TransitOperationIE028("MRN123")
     )
   )
 

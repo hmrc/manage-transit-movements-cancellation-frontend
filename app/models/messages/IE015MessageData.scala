@@ -25,7 +25,7 @@ case class IE015MessageData(
   messageRecipient: String,
   preparationDateAndTime: LocalDateTime,
   messageIdentification: String,
-  TransitOperation: TransitOperation,
+  TransitOperation: TransitOperationIE015,
   CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,
   HolderOfTheTransitProcedure: HolderOfTheTransitProcedure
 )

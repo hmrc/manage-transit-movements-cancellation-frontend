@@ -30,21 +30,19 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
 
     "must serialize" in {
 
-      val prepDateTime: LocalDateTime        = LocalDateTime.of(2023, 2, 1, 10, 20, 30)
-      val requestDateAndTime: LocalDateTime  = LocalDateTime.of(2022, 8, 5, 12, 11, 10)
-      val decisionDateAndTime: LocalDateTime = LocalDateTime.of(2021, 11, 25, 1, 2, 3)
+      val prepDateTime: LocalDateTime       = LocalDateTime.of(2023, 2, 1, 10, 20, 30)
+      val requestDateAndTime: LocalDateTime = LocalDateTime.of(2022, 8, 5, 12, 11, 10)
 
       val ie014Data = IE014Data(
         IE014MessageData(
           "NCTS",
           prepDateTime,
-          TransitOperation(Some("AB123"), Some("CD123")),
+          TransitOperationIE014(Some("CD123"), Some("AB123")),
           CustomsOfficeOfDeparture("GB123"),
           HolderOfTheTransitProcedure("idNo"),
           Invalidation(
             justification = "reason for cancellation",
-            requestDateAndTime = requestDateAndTime,
-            decisionDateAndTime = decisionDateAndTime
+            requestDateAndTime = requestDateAndTime
           )
         )
       )
@@ -60,8 +58,8 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
            |       "messageType" : "CC014C",
            |       "@PhaseID" : "NCTS5.0",
            |       "TransitOperation" : {
-           |           "MRN" : "AB123",
-           |           "LRN" : "CD123"
+           |           "LRN" : "CD123",
+           |           "MRN" : "AB123"
            |       },
            |       "CustomsOfficeOfDeparture" : {
            |           "referenceNumber" : "GB123"
@@ -71,8 +69,6 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
            |       },
            |       "Invalidation" : {
            |         "requestDateAndTime" : "2022-08-05T12:11:10",
-           |         "decisionDateAndTime" : "2021-11-25T01:02:03",
-           |         "decision" : "0",
            |         "initiatedByCustoms" : "0",
            |         "justification" : "reason for cancellation"
            |       }

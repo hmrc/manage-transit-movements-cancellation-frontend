@@ -16,22 +16,12 @@
 
 package models.messages
 
-import play.api.libs.json.{Json, OWrites}
-import utils.Format.dateTimeFormatIE014
+import play.api.libs.json.{__, Json, OWrites, Reads}
 
 import java.time.LocalDateTime
 
-case class Invalidation(requestDateAndTime: LocalDateTime = LocalDateTime.now(), initiatedByCustoms: String = "0", justification: String)
+case class IE028Data(data: IE028MessageData)
 
-object Invalidation {
-
-  implicit val writes: OWrites[Invalidation] = OWrites {
-    invalidation =>
-      Json.obj(
-        "requestDateAndTime" -> invalidation.requestDateAndTime.format(dateTimeFormatIE014),
-        "initiatedByCustoms" -> invalidation.initiatedByCustoms,
-        "justification"      -> invalidation.justification
-      )
-  }
-
+object IE028Data {
+  implicit val reads: Reads[IE028Data] = (__ \ "body" \ "n1:CC028C").read[IE028MessageData].map(IE028Data.apply)
 }

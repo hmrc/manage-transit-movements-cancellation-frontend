@@ -64,7 +64,7 @@ class CancellationReasonController @Inject() (
           value =>
             (
               for {
-                ie015Data    <- OptionT(departureMessageService.getIE015FromDeclarationMessage(departureId))
+                ie015Data    <- OptionT(departureMessageService.mrnAllocatedIE015(departureId))
                 ie014Data    <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
                 _            <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
                 hasSubmitted <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))

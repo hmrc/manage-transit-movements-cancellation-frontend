@@ -18,7 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import logging.Logging
-import models.messages.IE015Data
+import models.messages.{IE015Data, IE028Data}
 import models.{DepartureMessages, LocalReferenceNumber}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads}
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -44,6 +44,15 @@ class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, ht
     val url = s"${appConfig.commonTransitConventionTradersUrl}$location"
 
     http.GET[IE015Data](url)(HttpReads[IE015Data], headers, ec)
+  }
+
+  def getIE028(location: String)(implicit hc: HeaderCarrier): Future[IE028Data] = {
+
+    val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
+
+    val url = s"${appConfig.commonTransitConventionTradersUrl}$location"
+
+    http.GET[IE028Data](url)(HttpReads[IE028Data], headers, ec)
   }
 
   def getMessageMetaData(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessages]] = {

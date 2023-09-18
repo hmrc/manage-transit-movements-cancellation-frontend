@@ -18,8 +18,8 @@ package services
 
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
-import models.DepartureMessageType.DepartureNotification
-import models.messages.IE015Data
+import models.DepartureMessageType.{AllocatedMRN, DepartureNotification}
+import models.messages.{IE015Data, IE028Data}
 import models.{DepartureMessageMetaData, DepartureMessageType, LocalReferenceNumber}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,10 +29,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DepartureMessageService @Inject() (connectors: DepartureMovementConnector) extends Logging {
 
-  private def getDepartureNotificationMetaData(
-    departureId: String
+  private def getMetaDataByMessageType(
+    departureId: String,
+    messageType: DepartureMessageType
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessageMetaData]] =
-    getMessageMetaData(departureId, DepartureNotification)
+    getMessageMetaData(departureId, messageType)
 
   private def getMessageMetaData(departureId: String, messageType: DepartureMessageType)(implicit
     ec: ExecutionContext,
@@ -67,19 +68,36 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
           )
       )
 
-  def getLRNFromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[LocalReferenceNumber]] =
-    (
-      for {
-        declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
-        lrn                <- OptionT.liftF(connectors.getLRN(declarationMessage.path))
-      } yield lrn
-    ).value
-
   def getIE015FromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE015Data]] =
     (
       for {
-        declarationMessage <- OptionT(getDepartureNotificationMetaData(departureId))
+        declarationMessage <- OptionT(getMetaDataByMessageType(departureId, DepartureNotification))
         ie015              <- OptionT.liftF(connectors.getIE015(declarationMessage.path))
       } yield ie015
     ).value
+
+  def getIE028FromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE028Data]] =
+    (
+      for {
+        declarationMessage <- OptionT(getMetaDataByMessageType(departureId, AllocatedMRN))
+        ie028              <- OptionT.liftF(connectors.getIE028(declarationMessage.path))
+      } yield ie028
+    ).value
+
+  def mrnAllocatedIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE015Data]] =
+    for {
+      departureNotification <- getIE015FromDeclarationMessage(departureId)
+      mrnAllocated          <- getIE028FromDeclarationMessage(departureId)
+    } yield departureNotification.map {
+      ie015 =>
+        mrnAllocated match {
+          case Some(value) =>
+            val mrn              = value.data.TransitOperation.MRN
+            val transitOperation = ie015.data.TransitOperation.copy(MRN = Some(mrn))
+            val messageData      = ie015.data.copy(TransitOperation = transitOperation)
+
+            ie015.copy(messageData)
+          case None => ie015
+        }
+    }
 }

@@ -191,7 +191,7 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
               "message recipient",
               dateTime,
               "messageId",
-              TransitOperation(None, Some("LRN")),
+              TransitOperationIE015("LRN", None),
               CustomsOfficeOfDeparture("GB000060"),
               HolderOfTheTransitProcedure("idNumber", None, None, None, None)
             )
@@ -203,6 +203,39 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
 
     }
 
-  }
+    "getIE028data" - {
 
+      "must return messages" in {
+        val responseJson = Json.parse(s"""
+          {
+            "body": {
+                "n1:CC028C": {
+                    "TransitOperation": {
+                        "MRN": "ABC123"
+                    }
+                }
+            }
+          }
+           """)
+
+        server.stubFor(
+          get(urlEqualTo(s"/$departureId"))
+            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
+            .willReturn(okJson(responseJson.toString()))
+        )
+
+        val result: IE028Data = connector.getIE028(departureId).futureValue
+
+        val expectedResult =
+          IE028Data(
+            IE028MessageData(
+              TransitOperationIE028("ABC123")
+            )
+          )
+
+        result mustBe expectedResult
+
+      }
+    }
+  }
 }
