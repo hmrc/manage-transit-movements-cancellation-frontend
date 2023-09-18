@@ -18,8 +18,32 @@ package models.messages
 
 import play.api.libs.json.{Json, OFormat}
 
-case class TransitOperation(MRN: Option[String], LRN: Option[String])
+trait TransitOperation
 
-object TransitOperation {
-  implicit val formats: OFormat[TransitOperation] = Json.format[TransitOperation]
+case class TransitOperationIE015(LRN: String, MRN: Option[String]) extends TransitOperation {
+
+  def toIE014TransitOperation: TransitOperationIE014 =
+    if (MRN.isDefined) {
+      TransitOperationIE014(None, MRN)
+    } else {
+      TransitOperationIE014(Some(LRN), None)
+    }
+
+}
+
+object TransitOperationIE015 {
+  implicit val formats: OFormat[TransitOperationIE015] = Json.format[TransitOperationIE015]
+}
+
+case class TransitOperationIE028(MRN: String) extends TransitOperation
+
+object TransitOperationIE028 {
+  implicit val formats: OFormat[TransitOperationIE028] = Json.format[TransitOperationIE028]
+}
+
+case class TransitOperationIE014(LRN: Option[String], MRN: Option[String]) extends TransitOperation
+
+object TransitOperationIE014 {
+
+  implicit val formats: OFormat[TransitOperationIE014] = Json.format[TransitOperationIE014]
 }

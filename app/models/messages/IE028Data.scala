@@ -16,20 +16,12 @@
 
 package models.messages
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{__, Json, OWrites, Reads}
 
 import java.time.LocalDateTime
 
-case class IE015MessageData(
-  messageSender: String,
-  messageRecipient: String,
-  preparationDateAndTime: LocalDateTime,
-  messageIdentification: String,
-  TransitOperation: TransitOperationIE015,
-  CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,
-  HolderOfTheTransitProcedure: HolderOfTheTransitProcedure
-)
+case class IE028Data(data: IE028MessageData)
 
-object IE015MessageData {
-  implicit val formats: OFormat[IE015MessageData] = Json.format[IE015MessageData]
+object IE028Data {
+  implicit val reads: Reads[IE028Data] = (__ \ "body" \ "n1:CC028C").read[IE028MessageData].map(IE028Data.apply)
 }

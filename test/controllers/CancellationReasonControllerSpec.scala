@@ -114,7 +114,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
           "recipient",
           date,
           "CC015",
-          TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+          TransitOperationIE015("LRNAB123", Some("MRNCD3232")),
           CustomsOfficeOfDeparture("AB123"),
           HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
         )
@@ -131,7 +131,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
+      when(mockDepartureMessageService.mrnAllocatedIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
       when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
       when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(true))
@@ -157,7 +157,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
           "recipient",
           date,
           "CC015",
-          TransitOperation(Some("MRNCD3232"), Some("LRNAB123")),
+          TransitOperationIE015("LRNAB123", Some("MRNCD3232")),
           CustomsOfficeOfDeparture("AB123"),
           HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
         )
@@ -174,7 +174,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
+      when(mockDepartureMessageService.mrnAllocatedIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
       when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
       when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(false))
@@ -206,7 +206,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       dataRetrievalWithData(emptyUserAnswers)
 
-      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(None))
+      when(mockDepartureMessageService.mrnAllocatedIE015(any())(any(), any())).thenReturn(Future.successful(None))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
       when(mockApiConnector.submit(any(), any())(any())).thenReturn(Future.successful(true))
 

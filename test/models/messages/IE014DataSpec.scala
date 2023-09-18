@@ -37,7 +37,7 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
         IE014MessageData(
           "NCTS",
           prepDateTime,
-          TransitOperation(Some("AB123"), Some("CD123")),
+          TransitOperationIE014(Some("CD123"), Some("AB123")),
           CustomsOfficeOfDeparture("GB123"),
           HolderOfTheTransitProcedure("idNo"),
           Invalidation(
@@ -58,8 +58,8 @@ class IE014DataSpec extends AnyFreeSpec with Matchers with OptionValues {
            |       "messageType" : "CC014C",
            |       "@PhaseID" : "NCTS5.0",
            |       "TransitOperation" : {
-           |           "MRN" : "AB123",
-           |           "LRN" : "CD123"
+           |           "LRN" : "CD123",
+           |           "MRN" : "AB123"
            |       },
            |       "CustomsOfficeOfDeparture" : {
            |           "referenceNumber" : "GB123"

@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 
 case class IE014MessageData(messageSender: String,
                             preparationDateAndTime: LocalDateTime,
-                            TransitOperation: TransitOperation,
+                            TransitOperation: TransitOperationIE014,
                             CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,
                             HolderOfTheTransitProcedure: HolderOfTheTransitProcedure,
                             Invalidation: Invalidation

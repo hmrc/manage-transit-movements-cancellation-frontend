@@ -18,18 +18,10 @@ package models.messages
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDateTime
-
-case class IE015MessageData(
-  messageSender: String,
-  messageRecipient: String,
-  preparationDateAndTime: LocalDateTime,
-  messageIdentification: String,
-  TransitOperation: TransitOperationIE015,
-  CustomsOfficeOfDeparture: CustomsOfficeOfDeparture,
-  HolderOfTheTransitProcedure: HolderOfTheTransitProcedure
+case class IE028MessageData(
+  TransitOperation: TransitOperationIE028
 )
 
-object IE015MessageData {
-  implicit val formats: OFormat[IE015MessageData] = Json.format[IE015MessageData]
+object IE028MessageData {
+  implicit val formats: OFormat[IE028MessageData] = Json.format[IE028MessageData]
 }

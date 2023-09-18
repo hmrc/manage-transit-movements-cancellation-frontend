@@ -29,7 +29,7 @@ object IE015Data {
       IE014MessageData(
         messageSender = ie015.data.messageSender,
         preparationDateAndTime = LocalDateTime.now,
-        TransitOperation = ie015.data.TransitOperation,
+        TransitOperation = ie015.data.TransitOperation.toIE014TransitOperation,
         CustomsOfficeOfDeparture = CustomsOfficeOfDeparture(ie015.data.CustomsOfficeOfDeparture.referenceNumber),
         HolderOfTheTransitProcedure = ie015.data.HolderOfTheTransitProcedure,
         Invalidation = Invalidation(justification = reason)
