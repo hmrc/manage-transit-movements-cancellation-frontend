@@ -20,7 +20,7 @@ import cats.data.OptionT
 import connectors.DepartureMovementConnector
 import models.DepartureMessageType.{AllocatedMRN, DepartureNotification}
 import models.messages.{IE015Data, IE028Data}
-import models.{DepartureMessageMetaData, DepartureMessageType, LocalReferenceNumber}
+import models.{DepartureMessageMetaData, DepartureMessageType}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 

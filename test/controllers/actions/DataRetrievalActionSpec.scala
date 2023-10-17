@@ -18,8 +18,8 @@ package controllers.actions
 
 import base.SpecBase
 import generators.Generators
+import models.EoriNumber
 import models.requests.{IdentifierRequest, OptionalDataRequest}
-import models.{EoriNumber, LocalReferenceNumber}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
