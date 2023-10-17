@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{DepartureId, EoriNumber, LocalReferenceNumber, UserAnswers}
+import models.{EoriNumber, UserAnswers}
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository

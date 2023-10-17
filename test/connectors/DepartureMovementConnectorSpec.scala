@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{containing, get, okJson,
 import generators.Generators
 import helper.WireMockServerHandler
 import models.messages._
-import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages, LocalReferenceNumber}
+import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder

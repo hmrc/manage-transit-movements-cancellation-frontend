@@ -23,8 +23,6 @@ import forms.CancellationReasonFormProvider
 import models.Constants.commentMaxLength
 import models.messages.IE015Data
 import models.{DepartureId, LocalReferenceNumber}
-import navigation.Navigator
-import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

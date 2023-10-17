@@ -16,9 +16,7 @@
 
 package models.messages
 
-import play.api.libs.json.{__, Json, OWrites, Reads}
-
-import java.time.LocalDateTime
+import play.api.libs.json.{__, Reads}
 
 case class IE028Data(data: IE028MessageData)
 

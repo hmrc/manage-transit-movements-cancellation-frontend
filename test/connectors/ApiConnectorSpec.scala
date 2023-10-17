@@ -24,9 +24,6 @@ import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.HttpResponse
-
-import scala.concurrent.Future
 
 class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 

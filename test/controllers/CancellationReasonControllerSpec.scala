@@ -26,13 +26,11 @@ import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.CancellationReasonPage
 import play.api.data.Form
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.HttpResponse
 import views.html.CancellationReasonView
 
 import java.time.LocalDateTime
