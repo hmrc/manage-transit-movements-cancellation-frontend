@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{EoriNumber, UserAnswers}
+import models.{EoriNumber, SensitiveFormats, UserAnswers}
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -32,7 +32,7 @@ class SessionRepository @Inject() (
   mongoComponent: MongoComponent,
   appConfig: FrontendAppConfig,
   timeMachine: TimeMachine
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, sensitiveFormats: SensitiveFormats)
     extends PlayMongoRepository[UserAnswers](
       mongoComponent = mongoComponent,
       collectionName = "user-answers",

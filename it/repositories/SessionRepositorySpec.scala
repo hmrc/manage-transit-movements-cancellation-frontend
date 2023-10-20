@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{EoriNumber, LocalReferenceNumber, UserAnswers}
+import models.{EoriNumber, LocalReferenceNumber, SensitiveFormats, UserAnswers}
 import org.mongodb.scala.model.Filters
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -42,6 +42,8 @@ class SessionRepositorySpec
 
   private val config: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   private val timeMachine: TimeMachine  = app.injector.instanceOf[TimeMachine]
+
+  implicit private val sensitiveFormats: SensitiveFormats = app.injector.instanceOf[SensitiveFormats]
 
   override protected val repository = new SessionRepository(mongoComponent, config, timeMachine)
 
