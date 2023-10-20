@@ -14,6 +14,7 @@ object AppDependencies {
     "uk.gov.hmrc"          %% "bootstrap-frontend-play-28"    % bootstrapVersion,
     "uk.gov.hmrc"          %% "play-frontend-hmrc"            % "7.23.0-play-28",
     "com.lucidchart"       %% "xtract"                        % "2.2.1",
+    "uk.gov.hmrc"          %% "crypto-json-play-28"           % "7.3.0"
   )
 
   val test: Seq[ModuleID] = Seq(
