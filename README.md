@@ -16,15 +16,11 @@ or
 
 ### Running manually or for journey tests
 
-Note: The cancellation frontend is tested as part of the departures journey tests.
-
-    sm --start CTC_TRADERS_PRELODGE -r
+    sm --start CTC_TRADERS_P5_ACCEPTANCE -r
     sm --stop MANAGE_TRANSIT_MOVEMENTS_CANCELLATION_FRONTEND
     sbt run
 
-If you hit an entry point before running the journey tests, it gets the compile out of the way and can help keep the first tests from failing.  
-
-e.g.: http://localhost:10122/manage-transit-movements/cancellation/0/confirm-cancellation
+We then need to post an IE015 (Declaration Data). From the `/view-departure-declarations` page click the `Cancel declaration` link for the relevant movement.
 
 ### License
 
