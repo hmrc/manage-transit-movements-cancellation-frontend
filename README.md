@@ -16,8 +16,6 @@ or
 
 ### Running manually or for journey tests
 
-Note: The cancellation frontend is tested as part of the departures journey tests.
-
     sm --start CTC_TRADERS_P5_ACCEPTANCE -r
     sm --stop MANAGE_TRANSIT_MOVEMENTS_CANCELLATION_FRONTEND
     sbt run
