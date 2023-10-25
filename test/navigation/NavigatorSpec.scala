@@ -61,7 +61,7 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
             .setValue(ConfirmCancellationPage, false)
           navigator
             .nextPage(ConfirmCancellationPage, updatedAnswers, departureId, lrn)
-            .mustBe(Call(GET, frontendAppConfig.manageTransitMovementsViewDeparturesUrl))
+            .mustBe(Call(GET, "http://localhost:9485/manage-transit-movements/view-departure-declarations"))
       }
     }
   }
