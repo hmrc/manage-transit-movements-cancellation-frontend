@@ -37,11 +37,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
 
   lazy val enrolmentProxyUrl: String = service.baseUrl("enrolment-store-proxy") + "/enrolment-store-proxy"
 
-  lazy val legacyEnrolmentKey: String           = configuration.get[String]("keys.legacy.enrolmentKey")
-  lazy val legacyEnrolmentIdentifierKey: String = configuration.get[String]("keys.legacy.enrolmentIdentifierKey")
-
-  lazy val newEnrolmentKey: String           = configuration.get[String]("keys.enrolmentKey")
-  lazy val newEnrolmentIdentifierKey: String = configuration.get[String]("keys.enrolmentIdentifierKey")
+  lazy val enrolmentKey: String           = configuration.get[String]("enrolment.key")
+  lazy val enrolmentIdentifierKey: String = configuration.get[String]("enrolment.identifierKey")
 
   lazy val eccEnrolmentSplashPage: String = configuration.get[String]("urls.eccEnrolmentSplashPage")
 
