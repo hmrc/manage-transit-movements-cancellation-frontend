@@ -48,9 +48,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
 
   lazy val commonTransitConventionTradersUrl: String = configuration.get[Service]("microservice.services.common-transit-convention-traders").fullServiceUrl
 
-  lazy val departureBaseUrl: String = service.baseUrl("departures")
-  lazy val departureUrl: String     = departureBaseUrl + "/transits-movements-trader-at-departure"
-
   lazy val timeoutSeconds: Int   = configuration.get[Int]("session.timeoutSeconds")
   lazy val countdownSeconds: Int = configuration.get[Int]("session.countdownSeconds")
 
