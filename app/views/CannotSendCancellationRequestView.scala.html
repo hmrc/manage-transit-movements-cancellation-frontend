@@ -14,18 +14,17 @@
  * limitations under the License.
  *@
 
-@import views.html.components.{Button, Heading, HeadingCaption}
 @import config.FrontendAppConfig
 @import viewModels.CannotSendCancellationRequestViewModel
+@import views.html.components.{Button, Heading}
 
 @this(
     mainTemplate: MainTemplate,
     formHelper: FormWithCSRF,
     heading: Heading,
     button: Button,
-    config: FrontendAppConfig,
-    caption: HeadingCaption
-    )
+    config: FrontendAppConfig
+)
 
 @(lrn: LocalReferenceNumber, departureId: String, viewModel: CannotSendCancellationRequestViewModel)(implicit request: Request[_], messages: Messages)
 
@@ -34,9 +33,7 @@
     showBackLink = true
 ) {
 
-    @caption(lrn.toString)
-
-    @heading(messages("cannotSendCancellationRequest.heading"))
+    @heading(messages("cannotSendCancellationRequest.heading"), caption = Some(messages("site.caption", lrn.value)))
 
     <p class="govuk-body">@messages("cannotSendCancellationRequest.paragraph")</p>
 
