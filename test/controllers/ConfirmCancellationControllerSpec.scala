@@ -113,7 +113,7 @@ class ConfirmCancellationControllerSpec extends SpecBase {
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual frontendAppConfig.manageTransitMovementsViewDeparturesUrl
+      redirectLocation(result).value mustEqual "http://localhost:9485/manage-transit-movements/view-departure-declarations"
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

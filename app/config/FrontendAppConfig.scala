@@ -37,22 +37,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
 
   lazy val enrolmentProxyUrl: String = service.baseUrl("enrolment-store-proxy") + "/enrolment-store-proxy"
 
-  lazy val legacyEnrolmentKey: String           = configuration.get[String]("keys.legacy.enrolmentKey")
-  lazy val legacyEnrolmentIdentifierKey: String = configuration.get[String]("keys.legacy.enrolmentIdentifierKey")
-
-  lazy val newEnrolmentKey: String           = configuration.get[String]("keys.enrolmentKey")
-  lazy val newEnrolmentIdentifierKey: String = configuration.get[String]("keys.enrolmentIdentifierKey")
+  lazy val enrolmentKey: String           = configuration.get[String]("enrolment.key")
+  lazy val enrolmentIdentifierKey: String = configuration.get[String]("enrolment.identifierKey")
 
   lazy val eccEnrolmentSplashPage: String = configuration.get[String]("urls.eccEnrolmentSplashPage")
 
   lazy val manageTransitMovementsUrl: String               = configuration.get[String]("urls.manageTransitMovementsFrontend")
-  lazy val manageTransitMovementsViewDeparturesUrl: String = s"$manageTransitMovementsUrl/test-only/view-departure-declarations"
+  lazy val manageTransitMovementsViewDeparturesUrl: String = s"$manageTransitMovementsUrl/view-departure-declarations"
   lazy val serviceUrl: String                              = s"$manageTransitMovementsUrl/what-do-you-want-to-do"
 
   lazy val commonTransitConventionTradersUrl: String = configuration.get[Service]("microservice.services.common-transit-convention-traders").fullServiceUrl
-
-  lazy val departureBaseUrl: String = service.baseUrl("departures")
-  lazy val departureUrl: String     = departureBaseUrl + "/transits-movements-trader-at-departure"
 
   lazy val timeoutSeconds: Int   = configuration.get[Int]("session.timeoutSeconds")
   lazy val countdownSeconds: Int = configuration.get[Int]("session.countdownSeconds")

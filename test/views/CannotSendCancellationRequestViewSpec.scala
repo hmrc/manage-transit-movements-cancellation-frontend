@@ -44,7 +44,7 @@ class CannotSendCancellationRequestViewSpec extends ViewBehaviours {
   behave like pageWithLink(
     id = "viewStatus",
     expectedText = "View the status of this declaration",
-    expectedHref = frontendAppConfig.manageTransitMovementsViewDeparturesUrl
+    expectedHref = "http://localhost:9485/manage-transit-movements/view-departure-declarations"
   )
 
   "Customs office with no customsOffice record returned" - {
