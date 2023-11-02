@@ -35,7 +35,7 @@ class CannotSendCancellationRequestViewSpec extends ViewBehaviours {
 
   behave like pageWithBackLink()
 
-  behave like pageWithCaption(s"LRN: $lrn")
+  behave like pageWithCaption(s"This declaration is LRN: $lrn")
 
   behave like pageWithHeading()
 

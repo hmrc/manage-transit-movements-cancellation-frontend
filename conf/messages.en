@@ -18,6 +18,8 @@ site.youMust = You must
 site.accepted = Accepted
 site.rejected = Rejected
 site.section = This section is
+this.section.is = This declaration is
+site.caption = LRN: {0}
 
 site.lrn = LRN: {0}
 
