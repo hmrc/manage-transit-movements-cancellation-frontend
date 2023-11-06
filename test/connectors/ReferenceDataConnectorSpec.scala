@@ -18,7 +18,7 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.matching.StringValuePattern
+import connectors.ReferenceDataConnector.NoReferenceDataFoundException
 import connectors.ReferenceDataConnectorSpec._
 import models.CustomsOffice
 import org.scalacheck.Gen
@@ -28,7 +28,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
 
 class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with BeforeAndAfterEach {
 
@@ -48,18 +47,14 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
   val code                                           = "GB00001"
   val countryCode                                    = "GB"
 
-  private val queryParamsCustomsOffice: Seq[(String, StringValuePattern)] = Seq(
-    "data.id" -> equalTo(code)
-  )
-
   "Reference Data" - {
 
-    "GET" - {
+    "getCustomsOffice" - {
+      val url = s"/$baseUrl/filtered-lists/CustomsOffices?data.id=$code"
 
       "should handle a 200 response for customs office with code end point with valid phone number" in {
         server.stubFor(
-          get(urlPathMatching(s"/$baseUrl/filtered-lists/CustomsOffices"))
-            .withQueryParams(queryParamsCustomsOffice.toMap.asJava)
+          get(urlEqualTo(url))
             .willReturn(okJson(customsOfficeResponseJsonWithPhone))
         )
 
@@ -70,8 +65,7 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
 
       "should handle a 200 response for customs office with code end point with no phone number" in {
         server.stubFor(
-          get(urlPathMatching(s"/$baseUrl/filtered-lists/CustomsOffices"))
-            .withQueryParams(queryParamsCustomsOffice.toMap.asJava)
+          get(urlEqualTo(url))
             .willReturn(okJson(customsOfficeResponseJsonWithOutPhone))
         )
 
@@ -80,17 +74,29 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
         connector.getCustomsOffice(code).futureValue mustBe expectedResult
       }
 
-      "should handle client and server errors for customs office end point" in {
-        checkErrorResponse(s"/$baseUrl/filtered-lists/CustomsOffices", connector.getCustomsOffice(code))
+      "must throw a NoReferenceDataFoundException for an empty response" in {
+        checkNoReferenceDataFoundResponse(url, connector.getCustomsOffice(code))
       }
 
+      "should handle client and server errors for customs office end point" in {
+        checkErrorResponse(url, connector.getCustomsOffice(code))
+      }
+    }
+  }
+
+  private def checkNoReferenceDataFoundResponse(url: String, result: => Future[_]): Assertion = {
+    server.stubFor(
+      get(urlEqualTo(url))
+        .willReturn(okJson(emptyResponseJson))
+    )
+
+    whenReady[Throwable, Assertion](result.failed) {
+      _ mustBe a[NoReferenceDataFoundException]
     }
   }
 
   private def checkErrorResponse(url: String, result: => Future[_]): Assertion = {
-    val errorResponses: Gen[Int] = Gen
-      .chooseNum(400: Int, 599: Int)
-      .suchThat(_ != 404)
+    val errorResponses: Gen[Int] = Gen.chooseNum(400: Int, 599: Int)
 
     forAll(errorResponses) {
       errorResponse =>
@@ -102,7 +108,7 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
             )
         )
 
-        whenReady(result.failed) {
+        whenReady[Throwable, Assertion](result.failed) {
           _ mustBe an[Exception]
         }
     }
@@ -151,6 +157,13 @@ object ReferenceDataConnectorSpec {
       |    "description":"United Kingdom"
       |  }
       | ]
+      |}
+      |""".stripMargin
+
+  private val emptyResponseJson: String =
+    """
+      |{
+      |  "data": []
       |}
       |""".stripMargin
 }
