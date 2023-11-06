@@ -44,8 +44,7 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
       .configure(conf = "microservice.services.customs-reference-data.port" -> server.port())
 
   private lazy val connector: ReferenceDataConnector = app.injector.instanceOf[ReferenceDataConnector]
-  val code                                           = "GB00001"
-  val countryCode                                    = "GB"
+  private val code                                   = "GB00001"
 
   "Reference Data" - {
 
@@ -74,7 +73,7 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
         connector.getCustomsOffice(code).futureValue mustBe expectedResult
       }
 
-      "must throw a NoReferenceDataFoundException for an empty response" in {
+      "should throw a NoReferenceDataFoundException for an empty response" in {
         checkNoReferenceDataFoundResponse(url, connector.getCustomsOffice(code))
       }
 
