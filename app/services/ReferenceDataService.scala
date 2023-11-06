@@ -25,13 +25,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReferenceDataServiceImpl @Inject() (connector: ReferenceDataConnector) extends ReferenceDataService {
 
-  def getCustomsOfficeByCode(customsOfficeCode: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CustomsOffice]] = {
-    val customsOfficesResult: Future[Seq[CustomsOffice]] = connector.getCustomsOffice(customsOfficeCode)
-
-    customsOfficesResult.flatMap(
-      offices => Future.successful(offices.headOption)
-    )
-  }
+  def getCustomsOfficeByCode(customsOfficeCode: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CustomsOffice]] =
+    connector.getCustomsOffice(customsOfficeCode).map(_.headOption)
 
 }
 
