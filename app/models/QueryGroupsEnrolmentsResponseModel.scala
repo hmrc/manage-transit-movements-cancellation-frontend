@@ -16,13 +16,53 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.http.Status._
+import play.api.libs.json.{Json, Reads}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-case class QueryGroupsEnrolmentsResponseModel(enrolments: Seq[Service])
+sealed trait GroupEnrolmentResponse
 
-case class Service(service: String)
+object GroupEnrolmentResponse {
 
-object QueryGroupsEnrolmentsResponseModel {
-  implicit val enrolmentReads             = Json.format[Service]
-  implicit val queryGroupsEnrolmentsReads = Json.format[QueryGroupsEnrolmentsResponseModel]
+  case class Enrolments(enrolments: Seq[Enrolment]) extends GroupEnrolmentResponse
+
+  object Enrolments {
+
+    implicit val reads: Reads[Enrolments] = Json.reads[Enrolments]
+  }
+
+  case class Enrolment(service: String)
+
+  object Enrolment {
+    implicit val reads: Reads[Enrolment] = Json.reads[Enrolment]
+  }
+
+  case object NoEnrolments extends GroupEnrolmentResponse
+
+  case class BadRequest(code: String) extends GroupEnrolmentResponse
+
+  object BadRequest {
+
+    implicit val reads: Reads[BadRequest] = Json.reads[BadRequest]
+  }
+
+  case class Other(code: Int, message: String) extends GroupEnrolmentResponse
+
+  implicit val httpReads: HttpReads[GroupEnrolmentResponse] =
+    (_: String, _: String, response: HttpResponse) => {
+      def validate[T <: GroupEnrolmentResponse](implicit rds: Reads[T]): GroupEnrolmentResponse =
+        response.json
+          .validate[T]
+          .fold(
+            errors => Other(response.status, s"Failed to validate json: $errors"),
+            identity
+          )
+
+      response.status match {
+        case OK                     => validate[Enrolments]
+        case NO_CONTENT | NOT_FOUND => NoEnrolments
+        case BAD_REQUEST            => validate[BadRequest]
+        case _                      => Other(response.status, response.body)
+      }
+    }
 }
