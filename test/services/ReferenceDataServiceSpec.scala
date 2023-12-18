@@ -17,6 +17,7 @@
 package services
 
 import connectors.ReferenceDataConnector
+import connectors.ReferenceDataConnector.NoReferenceDataFoundException
 import models.CustomsOffice
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -55,6 +56,15 @@ class ReferenceDataServiceSpec extends AnyFreeSpec with ScalaFutures with Matche
       "return None if customsOffice can't be found" in {
 
         when(mockConnector.getCustomsOffice(any())(any(), any())).thenReturn(Future.successful(Nil))
+
+        val service = new ReferenceDataServiceImpl(mockConnector)
+
+        service.getCustomsOfficeByCode("GB00001").futureValue mustBe None
+      }
+
+      "return None if connector call returns no data" in {
+
+        when(mockConnector.getCustomsOffice(any())(any(), any())).thenReturn(Future.failed(new NoReferenceDataFoundException))
 
         val service = new ReferenceDataServiceImpl(mockConnector)
 
