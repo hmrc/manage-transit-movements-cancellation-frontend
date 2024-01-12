@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
   .settings(automateHeaderSettings(A11yTest))
   .settings(majorVersion := 0)
   .settings(
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
     name := appName,
     RoutesKeys.routesImport += "models._",
     TwirlKeys.templateImports ++= Seq(
