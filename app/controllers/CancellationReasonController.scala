@@ -20,13 +20,14 @@ import cats.data.OptionT
 import connectors.ApiConnector
 import controllers.actions._
 import forms.CancellationReasonFormProvider
+import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
 import models.messages.IE015Data
 import models.{DepartureId, LocalReferenceNumber}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.DepartureMessageService
+import services.{AuditService, DepartureMessageService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
 
@@ -41,7 +42,8 @@ class CancellationReasonController @Inject() (
   departureMessageService: DepartureMessageService,
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-  view: CancellationReasonView
+  view: CancellationReasonView,
+  auditService: AuditService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -67,8 +69,11 @@ class CancellationReasonController @Inject() (
                 _            <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
                 hasSubmitted <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
               } yield hasSubmitted match {
-                case true  => Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
-                case false => Redirect(controllers.routes.ErrorController.technicalDifficulties())
+                case true =>
+                  auditService.audit(DeclarationInvalidationRequest, request.userAnswers)
+                  Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
+                case false =>
+                  Redirect(controllers.routes.ErrorController.technicalDifficulties())
               }
             ).getOrElse(
               Redirect(controllers.routes.ErrorController.technicalDifficulties())

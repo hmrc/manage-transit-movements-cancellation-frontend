@@ -20,17 +20,19 @@ import base.SpecBase
 import connectors.ApiConnector
 import forms.CancellationReasonFormProvider
 import matchers.JsonMatchers
+import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
 import models.messages._
 import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.AuditService
 import views.html.CancellationReasonView
 
 import java.time.LocalDateTime
@@ -41,13 +43,19 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
   private lazy val cancellationReasonRoute: String = routes.CancellationReasonController.onPageLoad(departureId, lrn).url
   private val form: Form[String]                   = new CancellationReasonFormProvider()()
-  private val mockApiConnector: ApiConnector       = mock[ApiConnector]
-  private val validAnswer                          = "answer"
+
+  private val mockApiConnector: ApiConnector = mock[ApiConnector]
+  private val mockAuditService: AuditService = mock[AuditService]
+
+  private val validAnswer = "answer"
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
       .guiceApplicationBuilder()
-      .overrides(bind[ApiConnector].toInstance(mockApiConnector))
+      .overrides(
+        bind[ApiConnector].toInstance(mockApiConnector),
+        bind[AuditService].toInstance(mockAuditService)
+      )
 
   "CancellationReason Controller" - {
 
@@ -127,7 +135,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
         )
       )
 
-      dataRetrievalWithData(emptyUserAnswers)
+      val userAnswers = emptyUserAnswers
+      dataRetrievalWithData(userAnswers)
 
       when(mockDepartureMessageService.mrnAllocatedIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
       when(mockDepartureMovementConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(messages)))
@@ -141,6 +150,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
+
+      verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(userAnswers))(any())
     }
 
     "must redirect to technical difficulties when cannot submit" in {
