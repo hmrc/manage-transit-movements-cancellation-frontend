@@ -21,6 +21,7 @@ import models.AuditType.DeclarationInvalidationRequest
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify}
+import pages.CancellationReasonPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -47,7 +48,7 @@ class AuditServiceSpec extends SpecBase with MockApplicationBuilder {
       "ArrivalNotification" in {
         val service = app.injector.instanceOf[AuditService]
 
-        val userAnswers = emptyUserAnswers
+        val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "Reason")
         service.audit(DeclarationInvalidationRequest, userAnswers)
 
         val expectedDetail = Json.parse(s"""

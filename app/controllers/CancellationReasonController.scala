@@ -24,6 +24,7 @@ import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
 import models.messages.IE015Data
 import models.{DepartureId, LocalReferenceNumber}
+import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -64,13 +65,14 @@ class CancellationReasonController @Inject() (
           value =>
             (
               for {
+                userAnswers  <- OptionT.fromOption[Future](request.userAnswers.set(CancellationReasonPage, value).toOption)
                 ie015Data    <- OptionT(departureMessageService.mrnAllocatedIE015(departureId))
                 ie014Data    <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
                 _            <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
                 hasSubmitted <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
               } yield hasSubmitted match {
                 case true =>
-                  auditService.audit(DeclarationInvalidationRequest, request.userAnswers)
+                  auditService.audit(DeclarationInvalidationRequest, userAnswers)
                   Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
                 case false =>
                   Redirect(controllers.routes.ErrorController.technicalDifficulties())
