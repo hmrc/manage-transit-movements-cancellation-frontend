@@ -27,6 +27,7 @@ import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.CancellationReasonPage
 import play.api.data.Form
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -151,7 +152,8 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with J
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
 
-      verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(userAnswers))(any())
+      val auditedAnswers = userAnswers.setValue(CancellationReasonPage, validAnswer)
+      verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(auditedAnswers))(any())
     }
 
     "must redirect to technical difficulties when cannot submit" in {
