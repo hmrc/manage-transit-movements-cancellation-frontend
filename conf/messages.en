@@ -43,9 +43,8 @@ unauthorisedWithGroupAccess.p = If you already have access, you must contact you
 technicalDifficulties.title = Sorry, there is a problem with the service
 technicalDifficulties.heading = Sorry, there is a problem with the service
 technicalDifficulties.tryAgain = Try again later.
-technicalDifficulties.savedAnswers = We saved your answers. They will be available for up to 28 days.
 technicalDifficulties.contact = You can
-technicalDifficulties.contact.link = contact the New Computerised Transit System helpdesk if you need to speak to someone about your transit movement (opens in a new tab)
+technicalDifficulties.contact.link = contact the New Computerised Transit System helpdesk if you need to speak to someone about transit movements (opens in a new tab).
 
 confirmCancellation.title = Are you sure you want to cancel this declaration?
 confirmCancellation.heading = Are you sure you want to cancel this declaration?
