@@ -117,7 +117,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
         view(form, departureId, lrn, commentMaxLength)(request, messages).toString
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must submit IE014 when IE015 found and IE028 found" in {
       forAll(arbitrary[CC015CType], arbitrary[CC028CType]) {
         (ie015, ie028) =>
           beforeEach()
@@ -142,7 +142,42 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
 
           val auditedAnswers = userAnswers.setValue(CancellationReasonPage, validAnswer)
           verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(auditedAnswers))(any())
-          verify(mockSubmissionService).submit(eqTo(eoriNumber), eqTo(ie015), eqTo(ie028), eqTo(validAnswer), eqTo(DepartureId(departureId)))(any())
+          verify(mockSubmissionService).submit(eqTo(eoriNumber),
+                                               eqTo(ie015),
+                                               eqTo(Some(ie028.TransitOperation.MRN)),
+                                               eqTo(validAnswer),
+                                               eqTo(DepartureId(departureId))
+          )(any())
+          verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
+      }
+    }
+
+    "must submit IE014 when IE015 found and IE028 not found" in {
+      forAll(arbitrary[CC015CType]) {
+        ie015 =>
+          beforeEach()
+
+          cancellationStatusSubmittable(departureId, lrn)
+
+          val userAnswers = emptyUserAnswers
+          dataRetrievalWithData(userAnswers)
+
+          when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
+          when(mockDepartureMessageService.getIE028(any())(any(), any())).thenReturn(Future.successful(None))
+          when(mockSubmissionService.submit(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+          when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
+
+          val request = FakeRequest(POST, cancellationReasonRoute)
+            .withFormUrlEncodedBody(("value", validAnswer))
+
+          val result = route(app, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
+
+          val auditedAnswers = userAnswers.setValue(CancellationReasonPage, validAnswer)
+          verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(auditedAnswers))(any())
+          verify(mockSubmissionService).submit(eqTo(eoriNumber), eqTo(ie015), eqTo(None), eqTo(validAnswer), eqTo(DepartureId(departureId)))(any())
           verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
       }
     }
@@ -158,7 +193,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           dataRetrievalWithData(userAnswers)
 
           when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
-          when(mockDepartureMessageService.getIE028(any())(any(), any())).thenReturn(Future.successful(Some(ie028)))
+          when(mockDepartureMessageService.getIE028(any())(any(), any())).thenReturn(Future.successful(None))
           when(mockSubmissionService.submit(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(errorCode, "")))
           when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
 
@@ -171,7 +206,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
 
           verifyNoInteractions(mockAuditService)
-          verify(mockSubmissionService).submit(eqTo(eoriNumber), eqTo(ie015), eqTo(ie028), eqTo(validAnswer), eqTo(DepartureId(departureId)))(any())
+          verify(mockSubmissionService).submit(eqTo(eoriNumber), eqTo(ie015), eqTo(None), eqTo(validAnswer), eqTo(DepartureId(departureId)))(any())
           verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
       }
     }

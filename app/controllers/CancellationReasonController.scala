@@ -27,8 +27,8 @@ import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.submission.{AuditService, SubmissionService}
 import services.DepartureMessageService
+import services.submission.{AuditService, SubmissionService}
 import uk.gov.hmrc.http.HttpReads.is2xx
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
@@ -69,9 +69,10 @@ class CancellationReasonController @Inject() (
               for {
                 userAnswers <- OptionT.fromOption[Future](request.userAnswers.set(CancellationReasonPage, value).toOption)
                 ie015       <- OptionT(departureMessageService.getIE015(departureId))
-                ie028       <- OptionT(departureMessageService.getIE028(departureId))
-                response    <- OptionT.liftF(submissionService.submit(userAnswers.eoriNumber, ie015, ie028, value, DepartureId(departureId)))
-                _           <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
+                ie028       <- OptionT.liftF(departureMessageService.getIE028(departureId))
+                mrn = ie028.map(_.TransitOperation.MRN)
+                response <- OptionT.liftF(submissionService.submit(userAnswers.eoriNumber, ie015, mrn, value, DepartureId(departureId)))
+                _        <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
               } yield response.status match {
                 case x if is2xx(x) =>
                   auditService.audit(DeclarationInvalidationRequest, userAnswers)

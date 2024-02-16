@@ -39,20 +39,20 @@ class SubmissionService @Inject() (
   def submit(
     eoriNumber: EoriNumber,
     ie015: CC015CType,
-    ie028: CC028CType,
+    mrn: Option[String],
     justification: String,
     departureId: DepartureId
   )(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    connector.submit(buildXml(eoriNumber, ie015, ie028, justification), departureId)
+    connector.submit(buildXml(eoriNumber, ie015, mrn, justification), departureId)
 
-  private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, ie028: CC028CType, justification: String): NodeSeq =
-    toXML(transform(eoriNumber, ie015, ie028, justification), s"ncts:${CC014C.toString}", scope)
+  private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): NodeSeq =
+    toXML(transform(eoriNumber, ie015, mrn, justification), s"ncts:${CC014C.toString}", scope)
 
-  private def transform(eoriNumber: EoriNumber, ie015: CC015CType, ie028: CC028CType, justification: String): CC014CType = {
+  private def transform(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): CC014CType = {
     val officeOfDeparture = ie015.CustomsOfficeOfDeparture
     CC014CType(
       messageSequence1 = messageSequence(eoriNumber, officeOfDeparture.referenceNumber),
-      TransitOperation = transitOperation(ie028.TransitOperation.MRN),
+      TransitOperation = transitOperation(ie015.TransitOperation.LRN, mrn),
       Invalidation = invalidation(justification),
       CustomsOfficeOfDeparture = officeOfDeparture,
       HolderOfTheTransitProcedure = holderOfTransit(ie015.HolderOfTheTransitProcedure),
@@ -76,10 +76,10 @@ class SubmissionService @Inject() (
       )
     )
 
-  def transitOperation(mrn: String): TransitOperationType05 =
+  def transitOperation(lrn: String, mrn: Option[String]): TransitOperationType05 =
     TransitOperationType05(
-      LRN = None,
-      MRN = Some(mrn)
+      LRN = if (mrn.isDefined) None else Some(lrn),
+      MRN = mrn
     )
 
   def invalidation(justification: String): InvalidationType02 =

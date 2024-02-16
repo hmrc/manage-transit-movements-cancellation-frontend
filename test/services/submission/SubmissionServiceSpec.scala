@@ -98,15 +98,28 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
   }
 
   "transitOperation" - {
-    "must create transit operation" in {
-      val mrn = "MRN123"
+    "must create transit operation" - {
+      val lrn = "LRN123"
 
-      val result = service.transitOperation(mrn)
+      "when mrn defined" in {
+        val mrn = "MRN123"
 
-      result mustBe TransitOperationType05(
-        LRN = None,
-        MRN = Some(mrn)
-      )
+        val result = service.transitOperation(lrn, Some(mrn))
+
+        result mustBe TransitOperationType05(
+          LRN = None,
+          MRN = Some(mrn)
+        )
+      }
+
+      "when mrn undefined" in {
+        val result = service.transitOperation(lrn, None)
+
+        result mustBe TransitOperationType05(
+          LRN = Some(lrn),
+          MRN = None
+        )
+      }
     }
   }
 
