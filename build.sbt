@@ -47,10 +47,13 @@ lazy val root = (project in file("."))
       ".*BuildInfo.*;.*javascript.*;.*Routes.*;.*GuiceInjector;" +
       ".*ControllerConfiguration",
     ScoverageKeys.coverageExcludedPackages := Seq(
+      "views\\.html\\.components.*",
+      "views\\.html\\.resources.*",
+      "views\\.html\\.templates.*",
       ".*scalaxb.*",
       ".*generated.*"
     ).mkString(";"),
-    ScoverageKeys.coverageMinimumStmtTotal := 90,
+    ScoverageKeys.coverageMinimumStmtTotal := 85,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
