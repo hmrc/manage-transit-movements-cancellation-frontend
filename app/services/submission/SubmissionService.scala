@@ -40,29 +40,20 @@ class SubmissionService @Inject() (
     eoriNumber: EoriNumber,
     ie015: CC015CType,
     ie028: CC028CType,
-    cancellationReason: String,
+    justification: String,
     departureId: DepartureId
   )(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    connector.submit(buildXml(eoriNumber, ie015, ie028, cancellationReason), departureId)
+    connector.submit(buildXml(eoriNumber, ie015, ie028, justification), departureId)
 
-  private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, ie028: CC028CType, cancellationReason: String): NodeSeq =
-    toXML(transform(eoriNumber, ie015, ie028, cancellationReason), s"ncts:${CC014C.toString}", scope)
+  private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, ie028: CC028CType, justification: String): NodeSeq =
+    toXML(transform(eoriNumber, ie015, ie028, justification), s"ncts:${CC014C.toString}", scope)
 
-  private def transform(eoriNumber: EoriNumber, ie015: CC015CType, ie028: CC028CType, cancellationReason: String): CC014CType = {
+  private def transform(eoriNumber: EoriNumber, ie015: CC015CType, ie028: CC028CType, justification: String): CC014CType = {
     val officeOfDeparture = ie015.CustomsOfficeOfDeparture
     CC014CType(
       messageSequence1 = messageSequence(eoriNumber, officeOfDeparture.referenceNumber),
-      TransitOperation = TransitOperationType05(
-        LRN = None,
-        MRN = Some(ie028.TransitOperation.MRN)
-      ),
-      Invalidation = InvalidationType02(
-        requestDateAndTime = Some(dateTimeService.now),
-        decisionDateAndTime = None,
-        decision = None,
-        initiatedByCustoms = Number0,
-        justification = Some(cancellationReason)
-      ),
+      TransitOperation = transitOperation(ie028.TransitOperation.MRN),
+      Invalidation = invalidation(justification),
       CustomsOfficeOfDeparture = officeOfDeparture,
       HolderOfTheTransitProcedure = holderOfTransit(ie015.HolderOfTheTransitProcedure),
       attributes = Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString("NCTS5.0", scope)))
@@ -83,6 +74,21 @@ class SubmissionService @Inject() (
       correlatioN_IDENTIFIERSequence4 = CORRELATION_IDENTIFIERSequence(
         correlationIdentifier = None
       )
+    )
+
+  def transitOperation(mrn: String): TransitOperationType05 =
+    TransitOperationType05(
+      LRN = None,
+      MRN = Some(mrn)
+    )
+
+  def invalidation(justification: String): InvalidationType02 =
+    InvalidationType02(
+      requestDateAndTime = Some(dateTimeService.now),
+      decisionDateAndTime = None,
+      decision = None,
+      initiatedByCustoms = Number0,
+      justification = Some(justification)
     )
 
   def holderOfTransit(ie015: HolderOfTheTransitProcedureType14): HolderOfTheTransitProcedureType02 =
