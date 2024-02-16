@@ -17,11 +17,13 @@
 package controllers
 
 import base.SpecBase
+import generated.CC015CType
 import generators.Generators
-import matchers.JsonMatchers
 import models.CustomsOffice
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.{reset, verify, when}
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
@@ -32,7 +34,7 @@ import views.html.CannotSendCancellationRequestView
 
 import scala.concurrent.Future
 
-class CannotSendCancellationRequestControllerSpec extends SpecBase with JsonMatchers with Generators {
+class CannotSendCancellationRequestControllerSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
 
   val mockReferenceDataService: ReferenceDataService = mock[ReferenceDataService]
 
@@ -51,22 +53,43 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with JsonMatc
 
   "CannotSendUnloadingRemarksController" - {
     "return OK and the correct view for a GET" in {
+      forAll(arbitrary[CC015CType]) {
+        ie015 =>
+          dataRetrievalWithData(emptyUserAnswers)
 
+          val customsOfficeRefNumber = ie015.CustomsOfficeOfDeparture.referenceNumber
+
+          val viewModel = CannotSendCancellationRequestViewModel(customsOfficeRefNumber, Some(customsOffice))
+
+          when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
+          when(mockReferenceDataService.getCustomsOfficeByCode(any())(any(), any())).thenReturn(Future.successful(Some(customsOffice)))
+
+          val request = FakeRequest(GET, routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url)
+
+          val result = route(app, request).value
+
+          val view = app.injector.instanceOf[CannotSendCancellationRequestView]
+
+          status(result) mustBe OK
+
+          contentAsString(result) mustEqual
+            view(lrn, departureId, viewModel)(request, messages).toString
+
+          verify(mockReferenceDataService).getCustomsOfficeByCode(eqTo(customsOfficeRefNumber))(any(), any())
+      }
+    }
+
+    "return technical difficulties when no IE015 found" in {
       dataRetrievalWithData(emptyUserAnswers)
 
-      when(mockDepartureMessageService.getIE015FromDeclarationMessage(any())(any(), any())).thenReturn(Future.successful(Some(ie015Data)))
-      when(mockReferenceDataService.getCustomsOfficeByCode(any())(any(), any())).thenReturn(Future.successful(Some(customsOffice)))
+      when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(None))
 
       val request = FakeRequest(GET, routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url)
 
       val result = route(app, request).value
 
-      val view = app.injector.instanceOf[CannotSendCancellationRequestView]
-
-      status(result) mustBe OK
-
-      contentAsString(result) mustEqual view(lrn, departureId, CannotSendCancellationRequestViewModel("AB123", None))(request, messages).toString
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
     }
-
   }
 }

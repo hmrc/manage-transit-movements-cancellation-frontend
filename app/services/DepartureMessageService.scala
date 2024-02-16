@@ -18,8 +18,8 @@ package services
 
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
+import generated._
 import models.DepartureMessageType.{AllocatedMRN, DepartureNotification}
-import models.messages.{IE015Data, IE028Data}
 import models.{DepartureMessageMetaData, DepartureMessageType}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -68,36 +68,19 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
           )
       )
 
-  def getIE015FromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE015Data]] =
+  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] =
     (
       for {
         declarationMessage <- OptionT(getMetaDataByMessageType(departureId, DepartureNotification))
-        ie015              <- OptionT.liftF(connectors.getIE015(declarationMessage.path))
+        ie015              <- OptionT.liftF(connectors.getMessage[CC015CType](declarationMessage.path))
       } yield ie015
     ).value
 
-  def getIE028FromDeclarationMessage(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE028Data]] =
+  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] =
     (
       for {
         declarationMessage <- OptionT(getMetaDataByMessageType(departureId, AllocatedMRN))
-        ie028              <- OptionT.liftF(connectors.getIE028(declarationMessage.path))
+        ie028              <- OptionT.liftF(connectors.getMessage[CC028CType](declarationMessage.path))
       } yield ie028
     ).value
-
-  def mrnAllocatedIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE015Data]] =
-    for {
-      departureNotification <- getIE015FromDeclarationMessage(departureId)
-      mrnAllocated          <- getIE028FromDeclarationMessage(departureId)
-    } yield departureNotification.map {
-      ie015 =>
-        mrnAllocated match {
-          case Some(value) =>
-            val mrn              = value.data.TransitOperation.MRN
-            val transitOperation = ie015.data.TransitOperation.copy(MRN = Some(mrn))
-            val messageData      = ie015.data.copy(TransitOperation = transitOperation)
-
-            ie015.copy(messageData)
-          case None => ie015
-        }
-    }
 }

@@ -17,19 +17,20 @@
 package connectors
 
 import base.SpecBase
-import com.github.tomakehurst.wiremock.client.WireMock.{containing, get, okJson, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import generated._
 import generators.Generators
 import helper.WireMockServerHandler
-import models.messages._
 import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
+import scalaxb.XMLCalendar
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.xml.Node
 
 class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler with ScalaCheckPropertyChecks with Generators with EitherValues {
 
@@ -47,49 +48,49 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
       "must return Messages" in {
 
         val responseJson: JsValue = Json.parse("""
-            {
-                "_links": {
-                    "self": {
-                        "href": "/customs/transits/movements/departures/6365135ba5e821ee/messages"
-                    },
-                    "departure": {
-                        "href": "/customs/transits/movements/departures/6365135ba5e821ee"
-                    }
-                },
-                "messages": [
-                    {
-                        "_links": {
-                            "self": {
-                                "href": "/customs/transits/movements/departures/6365135ba5e821ee/message/634982098f02f00b"
-                            },
-                            "departure": {
-                                "href": "/customs/transits/movements/departures/6365135ba5e821ee"
-                            }
-                        },
-                        "id": "634982098f02f00a",
-                        "departureId": "6365135ba5e821ee",
-                        "received": "2022-11-11T15:32:51.459Z",
-                        "type": "IE015",
-                        "status": "Success"
-                    },
-                    {
-                        "_links": {
-                            "self": {
-                                "href": "/customs/transits/movements/departures/6365135ba5e821ee/message/634982098f02f00a"
-                            },
-                            "departure": {
-                                "href": "/customs/transits/movements/departures/6365135ba5e821ee"
-                            }
-                        },
-                        "id": "634982098f02f00a",
-                        "departureId": "6365135ba5e821ee",
-                        "received": "2022-11-10T15:32:51.459Z",
-                        "type": "IE028",
-                        "status": "Success"
-                    }
-                ]
-            }
-            """)
+            |{
+            |  "_links": {
+            |    "self": {
+            |      "href": "/customs/transits/movements/departures/6365135ba5e821ee/messages"
+            |    },
+            |    "departure": {
+            |      "href": "/customs/transits/movements/departures/6365135ba5e821ee"
+            |    }
+            |  },
+            |  "messages": [
+            |    {
+            |      "_links": {
+            |        "self": {
+            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+            |        },
+            |        "departure": {
+            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee"
+            |        }
+            |      },
+            |      "id": "634982098f02f00a",
+            |      "departureId": "6365135ba5e821ee",
+            |      "received": "2022-11-11T15:32:51.459Z",
+            |      "type": "IE015",
+            |      "status": "Success"
+            |    },
+            |    {
+            |      "_links": {
+            |        "self": {
+            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee/message/634982098f02f00a"
+            |        },
+            |        "departure": {
+            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee"
+            |        }
+            |      },
+            |      "id": "634982098f02f00a",
+            |      "departureId": "6365135ba5e821ee",
+            |      "received": "2022-11-10T15:32:51.459Z",
+            |      "type": "IE028",
+            |      "status": "Success"
+            |    }
+            |  ]
+            |}
+            |""".stripMargin)
 
         val expectedResult = DepartureMessages(
           List(
@@ -116,125 +117,141 @@ class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler
       }
     }
 
-    "getIE015data" - {
+    "getMessage" - {
+      "must return message" - {
+        "when IE015" in {
+          val xml: Node =
+            <ncts:CC015C xmlns:ncts="http://ncts.dgtaxud.ec">
+              <messageSender>message sender</messageSender>
+              <messageRecipient>NTA.GB</messageRecipient>
+              <preparationDateAndTime>2022-01-22T07:43:36</preparationDateAndTime>
+              <messageIdentification>messageId</messageIdentification>
+              <messageType>CC015C</messageType>
+              <TransitOperation>
+                <LRN>HnVr</LRN>
+                <declarationType>Pbg</declarationType>
+                <additionalDeclarationType>A</additionalDeclarationType>
+                <security>1</security>
+                <reducedDatasetIndicator>1</reducedDatasetIndicator>
+                <bindingItinerary>0</bindingItinerary>
+              </TransitOperation>
+              <CustomsOfficeOfDeparture>
+                <referenceNumber>GB000060</referenceNumber>
+              </CustomsOfficeOfDeparture>
+              <CustomsOfficeOfDestinationDeclared>
+                <referenceNumber>XI000142</referenceNumber>
+              </CustomsOfficeOfDestinationDeclared>
+              <HolderOfTheTransitProcedure>
+                <identificationNumber>idNumber</identificationNumber>
+              </HolderOfTheTransitProcedure>
+              <Consignment>
+                <grossMass>6430669292.48125</grossMass>
+              </Consignment>
+            </ncts:CC015C>
 
-      "must return messages" in {
-        val dateTime     = LocalDateTime.now
-        val responseJson = Json.parse(s"""
+          val expectedResult = CC015CType(
+            messageSequence1 = MESSAGESequence(
+              messageSender = "message sender",
+              messagE_1Sequence2 = MESSAGE_1Sequence(
+                messageRecipient = "NTA.GB",
+                preparationDateAndTime = XMLCalendar("2022-01-22T07:43:36"),
+                messageIdentification = "messageId"
+              ),
+              messagE_TYPESequence3 = MESSAGE_TYPESequence(
+                messageType = CC015C
+              ),
+              correlatioN_IDENTIFIERSequence4 = CORRELATION_IDENTIFIERSequence()
+            ),
+            TransitOperation = TransitOperationType06(
+              LRN = "HnVr",
+              declarationType = "Pbg",
+              additionalDeclarationType = "A",
+              security = "1",
+              reducedDatasetIndicator = Number1,
+              bindingItinerary = Number0
+            ),
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType03(
+              referenceNumber = "GB000060"
+            ),
+            CustomsOfficeOfDestinationDeclared = CustomsOfficeOfDestinationDeclaredType01(
+              referenceNumber = "XI000142"
+            ),
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType14(
+              identificationNumber = Some("idNumber")
+            ),
+            Consignment = ConsignmentType20(
+              grossMass = 6430669292.48125
+            )
+          )
 
-    {
-            "body": {
-                "n1:CC015C": {
-                    "messageSender": "message sender",
-                    "messageRecipient": "message recipient",
-                    "preparationDateAndTime": "$dateTime",
-                    "messageIdentification": "messageId",
-                    "messageType": "CC015C",
-                    "TransitOperation": {
-                        "LRN": "LRN",
-                        "declarationType": "Pbg",
-                        "additionalDeclarationType": "O",
-                        "security": 8,
-                        "reducedDatasetIndicator": 1,
-                        "bindingItinerary": 0
-                    },
-                    "CustomsOfficeOfDeparture": {
-                        "referenceNumber": "GB000060"
-                    },
-                    "CustomsOfficeOfDestinationDeclared": {
-                        "referenceNumber": "GB000060"
-                    },
-                    "HolderOfTheTransitProcedure": {
-                        "identificationNumber": "idNumber"
-                    },
-                    "Guarantee": {
-                        "sequenceNumber": 48711,
-                        "guaranteeType": 1,
-                        "otherGuaranteeReference": "1qJMA6MbhnnrOJJjHBHX"
-                    },
-                    "Consignment": {
-                        "grossMass": 6430669292.48125,
-                        "HouseConsignment": {
-                            "sequenceNumber": 48711,
-                            "grossMass": 6430669292.48125,
-                            "ConsignmentItem": {
-                                "goodsItemNumber": 18914,
-                                "declarationGoodsItemNumber": 1458,
-                                "Commodity": {
-                                    "descriptionOfGoods": "ZMyM5HTSTnLqT5FT9aHXwScqXKC1VitlWeO5gs91cVXBXOB8xBdXG5aGhG9VFjjDGiraIETFfbQWeA7VUokO7ngDOrKZ23ccKKMA6C3GpXciUTt9nS2pzCFFFeg4BXdkIe"
-                                },
-                                "Packaging": {
-                                    "sequenceNumber": 48711,
-                                    "typeOfPackages": "Oi"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+          server.stubFor(
+            get(urlEqualTo(s"/$departureId/body"))
+              .withHeader("Accept", containing("application/vnd.hmrc.2.0+xml"))
+              .willReturn(ok(xml.toString()))
+          )
+
+          val result = connector.getMessage[CC015CType](departureId).futureValue
+
+          result mustBe expectedResult
         }
 
-    """)
+        "when IE028" in {
+          val xml: Node =
+            <ncts:CC028C xmlns:ncts="http://ncts.dgtaxud.ec">
+              <messageSender>message sender</messageSender>
+              <messageRecipient>NTA.GB</messageRecipient>
+              <preparationDateAndTime>2022-12-25T07:36:28</preparationDateAndTime>
+              <messageIdentification>messageId</messageIdentification>
+              <messageType>CC028C</messageType>
+              <TransitOperation>
+                <LRN>LRN123</LRN>
+                <MRN>3817-MRNAllocated2</MRN>
+                <declarationAcceptanceDate>2022-12-25</declarationAcceptanceDate>
+              </TransitOperation>
+              <CustomsOfficeOfDeparture>
+                <referenceNumber>GB000060</referenceNumber>
+              </CustomsOfficeOfDeparture>
+              <HolderOfTheTransitProcedure>
+                <identificationNumber>Fzsisks</identificationNumber>
+              </HolderOfTheTransitProcedure>
+            </ncts:CC028C>
 
-        server.stubFor(
-          get(urlEqualTo(s"/$departureId"))
-            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .willReturn(okJson(responseJson.toString()))
-        )
-
-        val result: IE015Data = connector.getIE015(departureId).futureValue
-
-        val expectedResult =
-          IE015Data(
-            IE015MessageData(
-              "message sender",
-              "message recipient",
-              dateTime,
-              "messageId",
-              TransitOperationIE015("LRN", None),
-              CustomsOfficeOfDeparture("GB000060"),
-              HolderOfTheTransitProcedure("idNumber", None, None, None, None)
+          val expectedResult = CC028CType(
+            messageSequence1 = MESSAGESequence(
+              messageSender = "message sender",
+              messagE_1Sequence2 = MESSAGE_1Sequence(
+                messageRecipient = "NTA.GB",
+                preparationDateAndTime = XMLCalendar("2022-12-25T07:36:28"),
+                messageIdentification = "messageId"
+              ),
+              messagE_TYPESequence3 = MESSAGE_TYPESequence(
+                messageType = CC028C
+              ),
+              correlatioN_IDENTIFIERSequence4 = CORRELATION_IDENTIFIERSequence()
+            ),
+            TransitOperation = TransitOperationType11(
+              LRN = "LRN123",
+              MRN = "3817-MRNAllocated2",
+              declarationAcceptanceDate = XMLCalendar("2022-12-25")
+            ),
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType03(
+              referenceNumber = "GB000060"
+            ),
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType20(
+              identificationNumber = Some("Fzsisks")
             )
           )
 
-        result mustBe expectedResult
-
-      }
-
-    }
-
-    "getIE028data" - {
-
-      "must return messages" in {
-        val responseJson = Json.parse(s"""
-          {
-            "body": {
-                "n1:CC028C": {
-                    "TransitOperation": {
-                        "MRN": "ABC123"
-                    }
-                }
-            }
-          }
-           """)
-
-        server.stubFor(
-          get(urlEqualTo(s"/$departureId"))
-            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .willReturn(okJson(responseJson.toString()))
-        )
-
-        val result: IE028Data = connector.getIE028(departureId).futureValue
-
-        val expectedResult =
-          IE028Data(
-            IE028MessageData(
-              TransitOperationIE028("ABC123")
-            )
+          server.stubFor(
+            get(urlEqualTo(s"/$departureId/body"))
+              .withHeader("Accept", containing("application/vnd.hmrc.2.0+xml"))
+              .willReturn(ok(xml.toString()))
           )
 
-        result mustBe expectedResult
+          val result = connector.getMessage[CC028CType](departureId).futureValue
 
+          result mustBe expectedResult
+        }
       }
     }
   }

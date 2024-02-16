@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package models.messages
+package services
 
-import play.api.libs.json.{Json, OFormat}
+import java.time.{Clock, LocalDateTime}
+import javax.inject.Inject
 
-case class CustomsOfficeOfDestinationDeclared(
-  referenceNumber: String
-)
+class DateTimeService @Inject() (clock: Clock) {
 
-object CustomsOfficeOfDestinationDeclared {
-
-  implicit val formats: OFormat[CustomsOfficeOfDestinationDeclared] = Json.format[CustomsOfficeOfDestinationDeclared]
-
+  def now: LocalDateTime = LocalDateTime.now(clock)
 }

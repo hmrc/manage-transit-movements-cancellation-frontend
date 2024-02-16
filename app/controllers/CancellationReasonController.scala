@@ -17,18 +17,19 @@
 package controllers
 
 import cats.data.OptionT
-import connectors.ApiConnector
 import controllers.actions._
 import forms.CancellationReasonFormProvider
+import logging.Logging
 import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
-import models.messages.IE015Data
 import models.{DepartureId, LocalReferenceNumber}
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.{AuditService, DepartureMessageService}
+import services.submission.{AuditService, SubmissionService}
+import services.DepartureMessageService
+import uk.gov.hmrc.http.HttpReads.is2xx
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
 
@@ -38,16 +39,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class CancellationReasonController @Inject() (
   override val messagesApi: MessagesApi,
   actions: Actions,
-  apiConnector: ApiConnector,
   formProvider: CancellationReasonFormProvider,
   departureMessageService: DepartureMessageService,
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView,
-  auditService: AuditService
+  auditService: AuditService,
+  submissionService: SubmissionService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   private val form = formProvider()
 
@@ -65,17 +67,18 @@ class CancellationReasonController @Inject() (
           value =>
             (
               for {
-                userAnswers  <- OptionT.fromOption[Future](request.userAnswers.set(CancellationReasonPage, value).toOption)
-                ie015Data    <- OptionT(departureMessageService.mrnAllocatedIE015(departureId))
-                ie014Data    <- OptionT.pure[Future](IE015Data.toIE014(ie015Data, value.trim))
-                _            <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
-                hasSubmitted <- OptionT.liftF(apiConnector.submit(ie014Data, DepartureId(departureId)))
-              } yield hasSubmitted match {
-                case true =>
+                userAnswers <- OptionT.fromOption[Future](request.userAnswers.set(CancellationReasonPage, value).toOption)
+                ie015       <- OptionT(departureMessageService.getIE015(departureId))
+                ie028       <- OptionT(departureMessageService.getIE028(departureId))
+                response    <- OptionT.liftF(submissionService.submit(userAnswers.eoriNumber, ie015, ie028, value, DepartureId(departureId)))
+                _           <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
+              } yield response.status match {
+                case x if is2xx(x) =>
                   auditService.audit(DeclarationInvalidationRequest, userAnswers)
                   Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
-                case false =>
-                  Redirect(controllers.routes.ErrorController.technicalDifficulties())
+                case x =>
+                  logger.error(s"Error submitting IE014: $x")
+                  Redirect(routes.ErrorController.technicalDifficulties())
               }
             ).getOrElse(
               Redirect(controllers.routes.ErrorController.technicalDifficulties())

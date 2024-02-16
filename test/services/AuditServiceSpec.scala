@@ -25,6 +25,7 @@ import pages.CancellationReasonPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import services.submission.AuditService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 class AuditServiceSpec extends SpecBase with MockApplicationBuilder {

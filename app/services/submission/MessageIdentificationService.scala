@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models.messages
+package services.submission
 
-import play.api.libs.json.{__, Reads}
+import javax.inject.Inject
+import scala.util.Random
 
-case class IE028Data(data: IE028MessageData)
+class MessageIdentificationService @Inject() {
 
-object IE028Data {
-  implicit val reads: Reads[IE028Data] = (__ \ "body" \ "n1:CC028C").read[IE028MessageData].map(IE028Data.apply)
+  def randomIdentifier: String = Random.alphanumeric.take(35).mkString
+
 }
