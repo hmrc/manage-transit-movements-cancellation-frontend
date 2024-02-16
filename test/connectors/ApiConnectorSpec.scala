@@ -20,10 +20,11 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import generators.Generators
 import models.DepartureId
-import org.scalacheck.Gen
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.HttpResponse
+
+import scala.xml.NodeSeq
 
 class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
@@ -34,42 +35,28 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
 
   private lazy val connector: ApiConnector = app.injector.instanceOf[ApiConnector]
 
-  val uri = s"/movements/departures/$departureId/messages"
+  private val url = s"/movements/departures/$departureId/messages"
 
   "ApiConnector" - {
 
     "submit" - {
+      val body: NodeSeq =
+        <ncts:CC014C PhaseID="NCTS5.0" xmlns:ncts="http://ncts.dgtaxud.ec">
+          <messageSender>token</messageSender>
+        </ncts:CC014C>
 
-      "return true for positive response" in {
-
+      "must return OK for successful response" in {
         server.stubFor(
-          post(uri)
+          post(urlEqualTo(url))
+            .withRequestBody(equalTo(body.toString()))
             .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .willReturn(ok())
+            .withHeader("Content-Type", containing("application/xml"))
+            .willReturn(aResponse().withStatus(OK))
         )
 
-        val result: Boolean = await(connector.submit(ie014Data, DepartureId(departureId)))
+        val result: HttpResponse = connector.submit(body, DepartureId(departureId)).futureValue
 
-        result mustBe true
-      }
-
-      "return false for negative response" in {
-
-        val genError: Gen[Int] = Gen
-          .chooseNum(400: Int, 599: Int)
-
-        forAll(genError) {
-          error =>
-            server.stubFor(
-              post(uri)
-                .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-                .willReturn(aResponse().withStatus(error))
-            )
-
-            val result: Boolean = await(connector.submit(ie014Data, DepartureId(departureId)))
-
-            result mustBe false
-        }
+        result.status mustBe OK
       }
     }
   }

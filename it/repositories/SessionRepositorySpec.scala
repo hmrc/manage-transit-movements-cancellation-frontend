@@ -25,8 +25,8 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
+import services.DateTimeService
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-import utils.TimeMachine
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -40,16 +40,16 @@ class SessionRepositorySpec
     with OptionValues
     with DefaultPlayMongoRepositorySupport[UserAnswers] {
 
-  private val config: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-  private val timeMachine: TimeMachine  = app.injector.instanceOf[TimeMachine]
+  private val config: FrontendAppConfig        = app.injector.instanceOf[FrontendAppConfig]
+  private val dateTimeService: DateTimeService = app.injector.instanceOf[DateTimeService]
 
   implicit private val sensitiveFormats: SensitiveFormats = app.injector.instanceOf[SensitiveFormats]
 
-  override protected val repository = new SessionRepository(mongoComponent, config, timeMachine)
+  override protected val repository = new SessionRepository(mongoComponent, config, dateTimeService)
 
-  private lazy val userAnswers1 = UserAnswers("AB123", EoriNumber("EoriNumber1"), LocalReferenceNumber("AB123"), Json.obj(), timeMachine.now())
-  private lazy val userAnswers2 = UserAnswers("CD123", EoriNumber("EoriNumber2"), LocalReferenceNumber("AB123"), Json.obj(), timeMachine.now())
-  private lazy val userAnswers3 = UserAnswers("EF123", EoriNumber("EoriNumber3"), LocalReferenceNumber("AB123"), Json.obj(), timeMachine.now())
+  private lazy val userAnswers1 = UserAnswers("AB123", EoriNumber("EoriNumber1"), LocalReferenceNumber("AB123"), Json.obj(), dateTimeService.currentInstant)
+  private lazy val userAnswers2 = UserAnswers("CD123", EoriNumber("EoriNumber2"), LocalReferenceNumber("AB123"), Json.obj(), dateTimeService.currentInstant)
+  private lazy val userAnswers3 = UserAnswers("EF123", EoriNumber("EoriNumber3"), LocalReferenceNumber("AB123"), Json.obj(), dateTimeService.currentInstant)
 
   override def beforeEach(): Unit = {
     super.beforeEach()

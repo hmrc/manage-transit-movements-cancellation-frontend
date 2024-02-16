@@ -18,13 +18,14 @@ package services
 
 import base.SpecBase
 import connectors.DepartureMovementConnector
+import generated.{CC015CType, CC028CType}
 import generators.Generators
 import models.DepartureMessageType.{AllocatedMRN, DepartureNotification}
-import models.messages.{CustomsOfficeOfDeparture, HolderOfTheTransitProcedure, IE015Data, IE015MessageData, TransitOperationIE015}
 import models.{DepartureMessageMetaData, DepartureMessages}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify, when}
-import org.scalatest.BeforeAndAfterEach
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 
@@ -32,19 +33,25 @@ import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAndAfterEach {
+class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
 
-  private val mockConnector                                       = mock[DepartureMovementConnector]
-  private val service                                             = new DepartureMessageService(mockConnector)
-  private val departureMessageMetaData1: DepartureMessageMetaData = DepartureMessageMetaData(LocalDateTime.now(), DepartureNotification, "path/url")
+  private val mockConnector = mock[DepartureMovementConnector]
+  private val service       = new DepartureMessageService(mockConnector)
 
-  private val departureMessageMetaData2: DepartureMessageMetaData =
-    DepartureMessageMetaData(LocalDateTime.now().minusDays(1), DepartureNotification, "path/url")
-  private val departureMessageMetaData3: DepartureMessageMetaData = DepartureMessageMetaData(LocalDateTime.now().minusDays(2), AllocatedMRN, "path/url")
+  private val message1: DepartureMessageMetaData =
+    DepartureMessageMetaData(LocalDateTime.now(), DepartureNotification, "path1/url")
 
-  private val departureMessages: DepartureMessages = DepartureMessages(List(departureMessageMetaData1, departureMessageMetaData2))
+  private val message2: DepartureMessageMetaData =
+    DepartureMessageMetaData(LocalDateTime.now().minusDays(1), DepartureNotification, "path2/url")
 
-  private val mrnAllocatedMessages: DepartureMessages = DepartureMessages(List(departureMessageMetaData1, departureMessageMetaData3))
+  private val message3: DepartureMessageMetaData =
+    DepartureMessageMetaData(LocalDateTime.now().plusDays(1), AllocatedMRN, "path3/url")
+
+  private val message4: DepartureMessageMetaData =
+    DepartureMessageMetaData(LocalDateTime.now().plusDays(2), AllocatedMRN, "path4/url")
+
+  private val departureMessages: DepartureMessages =
+    DepartureMessages(List(message1, message2, message3, message4))
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
@@ -57,81 +64,64 @@ class DepartureMessageServiceSpec extends SpecBase with Generators with BeforeAn
   }
 
   "DepartureMessageService" - {
-    "getIE015FromDeclarationMessage success" in {
 
-      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
-      when(mockConnector.getIE015(any())(any())).thenReturn(Future.successful(ie015Data))
-      service.getIE015FromDeclarationMessage(departureId).futureValue mustBe Some(ie015Data)
-      verify(mockConnector).getIE015(any())(any())
-      verify(mockConnector).getMessageMetaData(any())(any(), any())
+    "getMessageMetaDataHead" - {
+      "must return latest message" in {
+        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
 
+        service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message4)
+
+        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+      }
     }
 
-    "getIE015FromDeclarationMessage returns none when getMessageMetaData connector fails" in {
+    "getIE015" - {
+      "when success" in {
+        forAll(arbitrary[CC015CType]) {
+          ie015 =>
+            beforeEach()
 
-      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(None))
-      service.getIE015FromDeclarationMessage(departureId).futureValue mustBe None
-      verify(mockConnector).getMessageMetaData(any())(any(), any())
+            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+            when(mockConnector.getMessage[CC015CType](any())(any(), any())).thenReturn(Future.successful(ie015))
 
-    }
+            service.getIE015(departureId).futureValue mustBe Some(ie015)
 
-    "getIE028FromDeclarationMessage success" in {
-
-      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(mrnAllocatedMessages)))
-      when(mockConnector.getIE028(any())(any())).thenReturn(Future.successful(ie028Data))
-      service.getIE028FromDeclarationMessage(departureId).futureValue mustBe Some(ie028Data)
-      verify(mockConnector).getIE028(any())(any())
-      verify(mockConnector).getMessageMetaData(any())(any(), any())
-
-    }
-
-    "getIE028FromDeclarationMessage returns none when getMessageMetaData connector fails" in {
-
-      when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(None))
-      service.getIE028FromDeclarationMessage(departureId).futureValue mustBe None
-      verify(mockConnector).getMessageMetaData(any())(any(), any())
-
-    }
-
-    "mrnAllocatedIE015" - {
-
-      "must return IE015 when MRN has been allocated" in {
-
-        val expectedIE015 = IE015Data(
-          IE015MessageData(
-            "sender",
-            "recipient",
-            ie015Data.data.preparationDateAndTime,
-            "messageId",
-            TransitOperationIE015("LRNAB123", Some("MRN123")),
-            CustomsOfficeOfDeparture("AB123"),
-            HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
-          )
-        )
-
-        when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
-        when(mockConnector.getIE015(any())(any())).thenReturn(Future.successful(ie015Data))
-
-        when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(mrnAllocatedMessages)))
-        when(mockConnector.getIE028(any())(any())).thenReturn(Future.successful(ie028Data))
-
-        service.mrnAllocatedIE015(departureId).futureValue mustBe Some(expectedIE015)
-
+            verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+            verify(mockConnector).getMessage[CC015CType](eqTo("path1/url"))(any(), any())
+        }
       }
 
-      "must return IE015 when MRN has not been allocated" in {
+      "when getMessageMetaData call returns None" in {
+        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(None))
 
-        when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(Some(departureMessages)))
-        when(mockConnector.getIE015(any())(any())).thenReturn(Future.successful(ie015Data))
+        service.getIE015(departureId).futureValue mustBe None
 
-        service.mrnAllocatedIE015(departureId).futureValue mustBe Some(ie015Data)
+        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+      }
+    }
+
+    "getIE028" - {
+      "when success" in {
+        forAll(arbitrary[CC028CType]) {
+          ie028 =>
+            beforeEach()
+
+            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+            when(mockConnector.getMessage[CC028CType](any())(any(), any())).thenReturn(Future.successful(ie028))
+
+            service.getIE028(departureId).futureValue mustBe Some(ie028)
+
+            verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+            verify(mockConnector).getMessage[CC028CType](eqTo("path4/url"))(any(), any())
+        }
       }
 
-      "must return None when IE015 is not defined" in {
+      "when getMessageMetaData call returns None" in {
+        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(None))
 
-        when(mockConnector.getMessageMetaData(any())(any(), any())).thenReturn(Future.successful(None))
+        service.getIE028(departureId).futureValue mustBe None
 
-        service.mrnAllocatedIE015(departureId).futureValue mustBe None
+        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
       }
     }
   }

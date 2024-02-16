@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package services
 
-import models.EoriNumber
-import models.requests.IdentifierRequest
-import play.api.mvc._
-
+import java.time.{Clock, Instant, LocalDateTime}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
-class FakeIdentifierAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
+class DateTimeService @Inject() (clock: Clock) {
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, EoriNumber("eoriNumber")))
+  def currentDateTime: LocalDateTime = LocalDateTime.now(clock)
 
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
-
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  def currentInstant: Instant = Instant.now(clock)
 }

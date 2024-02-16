@@ -22,7 +22,13 @@ import org.scalacheck.{Arbitrary, Gen, Shrink}
 
 import java.time.{Instant, LocalDate, ZoneOffset}
 
-trait Generators extends UserAnswersGenerator with PageGenerators with ModelGenerators with UserAnswersEntryGenerators with ViewModelGenerators {
+trait Generators
+    extends UserAnswersGenerator
+    with PageGenerators
+    with ModelGenerators
+    with UserAnswersEntryGenerators
+    with ViewModelGenerators
+    with ScalaxbModelGenerators {
 
   implicit val dontShrink: Shrink[String] = Shrink.shrinkAny
 

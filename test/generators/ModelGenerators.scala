@@ -17,11 +17,7 @@
 package generators
 
 import models._
-import models.messages.CancellationDecisionUpdate
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
-
-import java.time.LocalDate
 
 trait ModelGenerators extends UserAnswersEntryGenerators {
   self: Generators =>
@@ -50,24 +46,5 @@ trait ModelGenerators extends UserAnswersEntryGenerators {
       for {
         number <- stringsWithMaxLength(17)
       } yield EoriNumber(number)
-    }
-
-  implicit lazy val arbitraryCancellationDecisionUpdate: Arbitrary[CancellationDecisionUpdate] =
-    Arbitrary {
-      for {
-        mrn                       <- Gen.alphaNumStr
-        cancellationRequestDate   <- arbitrary[Option[LocalDate]]
-        cancellationInitiatedBy   <- Gen.oneOf(0, 1)
-        cancellationDecision      <- Gen.option(Gen.oneOf(0, 1))
-        cancellationDecisionDate  <- arbitrary[LocalDate]
-        cancellationJustification <- Gen.option(Gen.alphaNumStr)
-      } yield CancellationDecisionUpdate(
-        mrn,
-        cancellationRequestDate,
-        cancellationInitiatedBy,
-        cancellationDecision,
-        cancellationDecisionDate,
-        cancellationJustification
-      )
     }
 }

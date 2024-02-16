@@ -22,8 +22,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.DateTimeService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TimeMachine
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -33,7 +33,7 @@ class StartController @Inject() (
   actions: Actions,
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-  timeMachine: TimeMachine
+  dateTimeService: DateTimeService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -42,7 +42,7 @@ class StartController @Inject() (
     implicit request =>
       sessionRepository.set(
         request.userAnswers.getOrElse(
-          UserAnswers(departureId, request.eoriNumber, lrn, Json.obj(), timeMachine.now())
+          UserAnswers(departureId, request.eoriNumber, lrn, Json.obj(), dateTimeService.currentInstant)
         )
       ) map (
         _ => Redirect(routes.ConfirmCancellationController.onPageLoad(departureId, lrn))

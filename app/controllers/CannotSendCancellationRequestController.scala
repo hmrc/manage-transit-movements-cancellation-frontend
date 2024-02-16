@@ -43,9 +43,9 @@ class CannotSendCancellationRequestController @Inject() (
     .requireData(departureId)
     .async {
       implicit request =>
-        departureMessageService.getIE015FromDeclarationMessage(departureId).flatMap {
+        departureMessageService.getIE015(departureId).flatMap {
           case Some(ie015) =>
-            val customsOfficeRefNumber = ie015.data.CustomsOfficeOfDeparture.referenceNumber
+            val customsOfficeRefNumber = ie015.CustomsOfficeOfDeparture.referenceNumber
 
             referenceDataService.getCustomsOfficeByCode(customsOfficeRefNumber).map {
               customsOffice =>

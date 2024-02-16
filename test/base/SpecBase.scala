@@ -17,7 +17,6 @@
 package base
 
 import config.FrontendAppConfig
-import models.messages._
 import models.{EoriNumber, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -31,7 +30,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 
 trait SpecBase
     extends AnyFreeSpec
@@ -49,35 +48,6 @@ trait SpecBase
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, lrn, Json.obj(), Instant.now())
-
-  val ie014Data: IE014Data = IE014Data(
-    IE014MessageData(
-      "sender",
-      LocalDateTime.now(),
-      TransitOperationIE014(Some("LRNCD3232"), None),
-      CustomsOfficeOfDeparture("AB123"),
-      HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123"),
-      Invalidation(justification = "Hello this is a rejection.")
-    )
-  )
-
-  val ie015Data: IE015Data = IE015Data(
-    IE015MessageData(
-      "sender",
-      "recipient",
-      LocalDateTime.now(),
-      "messageId",
-      TransitOperationIE015("LRNAB123", None),
-      CustomsOfficeOfDeparture("AB123"),
-      HolderOfTheTransitProcedure = HolderOfTheTransitProcedure("123")
-    )
-  )
-
-  val ie028Data: IE028Data = IE028Data(
-    IE028MessageData(
-      TransitOperationIE028("MRN123")
-    )
-  )
 
   def injector: Injector = app.injector
 
