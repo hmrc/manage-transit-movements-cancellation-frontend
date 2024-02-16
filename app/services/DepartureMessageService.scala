@@ -29,58 +29,38 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DepartureMessageService @Inject() (connectors: DepartureMovementConnector) extends Logging {
 
-  private def getMetaDataByMessageType(
+  private def getMessageMetaData(
     departureId: String,
-    messageType: DepartureMessageType
+    messageType: Option[DepartureMessageType]
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessageMetaData]] =
-    getMessageMetaData(departureId, messageType)
-
-  private def getMessageMetaData(departureId: String, messageType: DepartureMessageType)(implicit
-    ec: ExecutionContext,
-    hc: HeaderCarrier
-  ): Future[Option[DepartureMessageMetaData]] =
     connectors
       .getMessageMetaData(departureId)
-      .map(
-        x =>
-          x.flatMap(
-            _.messages
-              .filter(_.messageType == messageType)
-              .sortBy(_.received)
-              .reverse
-              .headOption
-          )
-      )
+      .map {
+        _.flatMap {
+          _.messages
+            .filter {
+              message => messageType.fold(true)(_ == message.messageType)
+            }
+            .sortBy(_.received)
+            .reverse
+            .headOption
+        }
+      }
 
-  def getMessageMetaDataHead(departureId: String)(implicit
-    ec: ExecutionContext,
-    hc: HeaderCarrier
-  ): Future[Option[DepartureMessageMetaData]] =
-    connectors
-      .getMessageMetaData(departureId)
-      .map(
-        x =>
-          x.flatMap(
-            _.messages
-              .sortBy(_.received)
-              .reverse
-              .headOption
-          )
-      )
+  def getMessageMetaDataHead(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessageMetaData]] =
+    getMessageMetaData(departureId, None)
 
-  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] =
-    (
-      for {
-        declarationMessage <- OptionT(getMetaDataByMessageType(departureId, DepartureNotification))
-        ie015              <- OptionT.liftF(connectors.getMessage[CC015CType](declarationMessage.path))
-      } yield ie015
-    ).value
+  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] = (
+    for {
+      declarationMessage <- OptionT(getMessageMetaData(departureId, Some(DepartureNotification)))
+      ie015              <- OptionT.liftF(connectors.getMessage[CC015CType](declarationMessage.path))
+    } yield ie015
+  ).value
 
-  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] =
-    (
-      for {
-        declarationMessage <- OptionT(getMetaDataByMessageType(departureId, AllocatedMRN))
-        ie028              <- OptionT.liftF(connectors.getMessage[CC028CType](declarationMessage.path))
-      } yield ie028
-    ).value
+  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] = (
+    for {
+      declarationMessage <- OptionT(getMessageMetaData(departureId, Some(AllocatedMRN)))
+      ie028              <- OptionT.liftF(connectors.getMessage[CC028CType](declarationMessage.path))
+    } yield ie028
+  ).value
 }

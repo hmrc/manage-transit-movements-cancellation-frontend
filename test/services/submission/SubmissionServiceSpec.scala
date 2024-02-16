@@ -48,7 +48,7 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
     reset(mockDateTimeService)
     reset(mockMessageIdentificationService)
 
-    when(mockDateTimeService.now)
+    when(mockDateTimeService.currentDateTime)
       .thenReturn(LocalDateTime.of(2020, 1, 1, 9, 30, 0))
 
     when(mockMessageIdentificationService.randomIdentifier)

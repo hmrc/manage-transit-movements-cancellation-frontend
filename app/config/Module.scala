@@ -19,7 +19,6 @@ package config
 import com.google.inject.AbstractModule
 import controllers.actions._
 import services.{ReferenceDataService, ReferenceDataServiceImpl}
-import utils.{DefaultTimeMachine, TimeMachine}
 
 import java.time.{Clock, ZoneOffset}
 
@@ -35,6 +34,5 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-    bind(classOf[TimeMachine]).to(classOf[DefaultTimeMachine]).asEagerSingleton()
   }
 }

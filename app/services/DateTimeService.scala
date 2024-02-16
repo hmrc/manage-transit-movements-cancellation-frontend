@@ -16,10 +16,12 @@
 
 package services
 
-import java.time.{Clock, LocalDateTime}
+import java.time.{Clock, Instant, LocalDateTime}
 import javax.inject.Inject
 
 class DateTimeService @Inject() (clock: Clock) {
 
-  def now: LocalDateTime = LocalDateTime.now(clock)
+  def currentDateTime: LocalDateTime = LocalDateTime.now(clock)
+
+  def currentInstant: Instant = Instant.now(clock)
 }

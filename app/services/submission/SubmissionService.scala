@@ -65,7 +65,7 @@ class SubmissionService @Inject() (
       messageSender = eoriNumber.value,
       messagE_1Sequence2 = MESSAGE_1Sequence(
         messageRecipient = s"NTA.${officeOfDeparture.take(2)}",
-        preparationDateAndTime = dateTimeService.now,
+        preparationDateAndTime = dateTimeService.currentDateTime,
         messageIdentification = messageIdentificationService.randomIdentifier
       ),
       messagE_TYPESequence3 = MESSAGE_TYPESequence(
@@ -84,7 +84,7 @@ class SubmissionService @Inject() (
 
   def invalidation(justification: String): InvalidationType02 =
     InvalidationType02(
-      requestDateAndTime = Some(dateTimeService.now),
+      requestDateAndTime = Some(dateTimeService.currentDateTime),
       decisionDateAndTime = None,
       decision = None,
       initiatedByCustoms = Number0,

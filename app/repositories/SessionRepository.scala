@@ -19,9 +19,9 @@ package repositories
 import config.FrontendAppConfig
 import models.{EoriNumber, SensitiveFormats, UserAnswers}
 import org.mongodb.scala.model._
+import services.DateTimeService
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import utils.TimeMachine
 
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SessionRepository @Inject() (
   mongoComponent: MongoComponent,
   appConfig: FrontendAppConfig,
-  timeMachine: TimeMachine
+  dateTimeService: DateTimeService
 )(implicit ec: ExecutionContext, sensitiveFormats: SensitiveFormats)
     extends PlayMongoRepository[UserAnswers](
       mongoComponent = mongoComponent,
@@ -43,7 +43,7 @@ class SessionRepository @Inject() (
 
   def get(departureId: String): Future[Option[UserAnswers]] = {
     val filter = Filters.eq("_id", departureId)
-    val update = Updates.set("lastUpdated", timeMachine.now())
+    val update = Updates.set("lastUpdated", dateTimeService.currentInstant)
 
     collection
       .findOneAndUpdate(filter, update, FindOneAndUpdateOptions().upsert(false))
@@ -52,7 +52,7 @@ class SessionRepository @Inject() (
 
   def set(userAnswers: UserAnswers): Future[Boolean] = {
     val filter             = Filters.eq("_id", userAnswers.id)
-    val updatedUserAnswers = userAnswers.copy(lastUpdated = timeMachine.now())
+    val updatedUserAnswers = userAnswers.copy(lastUpdated = dateTimeService.currentInstant)
 
     collection
       .replaceOne(filter, updatedUserAnswers, ReplaceOptions().upsert(true))
