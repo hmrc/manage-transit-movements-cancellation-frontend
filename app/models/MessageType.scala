@@ -18,18 +18,24 @@ package models
 
 import play.api.libs.json.{__, Reads}
 
-import java.time.LocalDateTime
+sealed trait MessageType
 
-case class DepartureMessageMetaData(received: LocalDateTime, messageType: DepartureMessageType, path: String)
+object MessageType {
 
-object DepartureMessageMetaData {
+  case object DepartureNotification extends MessageType
+  case object AllocatedMRN extends MessageType
+  case object GuaranteeRejected extends MessageType
+  case object GoodsUnderControl extends MessageType
+  case object DeclarationSent extends MessageType
+  case class Other(status: String) extends MessageType
 
-  implicit lazy val reads: Reads[DepartureMessageMetaData] = {
-    import play.api.libs.functional.syntax._
-    (
-      (__ \ "received").read[LocalDateTime] and
-        (__ \ "type").read[DepartureMessageType] and
-        (__ \ "_links" \ "self" \ "href").read[String].map(_.replace("/customs/transits/", ""))
-    )(DepartureMessageMetaData.apply _)
-  }
+  implicit val reads: Reads[MessageType] =
+    __.read[String].map {
+      case "IE015" => DepartureNotification
+      case "IE028" => AllocatedMRN
+      case "IE055" => GuaranteeRejected
+      case "IE060" => GuaranteeRejected
+      case "IE928" => GuaranteeRejected
+      case x       => Other(x)
+    }
 }

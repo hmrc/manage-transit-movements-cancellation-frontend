@@ -19,8 +19,8 @@ package services
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
 import generated._
-import models.DepartureMessageType.{AllocatedMRN, DepartureNotification}
-import models.{DepartureMessageMetaData, DepartureMessageType}
+import models.MessageType.{AllocatedMRN, DepartureNotification}
+import models.{MessageMetaData, MessageType}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -31,8 +31,8 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
 
   private def getMessageMetaData(
     departureId: String,
-    messageType: Option[DepartureMessageType]
-  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessageMetaData]] =
+    messageType: Option[MessageType]
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[MessageMetaData]] =
     connectors
       .getMessageMetaData(departureId)
       .map {
@@ -47,20 +47,20 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
         }
       }
 
-  def getMessageMetaDataHead(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DepartureMessageMetaData]] =
+  def getMessageMetaDataHead(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[MessageMetaData]] =
     getMessageMetaData(departureId, None)
 
   def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] = (
     for {
       declarationMessage <- OptionT(getMessageMetaData(departureId, Some(DepartureNotification)))
-      ie015              <- OptionT.liftF(connectors.getMessage[CC015CType](declarationMessage.path))
+      ie015              <- OptionT.liftF(connectors.getMessage[CC015CType](departureId, declarationMessage.id))
     } yield ie015
   ).value
 
   def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] = (
     for {
       declarationMessage <- OptionT(getMessageMetaData(departureId, Some(AllocatedMRN)))
-      ie028              <- OptionT.liftF(connectors.getMessage[CC028CType](declarationMessage.path))
+      ie028              <- OptionT.liftF(connectors.getMessage[CC028CType](departureId, declarationMessage.id))
     } yield ie028
   ).value
 }

@@ -48,8 +48,8 @@ class ApiConnectorSpec extends ItSpecBase {
         server.stubFor(
           post(urlEqualTo(url))
             .withRequestBody(equalTo(body.toString()))
-            .withHeader("Accept", containing("application/vnd.hmrc.2.0+json"))
-            .withHeader("Content-Type", containing("application/xml"))
+            .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+json"))
+            .withHeader("Content-Type", equalTo("application/xml"))
             .willReturn(aResponse().withStatus(OK))
         )
 

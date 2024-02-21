@@ -16,8 +16,8 @@
 
 package controllers.actions
 
-import models.{DepartureMessageMetaData, LocalReferenceNumber}
-import models.DepartureMessageType._
+import models.{LocalReferenceNumber, MessageMetaData}
+import models.MessageType._
 import models.requests.IdentifierRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
@@ -45,7 +45,7 @@ class CheckCancellationStatus(
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     departureMessageService.getMessageMetaDataHead(departureId).map {
-      case Some(DepartureMessageMetaData(_, messageType, _)) =>
+      case Some(MessageMetaData(_, messageType, _)) =>
         messageType match {
           case DepartureNotification | AllocatedMRN | GuaranteeRejected | GoodsUnderControl | DeclarationSent => None
           case _ =>

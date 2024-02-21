@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import generated._
 import itbase.ItSpecBase
-import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
+import models.{DepartureMessages, MessageMetaData, MessageType}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import scalaxb.XMLCalendar
@@ -57,13 +57,13 @@ class DepartureMovementConnectorSpec extends ItSpecBase {
             |    {
             |      "_links": {
             |        "self": {
-            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee/messages/634982098f02f00b"
             |        },
             |        "departure": {
             |          "href": "/customs/transits/movements/departures/6365135ba5e821ee"
             |        }
             |      },
-            |      "id": "634982098f02f00a",
+            |      "id": "634982098f02f00b",
             |      "departureId": "6365135ba5e821ee",
             |      "received": "2022-11-11T15:32:51.459Z",
             |      "type": "IE015",
@@ -72,7 +72,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase {
             |    {
             |      "_links": {
             |        "self": {
-            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee/message/634982098f02f00a"
+            |          "href": "/customs/transits/movements/departures/6365135ba5e821ee/messages/634982098f02f00a"
             |        },
             |        "departure": {
             |          "href": "/customs/transits/movements/departures/6365135ba5e821ee"
@@ -90,30 +90,33 @@ class DepartureMovementConnectorSpec extends ItSpecBase {
 
         val expectedResult = DepartureMessages(
           List(
-            DepartureMessageMetaData(
-              LocalDateTime.parse("2022-11-11T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME),
-              DepartureMessageType.DepartureNotification,
-              "movements/departures/6365135ba5e821ee/message/634982098f02f00b"
+            MessageMetaData(
+              "634982098f02f00b",
+              MessageType.DepartureNotification,
+              LocalDateTime.parse("2022-11-11T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME)
             ),
-            DepartureMessageMetaData(
-              LocalDateTime.parse("2022-11-10T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME),
-              DepartureMessageType.AllocatedMRN,
-              "movements/departures/6365135ba5e821ee/message/634982098f02f00a"
+            MessageMetaData(
+              "634982098f02f00a",
+              MessageType.AllocatedMRN,
+              LocalDateTime.parse("2022-11-10T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME)
             )
           )
         )
 
         server.stubFor(
           get(urlEqualTo(s"/movements/departures/$departureId/messages"))
+            .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+json"))
             .willReturn(okJson(responseJson.toString()))
         )
 
         connector.getMessageMetaData(departureId).futureValue mustBe Some(expectedResult)
-
       }
     }
 
     "getMessage" - {
+      val messageId = "messageId"
+      val url       = s"/movements/departures/$departureId/messages/$messageId/body"
+
       "must return message" - {
         "when IE015" in {
           val xml: Node =
@@ -181,12 +184,12 @@ class DepartureMovementConnectorSpec extends ItSpecBase {
           )
 
           server.stubFor(
-            get(urlEqualTo(s"/$departureId/body"))
-              .withHeader("Accept", containing("application/vnd.hmrc.2.0+xml"))
+            get(urlEqualTo(url))
+              .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+xml"))
               .willReturn(ok(xml.toString()))
           )
 
-          val result = connector.getMessage[CC015CType](departureId).futureValue
+          val result = connector.getMessage[CC015CType](departureId, messageId).futureValue
 
           result mustBe expectedResult
         }
@@ -239,12 +242,12 @@ class DepartureMovementConnectorSpec extends ItSpecBase {
           )
 
           server.stubFor(
-            get(urlEqualTo(s"/$departureId/body"))
-              .withHeader("Accept", containing("application/vnd.hmrc.2.0+xml"))
+            get(urlEqualTo(url))
+              .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+xml"))
               .willReturn(ok(xml.toString()))
           )
 
-          val result = connector.getMessage[CC028CType](departureId).futureValue
+          val result = connector.getMessage[CC028CType](departureId, messageId).futureValue
 
           result mustBe expectedResult
         }

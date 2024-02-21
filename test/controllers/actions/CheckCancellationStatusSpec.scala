@@ -18,12 +18,11 @@ package controllers.actions
 
 import base.SpecBase
 import generators.Generators
-import models.DepartureMessageType.{AllocatedMRN, DeclarationSent, DepartureNotification, GoodsUnderControl, GuaranteeRejected}
+import models.MessageType.{AllocatedMRN, DeclarationSent, DepartureNotification, GoodsUnderControl, GuaranteeRejected}
 import models.requests.IdentifierRequest
-import models.{DepartureMessageMetaData, DepartureMessageType, EoriNumber}
+import models.{EoriNumber, MessageMetaData, MessageType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
@@ -43,12 +42,12 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
   "ArrivalStatusAction" - {
     "must return None when one of the allowed statuses" in {
-      val messageType: Gen[DepartureMessageType] = Gen.oneOf(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent)
+      val messageType: Gen[MessageType] = Gen.oneOf(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent)
 
       forAll(messageType) {
         messageType =>
           when(mockDepartureMessageService.getMessageMetaDataHead(any())(any(), any()))
-            .thenReturn(Future.successful(Some(DepartureMessageMetaData(LocalDateTime.now(), messageType, ""))))
+            .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now()))))
 
           val checkCancellationStatus = new CheckCancellationStatusProvider(mockDepartureMessageService)
 
@@ -63,12 +62,10 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
     "must return 303 and redirect to CannotSendCancellationRequest when status is not one of the allowed" in {
 
-      val messageTypeShouldNotBe: Seq[DepartureMessageType] = Seq(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent)
-
-      val messageType = arbitrary[DepartureMessageType].retryUntil(!messageTypeShouldNotBe.contains(_)).sample.value
+      val messageType = Gen.alphaNumStr.map(MessageType.Other).sample.value
 
       when(mockDepartureMessageService.getMessageMetaDataHead(any())(any(), any()))
-        .thenReturn(Future.successful(Some(DepartureMessageMetaData(LocalDateTime.now(), messageType, ""))))
+        .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now()))))
 
       val checkCancellationStatus = new CheckCancellationStatusProvider(mockDepartureMessageService)
 

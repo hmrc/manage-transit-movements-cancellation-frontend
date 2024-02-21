@@ -19,35 +19,44 @@ package connectors
 import config.FrontendAppConfig
 import logging.Logging
 import models.DepartureMessages
+import play.api.http.HeaderNames._
 import scalaxb.XMLFormat
 import scalaxb.`package`.fromXML
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.XML
 
-class DepartureMovementConnector @Inject() (val appConfig: FrontendAppConfig, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
+class DepartureMovementConnector @Inject() (
+  appConfig: FrontendAppConfig,
+  http: HttpClientV2
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
-  def getMessage[T](path: String)(implicit hc: HeaderCarrier, format: XMLFormat[T]): Future[T] = {
-    val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+xml"))
-
-    val url = s"${appConfig.commonTransitConventionTradersUrl}$path/body"
-
-    http.GET[HttpResponse](url)(readRaw, headers, ec).map(_.body).map {
-      xml => fromXML(XML.loadString(xml))
-    }
+  def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: XMLFormat[T]): Future[T] = {
+    val url = url"${appConfig.commonTransitConventionTradersUrl}/movements/departures/$departureId/messages/$messageId/body"
+    http
+      .get(url)
+      .setHeader(ACCEPT -> "application/vnd.hmrc.2.0+xml")
+      .execute[HttpResponse]
+      .map(_.body)
+      .map(XML.loadString)
+      .map(fromXML(_))
   }
 
   def getMessageMetaData(departureId: String)(implicit hc: HeaderCarrier): Future[Option[DepartureMessages]] = {
-    val headers = hc.withExtraHeaders(("Accept", "application/vnd.hmrc.2.0+json"))
-
-    val url = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/$departureId/messages"
-    http.GET[Option[DepartureMessages]](url)(implicitly, headers, ec) recover {
-      case exception =>
-        logger.warn("getMessageMetaData failed with exception", exception)
-        None
-    }
+    val url = url"${appConfig.commonTransitConventionTradersUrl}movements/departures/$departureId/messages"
+    http
+      .get(url)
+      .setHeader(ACCEPT -> "application/vnd.hmrc.2.0+json")
+      .execute[Option[DepartureMessages]]
+      .recover {
+        case e =>
+          logger.warn("getMessageMetaData failed with exception", e)
+          None
+      }
   }
 }

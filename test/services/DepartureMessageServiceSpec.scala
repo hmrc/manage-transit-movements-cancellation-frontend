@@ -20,8 +20,8 @@ import base.SpecBase
 import connectors.DepartureMovementConnector
 import generated.{CC015CType, CC028CType}
 import generators.Generators
-import models.DepartureMessageType.{AllocatedMRN, DepartureNotification}
-import models.{DepartureMessageMetaData, DepartureMessages}
+import models.MessageType.{AllocatedMRN, DepartureNotification}
+import models.{DepartureMessages, MessageMetaData}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
@@ -38,17 +38,17 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
   private val mockConnector = mock[DepartureMovementConnector]
   private val service       = new DepartureMessageService(mockConnector)
 
-  private val message1: DepartureMessageMetaData =
-    DepartureMessageMetaData(LocalDateTime.now(), DepartureNotification, "path1/url")
+  private val message1: MessageMetaData =
+    MessageMetaData("message1Id", DepartureNotification, LocalDateTime.now())
 
-  private val message2: DepartureMessageMetaData =
-    DepartureMessageMetaData(LocalDateTime.now().minusDays(1), DepartureNotification, "path2/url")
+  private val message2: MessageMetaData =
+    MessageMetaData("message2Id", DepartureNotification, LocalDateTime.now().minusDays(1))
 
-  private val message3: DepartureMessageMetaData =
-    DepartureMessageMetaData(LocalDateTime.now().plusDays(1), AllocatedMRN, "path3/url")
+  private val message3: MessageMetaData =
+    MessageMetaData("message3Id", AllocatedMRN, LocalDateTime.now().plusDays(1))
 
-  private val message4: DepartureMessageMetaData =
-    DepartureMessageMetaData(LocalDateTime.now().plusDays(2), AllocatedMRN, "path4/url")
+  private val message4: MessageMetaData =
+    MessageMetaData("message4Id", AllocatedMRN, LocalDateTime.now().plusDays(2))
 
   private val departureMessages: DepartureMessages =
     DepartureMessages(List(message1, message2, message3, message4))
@@ -82,12 +82,12 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
             beforeEach()
 
             when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
-            when(mockConnector.getMessage[CC015CType](any())(any(), any())).thenReturn(Future.successful(ie015))
+            when(mockConnector.getMessage[CC015CType](any(), any())(any(), any())).thenReturn(Future.successful(ie015))
 
             service.getIE015(departureId).futureValue mustBe Some(ie015)
 
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
-            verify(mockConnector).getMessage[CC015CType](eqTo("path1/url"))(any(), any())
+            verify(mockConnector).getMessage[CC015CType](eqTo(departureId), eqTo("message1Id"))(any(), any())
         }
       }
 
@@ -107,12 +107,12 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
             beforeEach()
 
             when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
-            when(mockConnector.getMessage[CC028CType](any())(any(), any())).thenReturn(Future.successful(ie028))
+            when(mockConnector.getMessage[CC028CType](any(), any())(any(), any())).thenReturn(Future.successful(ie028))
 
             service.getIE028(departureId).futureValue mustBe Some(ie028)
 
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
-            verify(mockConnector).getMessage[CC028CType](eqTo("path4/url"))(any(), any())
+            verify(mockConnector).getMessage[CC028CType](eqTo(departureId), eqTo("message4Id"))(any(), any())
         }
       }
 
