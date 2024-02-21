@@ -16,9 +16,8 @@
 
 package connectors
 
-import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
-import generators.Generators
+import itbase.ItSpecBase
 import models.DepartureId
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
@@ -26,7 +25,7 @@ import uk.gov.hmrc.http.HttpResponse
 
 import scala.xml.NodeSeq
 
-class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
+class ApiConnectorSpec extends ItSpecBase {
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
@@ -60,5 +59,4 @@ class ApiConnectorSpec extends SpecBase with WireMockSuite with Generators {
       }
     }
   }
-
 }

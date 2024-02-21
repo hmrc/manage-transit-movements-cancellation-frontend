@@ -59,10 +59,10 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with ScalaChe
 
           val customsOfficeRefNumber = ie015.CustomsOfficeOfDeparture.referenceNumber
 
-          val viewModel = CannotSendCancellationRequestViewModel(customsOfficeRefNumber, Some(customsOffice))
+          val viewModel = CannotSendCancellationRequestViewModel(customsOffice)
 
           when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
-          when(mockReferenceDataService.getCustomsOfficeByCode(any())(any(), any())).thenReturn(Future.successful(Some(customsOffice)))
+          when(mockReferenceDataService.getCustomsOfficeByCode(any())(any(), any())).thenReturn(Future.successful(customsOffice))
 
           val request = FakeRequest(GET, routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url)
 

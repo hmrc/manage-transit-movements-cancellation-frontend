@@ -16,14 +16,10 @@
 
 package connectors
 
-import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import generated._
-import generators.Generators
-import helper.WireMockServerHandler
+import itbase.ItSpecBase
 import models.{DepartureMessageMetaData, DepartureMessageType, DepartureMessages}
-import org.scalatest.EitherValues
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import scalaxb.XMLCalendar
@@ -32,7 +28,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import scala.xml.Node
 
-class DepartureMovementConnectorSpec extends SpecBase with WireMockServerHandler with ScalaCheckPropertyChecks with Generators with EitherValues {
+class DepartureMovementConnectorSpec extends ItSpecBase {
 
   private lazy val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
 

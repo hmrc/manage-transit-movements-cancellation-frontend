@@ -49,7 +49,7 @@ class CannotSendCancellationRequestController @Inject() (
 
             referenceDataService.getCustomsOfficeByCode(customsOfficeRefNumber).map {
               customsOffice =>
-                Ok(view(lrn, departureId, CannotSendCancellationRequestViewModel(customsOfficeRefNumber, customsOffice)))
+                Ok(view(lrn, departureId, CannotSendCancellationRequestViewModel(customsOffice)))
             }
           case _ => Future.successful(Redirect(controllers.routes.ErrorController.technicalDifficulties()))
         }

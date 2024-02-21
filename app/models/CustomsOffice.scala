@@ -16,8 +16,7 @@
 
 package models
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
+import cats.Order
 import play.api.libs.json._
 
 case class CustomsOffice(
@@ -29,14 +28,9 @@ case class CustomsOffice(
 
 object CustomsOffice {
 
-  implicit val writes: OWrites[CustomsOffice] = Json.writes[CustomsOffice]
+  implicit val format: OFormat[CustomsOffice] = Json.format[CustomsOffice]
 
-  implicit val readFromFile: Reads[CustomsOffice] =
-    (
-      (__ \ "id").read[String] and
-        (__ \ "name").read[String] and
-        (__ \ "countryId").read[String] and
-        (__ \ "phoneNumber").readNullable[String]
-    )(CustomsOffice.apply _)
-
+  implicit val order: Order[CustomsOffice] = (x: CustomsOffice, y: CustomsOffice) => {
+    x.name.compareToIgnoreCase(y.name)
+  }
 }
