@@ -46,9 +46,10 @@ class MessageMetaDataSpec extends SpecBase {
 
       val result = json.as[MessageMetaData]
 
-      result mustBe MessageMetaData(id = "634982098f02f00b",
-                                    messageType = DepartureNotification,
-                                    received = LocalDateTime.of(2022: Int, 11: Int, 11: Int, 15: Int, 32: Int, 51: Int, 459000000: Int)
+      result mustBe MessageMetaData(
+        id = "634982098f02f00b",
+        messageType = DepartureNotification,
+        received = LocalDateTime.of(2022: Int, 11: Int, 11: Int, 15: Int, 32: Int, 51: Int, 459000000: Int)
       )
     }
   }

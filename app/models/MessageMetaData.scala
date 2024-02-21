@@ -16,6 +16,7 @@
 
 package models
 
+import play.api.libs.functional.syntax._
 import play.api.libs.json.{__, Reads}
 
 import java.time.LocalDateTime
@@ -24,14 +25,9 @@ case class MessageMetaData(id: String, messageType: MessageType, received: Local
 
 object MessageMetaData {
 
-  implicit lazy val reads: Reads[MessageMetaData] = {
-    import play.api.libs.functional.syntax._
-    (
-      (__ \ "received").read[LocalDateTime] and
-        (__ \ "type").read[MessageType] and
-        (__ \ "id").read[String]
-    )(
-      (received: LocalDateTime, messageType: MessageType, messageId: String) => MessageMetaData.apply(messageId, messageType, received)
-    )
-  }
+  implicit lazy val reads: Reads[MessageMetaData] = (
+    (__ \ "id").read[String] and
+      (__ \ "type").read[MessageType] and
+      (__ \ "received").read[LocalDateTime]
+  )(MessageMetaData.apply _)
 }
