@@ -57,11 +57,6 @@ lazy val microservice = (project in file("."))
     Compile / scalaxb / scalaxbPackageName := "generated"
   )
 
-lazy val test = project
-  .settings(
-    fork := true
-  )
-
 lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
