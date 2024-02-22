@@ -30,6 +30,4 @@ object AppDependencies {
   ).map(_ % "test")
 
   def apply(): Seq[ModuleID] = compile ++ test
-
-  val overrides: Seq[ModuleID] = Seq()
 }
