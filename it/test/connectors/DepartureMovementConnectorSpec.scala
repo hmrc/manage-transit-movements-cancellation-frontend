@@ -18,7 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import generated._
-import itbase.ItSpecBase
+import itbase.{ItSpecBase, WireMockServerHandler}
 import models.{DepartureMessages, MessageMetaData, MessageType}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
@@ -28,7 +28,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import scala.xml.Node
 
-class DepartureMovementConnectorSpec extends ItSpecBase {
+class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
   private lazy val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
 

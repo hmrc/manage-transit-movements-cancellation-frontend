@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.ReferenceDataConnector.NoReferenceDataFoundException
 import connectors.ReferenceDataConnectorSpec._
-import itbase.ItSpecBase
+import itbase.{ItSpecBase, WireMockServerHandler}
 import models.CustomsOffice
 import org.scalacheck.Gen
 import org.scalatest.Assertion
@@ -29,7 +29,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ReferenceDataConnectorSpec extends ItSpecBase {
+class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
   override def beforeEach(): Unit = {
     server.resetAll()
