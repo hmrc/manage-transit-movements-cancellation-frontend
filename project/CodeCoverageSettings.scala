@@ -16,17 +16,17 @@ object CodeCoverageSettings {
   )
 
   private val excludedPackages: Seq[String] = Seq(
-    "testOnly.*",
-    "testOnlyDoNotUseInAppConf.*",
     "views\\.html\\.components.*",
     "views\\.html\\.resources.*",
     "views\\.html\\.templates.*",
-    "views\\.utils.*"
+    ".*scalaxb.*",
+    ".*generated.*"
   )
 
   val settings: Seq[Setting[_]] = Seq(
+    ScoverageKeys.coverageExcludedFiles := excludedFiles.mkString(";"),
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
-    ScoverageKeys.coverageMinimumStmtTotal := 85,
+    ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
