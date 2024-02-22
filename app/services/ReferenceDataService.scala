@@ -18,7 +18,6 @@ package services
 
 import com.google.inject.Inject
 import connectors.ReferenceDataConnector
-import connectors.ReferenceDataConnector.NoReferenceDataFoundException
 import models.CustomsOffice
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,15 +25,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReferenceDataServiceImpl @Inject() (connector: ReferenceDataConnector) extends ReferenceDataService {
 
-  def getCustomsOfficeByCode(customsOfficeCode: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CustomsOffice]] =
-    connector.getCustomsOffice(customsOfficeCode).map(_.headOption).recover {
-      case _: NoReferenceDataFoundException => None
-    }
-
+  def getCustomsOfficeByCode(customsOfficeCode: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[CustomsOffice] =
+    connector.getCustomsOffice(customsOfficeCode)
 }
 
 trait ReferenceDataService {
 
-  def getCustomsOfficeByCode(code: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CustomsOffice]]
+  def getCustomsOfficeByCode(code: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[CustomsOffice]
 
 }

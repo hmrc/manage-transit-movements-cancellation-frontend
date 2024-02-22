@@ -17,7 +17,7 @@
 package generators
 
 import models._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
 
 trait ModelGenerators extends UserAnswersEntryGenerators {
   self: Generators =>
@@ -27,11 +27,6 @@ trait ModelGenerators extends UserAnswersEntryGenerators {
       for {
         departureId <- stringsWithMaxLength(17)
       } yield new DepartureId(departureId)
-    }
-
-  implicit lazy val arbitraryDepartureMessageType: Arbitrary[DepartureMessageType] =
-    Arbitrary {
-      Gen.oneOf(DepartureMessageType.values)
     }
 
   implicit lazy val arbitraryLocalReferenceNumber: Arbitrary[LocalReferenceNumber] =

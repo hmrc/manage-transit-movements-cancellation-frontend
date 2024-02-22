@@ -32,15 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Instant
 
-trait SpecBase
-    extends AnyFreeSpec
-    with Matchers
-    with OptionValues
-    with TryValues
-    with ScalaFutures
-    with IntegrationPatience
-    with BeforeAndAfterEach
-    with MockApplicationBuilder {
+trait SpecBase extends AnyFreeSpec with Matchers with OptionValues with TryValues with ScalaFutures with BeforeAndAfterEach with MockApplicationBuilder {
 
   val departureId: String = "AB123"
 

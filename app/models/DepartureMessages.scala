@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json.{Json, Reads}
 
-case class DepartureMessages(messages: List[DepartureMessageMetaData])
+case class DepartureMessages(messages: List[MessageMetaData])
 
 object DepartureMessages {
   implicit val reads: Reads[DepartureMessages] = Json.reads[DepartureMessages]

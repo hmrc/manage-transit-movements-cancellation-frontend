@@ -19,23 +19,31 @@ package connectors
 import config.FrontendAppConfig
 import models.DepartureId
 import play.api.Logging
-import play.api.http.HeaderNames
-import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions, HttpResponse}
+import play.api.http.HeaderNames._
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
-class ApiConnector @Inject() (http: HttpClient, appConfig: FrontendAppConfig)(implicit ec: ExecutionContext) extends HttpErrorFunctions with Logging {
-
-  private val requestHeaders = Seq(
-    HeaderNames.ACCEPT       -> "application/vnd.hmrc.2.0+json",
-    HeaderNames.CONTENT_TYPE -> "application/xml"
-  )
+class ApiConnector @Inject() (
+  http: HttpClientV2,
+  appConfig: FrontendAppConfig
+)(implicit ec: ExecutionContext)
+    extends HttpErrorFunctions
+    with Logging {
 
   def submit(xml: NodeSeq, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val url = s"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
-    http.POSTString[HttpResponse](url, xml.toString(), requestHeaders)
+    val url = url"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
+    http
+      .post(url)
+      .setHeader(
+        ACCEPT       -> "application/vnd.hmrc.2.0+json",
+        CONTENT_TYPE -> "application/xml"
+      )
+      .withBody(xml)
+      .execute[HttpResponse]
   }
 }

@@ -16,20 +16,20 @@
 
 package connectors
 
-import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.ReferenceDataConnector.NoReferenceDataFoundException
 import connectors.ReferenceDataConnectorSpec._
+import itbase.{ItSpecBase, WireMockServerHandler}
 import models.CustomsOffice
 import org.scalacheck.Gen
-import org.scalatest.{Assertion, BeforeAndAfterEach}
+import org.scalatest.Assertion
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with BeforeAndAfterEach {
+class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
   override def beforeEach(): Unit = {
     server.resetAll()
@@ -57,7 +57,7 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
             .willReturn(okJson(customsOfficeResponseJsonWithPhone))
         )
 
-        val expectedResult = Seq(CustomsOffice("ID1", "NAME001", "GB", Some("004412323232345")))
+        val expectedResult = CustomsOffice("ID1", "NAME001", "GB", Some("004412323232345"))
 
         connector.getCustomsOffice(code).futureValue mustBe expectedResult
       }
@@ -68,7 +68,7 @@ class ReferenceDataConnectorSpec extends SpecBase with WireMockSuite with Before
             .willReturn(okJson(customsOfficeResponseJsonWithOutPhone))
         )
 
-        val expectedResult = Seq(CustomsOffice("ID1", "NAME001", "GB", None))
+        val expectedResult = CustomsOffice("ID1", "NAME001", "GB", None)
 
         connector.getCustomsOffice(code).futureValue mustBe expectedResult
       }

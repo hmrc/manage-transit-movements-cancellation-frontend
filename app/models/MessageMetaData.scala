@@ -16,20 +16,18 @@
 
 package models
 
+import play.api.libs.functional.syntax._
 import play.api.libs.json.{__, Reads}
 
 import java.time.LocalDateTime
 
-case class DepartureMessageMetaData(received: LocalDateTime, messageType: DepartureMessageType, path: String)
+case class MessageMetaData(id: String, messageType: MessageType, received: LocalDateTime)
 
-object DepartureMessageMetaData {
+object MessageMetaData {
 
-  implicit lazy val reads: Reads[DepartureMessageMetaData] = {
-    import play.api.libs.functional.syntax._
-    (
-      (__ \ "received").read[LocalDateTime] and
-        (__ \ "type").read[DepartureMessageType] and
-        (__ \ "_links" \ "self" \ "href").read[String].map(_.replace("/customs/transits/", ""))
-    )(DepartureMessageMetaData.apply _)
-  }
+  implicit lazy val reads: Reads[MessageMetaData] = (
+    (__ \ "id").read[String] and
+      (__ \ "type").read[MessageType] and
+      (__ \ "received").read[LocalDateTime]
+  )(MessageMetaData.apply _)
 }
