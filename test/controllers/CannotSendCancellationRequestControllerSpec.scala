@@ -55,6 +55,8 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with ScalaChe
     "return OK and the correct view for a GET" in {
       forAll(arbitrary[CC015CType]) {
         ie015 =>
+          beforeEach()
+
           dataRetrievalWithData(emptyUserAnswers)
 
           val customsOfficeRefNumber = ie015.CustomsOfficeOfDeparture.referenceNumber

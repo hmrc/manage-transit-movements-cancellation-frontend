@@ -49,7 +49,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
   "Reference Data" - {
 
     "getCustomsOffice" - {
-      val url = s"/$baseUrl/filtered-lists/CustomsOffices?data.id=$code"
+      val url = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
 
       "should handle a 200 response for customs office with code end point with valid phone number" in {
         server.stubFor(
