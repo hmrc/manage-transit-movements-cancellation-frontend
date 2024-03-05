@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReferenceDataConnector @Inject() (config: FrontendAppConfig, http: HttpClientV2) extends Logging {
 
   def getCustomsOffice(code: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[CustomsOffice] = {
-    val url = url"${config.referenceDataUrl}/filtered-lists/CustomsOffices"
+    val url = url"${config.referenceDataUrl}/lists/CustomsOffices"
     http
       .get(url)
       .transform(_.withQueryStringParameters("data.id" -> code))
