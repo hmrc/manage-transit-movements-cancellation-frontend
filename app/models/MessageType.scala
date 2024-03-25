@@ -27,15 +27,15 @@ object MessageType {
   case object GuaranteeRejected extends MessageType
   case object GoodsUnderControl extends MessageType
   case object DeclarationSent extends MessageType
+  case object AmendmentAcceptance extends MessageType
   case class Other(status: String) extends MessageType
 
   implicit val reads: Reads[MessageType] =
     __.read[String].map {
-      case "IE015" => DepartureNotification
-      case "IE028" => AllocatedMRN
-      case "IE055" => GuaranteeRejected
-      case "IE060" => GuaranteeRejected
-      case "IE928" => GuaranteeRejected
-      case x       => Other(x)
+      case "IE015"                     => DepartureNotification
+      case "IE028"                     => AllocatedMRN
+      case "IE055" | "IE060" | "IE928" => GuaranteeRejected
+      case "IE004"                     => AmendmentAcceptance
+      case x                           => Other(x)
     }
 }

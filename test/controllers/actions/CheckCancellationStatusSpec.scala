@@ -18,7 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import generators.Generators
-import models.MessageType.{AllocatedMRN, DeclarationSent, DepartureNotification, GoodsUnderControl, GuaranteeRejected}
+import models.MessageType._
 import models.requests.IdentifierRequest
 import models.{EoriNumber, MessageMetaData, MessageType}
 import org.mockito.ArgumentMatchers.any
@@ -42,7 +42,8 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
   "ArrivalStatusAction" - {
     "must return None when one of the allowed statuses" in {
-      val messageType: Gen[MessageType] = Gen.oneOf(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent)
+      val messageType: Gen[MessageType] =
+        Gen.oneOf(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent, AmendmentAcceptance)
 
       forAll(messageType) {
         messageType =>
@@ -91,9 +92,8 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustBe controllers.routes.ErrorController
-        .technicalDifficulties()
-        .url // TODO: Should this redirect to tech difficulties since call has failed to retrive a message?
+      redirectLocation(result).value mustBe
+        controllers.routes.ErrorController.technicalDifficulties().url
     }
   }
 }
