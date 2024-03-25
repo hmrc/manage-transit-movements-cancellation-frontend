@@ -19,6 +19,7 @@ package controllers.actions
 import models.{LocalReferenceNumber, MessageMetaData}
 import models.MessageType._
 import models.requests.IdentifierRequest
+import play.api.Logging
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import services.DepartureMessageService
@@ -39,7 +40,8 @@ class CheckCancellationStatus(
   lrn: LocalReferenceNumber,
   departureMessageService: DepartureMessageService
 )(implicit protected val executionContext: ExecutionContext)
-    extends ActionFilter[IdentifierRequest] {
+    extends ActionFilter[IdentifierRequest]
+    with Logging {
 
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
 
@@ -47,11 +49,14 @@ class CheckCancellationStatus(
     departureMessageService.getMessageMetaDataHead(departureId).map {
       case Some(MessageMetaData(_, messageType, _)) =>
         messageType match {
-          case DepartureNotification | AllocatedMRN | GuaranteeRejected | GoodsUnderControl | DeclarationSent => None
+          case Other(status) =>
+            logger.warn(s"Cannot cancel declaration when latest message is $status")
+            Some(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn)))
           case _ =>
-            Option(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn)))
+            None
         }
-      case _ => Option(Redirect(controllers.routes.ErrorController.technicalDifficulties())) // TODO: If message cant be found redirect to tech diff?
+      case _ =>
+        Some(Redirect(controllers.routes.ErrorController.technicalDifficulties()))
     }
   }
 
