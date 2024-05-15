@@ -55,6 +55,14 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
       .thenReturn("foo")
   }
 
+  "attributes" - {
+    "must assign phase ID" in {
+      val result = service.attributes
+      result.keys.size mustBe 1
+      result.get("@PhaseID").value.value.toString mustBe "NCTS5.1"
+    }
+  }
+
   "messageSequence" - {
     "must create message sequence" - {
       "when GB office of destination" in {
