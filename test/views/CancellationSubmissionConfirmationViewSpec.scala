@@ -22,10 +22,8 @@ import views.html.CancellationSubmissionConfirmationView
 
 class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
 
-  private val url = "url"
-
   override def view: HtmlFormat.Appendable =
-    injector.instanceOf[CancellationSubmissionConfirmationView].apply(url, lrn)(fakeRequest, messages)
+    injector.instanceOf[CancellationSubmissionConfirmationView].apply(lrn)(fakeRequest, messages)
 
   override val prefix: String = "cancellationSubmissionConfirmation"
 
@@ -43,5 +41,9 @@ class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
 
   behave like pageWithContent("p", "The office of departure will respond to your request within a few minutes.")
 
-  behave like pageWithLink("manage-transit-movements", "Check the status of departure declarations", url)
+  behave like pageWithLink(
+    "manage-transit-movements",
+    "Check the status of departure declarations",
+    frontendAppConfig.manageTransitMovementsViewDeparturesUrl
+  )
 }

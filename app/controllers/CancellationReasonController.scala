@@ -26,7 +26,6 @@ import models.{DepartureId, LocalReferenceNumber}
 import pages.CancellationReasonPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import services.DepartureMessageService
 import services.submission.{AuditService, SubmissionService}
 import uk.gov.hmrc.http.HttpReads.is2xx
@@ -41,7 +40,6 @@ class CancellationReasonController @Inject() (
   actions: Actions,
   formProvider: CancellationReasonFormProvider,
   departureMessageService: DepartureMessageService,
-  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView,
   auditService: AuditService,
@@ -72,11 +70,10 @@ class CancellationReasonController @Inject() (
                 ie028       <- OptionT.liftF(departureMessageService.getIE028(departureId))
                 mrn = ie028.map(_.TransitOperation.MRN)
                 response <- OptionT.liftF(submissionService.submit(userAnswers.eoriNumber, ie015, mrn, value, DepartureId(departureId)))
-                _        <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
               } yield response.status match {
                 case x if is2xx(x) =>
                   auditService.audit(DeclarationInvalidationRequest, userAnswers)
-                  Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(lrn))
+                  Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(departureId, lrn))
                 case x =>
                   logger.error(s"Error submitting IE014: $x")
                   Redirect(routes.ErrorController.technicalDifficulties())

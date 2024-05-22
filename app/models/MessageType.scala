@@ -22,6 +22,7 @@ sealed trait MessageType
 
 object MessageType {
 
+  case object DeclarationInvalidationRequest extends MessageType
   case object DepartureNotification extends MessageType
   case object AllocatedMRN extends MessageType
   case object GuaranteeRejected extends MessageType
@@ -32,6 +33,7 @@ object MessageType {
 
   implicit val reads: Reads[MessageType] =
     __.read[String].map {
+      case "IE014"                     => DeclarationInvalidationRequest
       case "IE015"                     => DepartureNotification
       case "IE028"                     => AllocatedMRN
       case "IE055" | "IE060" | "IE928" => GuaranteeRejected
