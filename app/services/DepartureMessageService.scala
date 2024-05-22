@@ -19,9 +19,10 @@ package services
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
 import generated._
-import models.MessageType.{AllocatedMRN, DepartureNotification}
+import models.MessageType._
 import models.{MessageMetaData, MessageType}
 import play.api.Logging
+import scalaxb.XMLFormat
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -50,17 +51,22 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
   def getMessageMetaDataHead(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[MessageMetaData]] =
     getMessageMetaData(departureId, None)
 
-  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] = (
-    for {
-      declarationMessage <- OptionT(getMessageMetaData(departureId, Some(DepartureNotification)))
-      ie015              <- OptionT.liftF(connectors.getMessage[CC015CType](departureId, declarationMessage.id))
-    } yield ie015
-  ).value
+  def getIE014(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC014CType]] =
+    getMessage[CC014CType](departureId, DeclarationInvalidationRequest)
 
-  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] = (
+  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] =
+    getMessage[CC015CType](departureId, DepartureNotification)
+
+  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] =
+    getMessage[CC028CType](departureId, AllocatedMRN)
+
+  def getMessage[T](
+    departureId: String,
+    messageType: MessageType
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier, format: XMLFormat[T]): Future[Option[T]] = (
     for {
-      declarationMessage <- OptionT(getMessageMetaData(departureId, Some(AllocatedMRN)))
-      ie028              <- OptionT.liftF(connectors.getMessage[CC028CType](departureId, declarationMessage.id))
-    } yield ie028
+      metaData <- OptionT(getMessageMetaData(departureId, Some(messageType)))
+      message  <- OptionT.liftF(connectors.getMessage[T](departureId, metaData.id))
+    } yield message
   ).value
 }

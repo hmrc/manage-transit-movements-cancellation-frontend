@@ -16,28 +16,42 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import cats.data.OptionT
 import controllers.actions._
+import logging.Logging
 import models.LocalReferenceNumber
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import services.DepartureMessageService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationSubmissionConfirmationView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class CancellationSubmissionConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-  appConfig: FrontendAppConfig,
-  confirmationView: CancellationSubmissionConfirmationView
-) extends FrontendBaseController
-    with I18nSupport {
+  view: CancellationSubmissionConfirmationView,
+  messageService: DepartureMessageService
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  def onPageLoad(lrn: LocalReferenceNumber): Action[AnyContent] = identify {
+  def onPageLoad(departureId: String, lrn: LocalReferenceNumber): Action[AnyContent] = identify.async {
     implicit request =>
-      lazy val departureListUrl = appConfig.manageTransitMovementsViewDeparturesUrl
-      Ok(confirmationView(departureListUrl, lrn))
+      (
+        for {
+          _ <- OptionT(messageService.getIE014(departureId))
+          _ <- OptionT.liftF(sessionRepository.remove(departureId, request.eoriNumber))
+        } yield Ok(view(lrn))
+      ).getOrElse {
+        logger.warn(s"No IE014 message found for departure ID $departureId")
+        Redirect(controllers.routes.ErrorController.technicalDifficulties())
+      }
   }
 }

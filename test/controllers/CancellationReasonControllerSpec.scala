@@ -130,7 +130,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
           when(mockDepartureMessageService.getIE028(any())(any(), any())).thenReturn(Future.successful(Some(ie028)))
           when(mockSubmissionService.submit(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
-          when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
 
           val request = FakeRequest(POST, cancellationReasonRoute)
             .withFormUrlEncodedBody(("value", validAnswer))
@@ -138,17 +137,17 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           val result = route(app, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
+          redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId, lrn).url
 
           val auditedAnswers = userAnswers.setValue(CancellationReasonPage, validAnswer)
           verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(auditedAnswers))(any())
-          verify(mockSubmissionService).submit(eqTo(eoriNumber),
-                                               eqTo(ie015),
-                                               eqTo(Some(ie028.TransitOperation.MRN)),
-                                               eqTo(validAnswer),
-                                               eqTo(DepartureId(departureId))
+          verify(mockSubmissionService).submit(
+            eqTo(eoriNumber),
+            eqTo(ie015),
+            eqTo(Some(ie028.TransitOperation.MRN)),
+            eqTo(validAnswer),
+            eqTo(DepartureId(departureId))
           )(any())
-          verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
       }
     }
 
@@ -165,7 +164,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
           when(mockDepartureMessageService.getIE028(any())(any(), any())).thenReturn(Future.successful(None))
           when(mockSubmissionService.submit(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
-          when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
 
           val request = FakeRequest(POST, cancellationReasonRoute)
             .withFormUrlEncodedBody(("value", validAnswer))
@@ -173,18 +171,17 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           val result = route(app, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url
+          redirectLocation(result).value mustEqual routes.CancellationSubmissionConfirmationController.onPageLoad(departureId, lrn).url
 
           val auditedAnswers = userAnswers.setValue(CancellationReasonPage, validAnswer)
           verify(mockAuditService).audit(eqTo(DeclarationInvalidationRequest), eqTo(auditedAnswers))(any())
           verify(mockSubmissionService).submit(eqTo(eoriNumber), eqTo(ie015), eqTo(None), eqTo(validAnswer), eqTo(DepartureId(departureId)))(any())
-          verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
       }
     }
 
     "must redirect to technical difficulties when cannot submit" in {
-      forAll(arbitrary[CC015CType], arbitrary[CC028CType], Gen.choose(400: Int, 599: Int)) {
-        (ie015, ie028, errorCode) =>
+      forAll(arbitrary[CC015CType], Gen.choose(400: Int, 599: Int)) {
+        (ie015, errorCode) =>
           beforeEach()
 
           cancellationStatusSubmittable(departureId, lrn)
@@ -195,7 +192,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           when(mockDepartureMessageService.getIE015(any())(any(), any())).thenReturn(Future.successful(Some(ie015)))
           when(mockDepartureMessageService.getIE028(any())(any(), any())).thenReturn(Future.successful(None))
           when(mockSubmissionService.submit(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(errorCode, "")))
-          when(mockSessionRepository.remove(any(), any())).thenReturn(Future.successful(true))
 
           val request = FakeRequest(POST, cancellationReasonRoute)
             .withFormUrlEncodedBody(("value", validAnswer))
@@ -207,7 +203,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
 
           verifyNoInteractions(mockAuditService)
           verify(mockSubmissionService).submit(eqTo(eoriNumber), eqTo(ie015), eqTo(None), eqTo(validAnswer), eqTo(DepartureId(departureId)))(any())
-          verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
       }
     }
 
@@ -229,7 +224,6 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
 
       verifyNoInteractions(mockAuditService)
       verifyNoInteractions(mockSubmissionService)
-      verify(mockSessionRepository, never()).remove(any(), any())
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

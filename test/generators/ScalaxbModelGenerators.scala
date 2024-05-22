@@ -27,6 +27,24 @@ import javax.xml.datatype.XMLGregorianCalendar
 trait ScalaxbModelGenerators {
   self: Generators =>
 
+  implicit lazy val arbitraryCC014CType: Arbitrary[CC014CType] =
+    Arbitrary {
+      for {
+        messageSequence1            <- arbitrary[MESSAGESequence]
+        transitOperation            <- arbitrary[TransitOperationType05]
+        invalidation                <- arbitrary[InvalidationType02]
+        customsOfficeOfDeparture    <- arbitrary[CustomsOfficeOfDepartureType03]
+        holderOfTheTransitProcedure <- arbitrary[HolderOfTheTransitProcedureType02]
+      } yield CC014CType(
+        messageSequence1 = messageSequence1,
+        TransitOperation = transitOperation,
+        Invalidation = invalidation,
+        CustomsOfficeOfDeparture = customsOfficeOfDeparture,
+        HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
+        attributes = Map.empty
+      )
+    }
+
   implicit lazy val arbitraryCC015CType: Arbitrary[CC015CType] =
     Arbitrary {
       for {
@@ -126,6 +144,21 @@ trait ScalaxbModelGenerators {
         CommodityCode = None,
         DangerousGoods = Nil,
         GoodsMeasure = None
+      )
+    }
+
+  implicit lazy val arbitraryHolderOfTheTransitProcedureType02: Arbitrary[HolderOfTheTransitProcedureType02] =
+    Arbitrary {
+      for {
+        identificationNumber          <- Gen.option(nonEmptyString)
+        tirHolderIdentificationNumber <- Gen.option(nonEmptyString)
+        name                          <- Gen.option(nonEmptyString)
+      } yield HolderOfTheTransitProcedureType02(
+        identificationNumber = identificationNumber,
+        TIRHolderIdentificationNumber = tirHolderIdentificationNumber,
+        name = name,
+        Address = None,
+        ContactPerson = None
       )
     }
 
@@ -273,6 +306,17 @@ trait ScalaxbModelGenerators {
         referenceNumber <- nonEmptyString
       } yield CustomsOfficeOfDestinationActualType03(
         referenceNumber = referenceNumber
+      )
+    }
+
+  implicit lazy val arbitraryTransitOperationType05: Arbitrary[TransitOperationType05] =
+    Arbitrary {
+      for {
+        lrn <- Gen.option(nonEmptyString)
+        mrn <- Gen.option(nonEmptyString)
+      } yield TransitOperationType05(
+        LRN = lrn,
+        MRN = mrn
       )
     }
 
@@ -428,4 +472,20 @@ trait ScalaxbModelGenerators {
       )
     }
 
+  implicit lazy val arbitraryInvalidationType02: Arbitrary[InvalidationType02] =
+    Arbitrary {
+      for {
+        requestDateAndTime  <- Gen.option(arbitrary[XMLGregorianCalendar])
+        decisionDateAndTime <- Gen.option(arbitrary[XMLGregorianCalendar])
+        decision            <- Gen.option(arbitrary[Flag])
+        initiatedByCustoms  <- arbitrary[Flag]
+        justification       <- Gen.option(nonEmptyString)
+      } yield InvalidationType02(
+        requestDateAndTime = requestDateAndTime,
+        decisionDateAndTime = decisionDateAndTime,
+        decision = decision,
+        initiatedByCustoms = initiatedByCustoms,
+        justification = justification
+      )
+    }
 }

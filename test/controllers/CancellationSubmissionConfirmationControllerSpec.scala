@@ -18,17 +18,24 @@ package controllers
 
 import base.SpecBase
 import connectors.DepartureMovementConnector
-import org.mockito.Mockito.reset
-import org.scalatestplus.mockito.MockitoSugar
+import generated.CC014CType
+import generators.Generators
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.{reset, verify, verifyNoInteractions, when}
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import views.html.CancellationSubmissionConfirmationView
 
-class CancellationSubmissionConfirmationControllerSpec extends SpecBase with MockitoSugar {
+import scala.concurrent.Future
 
-  def onwardRoute: Call = Call("GET", "/foo")
+class CancellationSubmissionConfirmationControllerSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
+
+  private lazy val cancellationSubmittedRoute: String =
+    routes.CancellationSubmissionConfirmationController.onPageLoad(departureId, lrn).url
 
   private val mockConnector = mock[DepartureMovementConnector]
 
@@ -44,14 +51,49 @@ class CancellationSubmissionConfirmationControllerSpec extends SpecBase with Moc
 
   "CancellationSubmissionConfirmation Controller" - {
 
-    "return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" in {
+      forAll(arbitrary[CC014CType]) {
+        ie014 =>
+          beforeEach()
 
-      val request = FakeRequest(GET, routes.CancellationSubmissionConfirmationController.onPageLoad(lrn).url)
+          when(mockDepartureMessageService.getIE014(any())(any(), any()))
+            .thenReturn(Future.successful(Some(ie014)))
 
-      val result = route(app, request).value
+          when(mockSessionRepository.remove(any(), any()))
+            .thenReturn(Future.successful(true))
 
-      status(result) mustEqual OK
+          val request = FakeRequest(GET, cancellationSubmittedRoute)
 
+          val result = route(app, request).value
+
+          val view = injector.instanceOf[CancellationSubmissionConfirmationView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual
+            view(lrn)(request, messages).toString
+
+          verify(mockDepartureMessageService).getIE014(eqTo(departureId))(any(), any())
+          verify(mockSessionRepository).remove(eqTo(departureId), eqTo(eoriNumber))
+      }
+    }
+
+    "must redirect to tech difficulties" - {
+      "when IE014 not found" in {
+        when(mockDepartureMessageService.getIE014(any())(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        val request = FakeRequest(GET, cancellationSubmittedRoute)
+
+        val result = route(app, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual
+          controllers.routes.ErrorController.technicalDifficulties().url
+
+        verifyNoInteractions(mockSessionRepository)
+      }
     }
   }
 }

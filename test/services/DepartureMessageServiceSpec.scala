@@ -18,9 +18,9 @@ package services
 
 import base.SpecBase
 import connectors.DepartureMovementConnector
-import generated.{CC015CType, CC028CType}
+import generated._
 import generators.Generators
-import models.MessageType.{AllocatedMRN, DepartureNotification}
+import models.MessageType._
 import models.{DepartureMessages, MessageMetaData}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify, when}
@@ -50,8 +50,11 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
   private val message4: MessageMetaData =
     MessageMetaData("message4Id", AllocatedMRN, LocalDateTime.now().plusDays(2))
 
+  private val message5: MessageMetaData =
+    MessageMetaData("message5Id", DeclarationInvalidationRequest, LocalDateTime.now().plusDays(3))
+
   private val departureMessages: DepartureMessages =
-    DepartureMessages(List(message1, message2, message3, message4))
+    DepartureMessages(List(message1, message2, message3, message4, message5))
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
@@ -69,7 +72,32 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
       "must return latest message" in {
         when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
 
-        service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message4)
+        service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message5)
+
+        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+      }
+    }
+
+    "getIE014" - {
+      "when success" in {
+        forAll(arbitrary[CC014CType]) {
+          ie014 =>
+            beforeEach()
+
+            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+            when(mockConnector.getMessage[CC014CType](any(), any())(any(), any())).thenReturn(Future.successful(ie014))
+
+            service.getIE014(departureId).futureValue mustBe Some(ie014)
+
+            verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+            verify(mockConnector).getMessage[CC014CType](eqTo(departureId), eqTo("message5Id"))(any(), any())
+        }
+      }
+
+      "when getMessageMetaData call returns None" in {
+        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(None))
+
+        service.getIE014(departureId).futureValue mustBe None
 
         verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
       }
