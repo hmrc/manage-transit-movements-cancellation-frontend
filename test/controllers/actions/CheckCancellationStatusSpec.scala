@@ -43,7 +43,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
   "ArrivalStatusAction" - {
     "must return None when one of the allowed statuses" in {
       val messageType: Gen[MessageType] =
-        Gen.oneOf(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent, AmendmentAcceptance)
+        Gen.oneOf(DepartureNotification, AllocatedMRN, GuaranteeRejected, GoodsUnderControl, DeclarationSent, AmendmentAcceptance, InvalidationDecision)
 
       forAll(messageType) {
         messageType =>
