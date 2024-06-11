@@ -29,6 +29,8 @@ object MessageType {
   case object GoodsUnderControl extends MessageType
   case object DeclarationSent extends MessageType
   case object AmendmentAcceptance extends MessageType
+
+  case object InvalidationDecision extends MessageType
   case class Other(status: String) extends MessageType
 
   implicit val reads: Reads[MessageType] =
@@ -38,6 +40,7 @@ object MessageType {
       case "IE028"                     => AllocatedMRN
       case "IE055" | "IE060" | "IE928" => GuaranteeRejected
       case "IE004"                     => AmendmentAcceptance
+      case "IE009"                     => InvalidationDecision
       case x                           => Other(x)
     }
 }

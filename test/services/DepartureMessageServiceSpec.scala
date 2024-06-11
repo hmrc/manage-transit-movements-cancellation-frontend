@@ -53,8 +53,11 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
   private val message5: MessageMetaData =
     MessageMetaData("message5Id", DeclarationInvalidationRequest, LocalDateTime.now().plusDays(3))
 
+  private val message6: MessageMetaData =
+    MessageMetaData("message6Id", InvalidationDecision, LocalDateTime.now().plusDays(3))
+
   private val departureMessages: DepartureMessages =
-    DepartureMessages(List(message1, message2, message3, message4, message5))
+    DepartureMessages(List(message1, message2, message3, message4, message5, message6))
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
@@ -72,7 +75,7 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
       "must return latest message" in {
         when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
 
-        service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message5)
+        service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message6)
 
         verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
       }
