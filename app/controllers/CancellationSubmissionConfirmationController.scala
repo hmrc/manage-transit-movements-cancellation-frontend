@@ -18,8 +18,8 @@ package controllers
 
 import cats.data.OptionT
 import controllers.actions._
-import logging.Logging
 import models.LocalReferenceNumber
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

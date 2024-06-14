@@ -19,11 +19,11 @@ package controllers
 import cats.data.OptionT
 import controllers.actions._
 import forms.CancellationReasonFormProvider
-import logging.Logging
 import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
 import models.{DepartureId, LocalReferenceNumber}
 import pages.CancellationReasonPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DepartureMessageService
