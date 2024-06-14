@@ -17,8 +17,8 @@
 package connectors
 
 import config.FrontendAppConfig
-import logging.Logging
 import models.DepartureMessages
+import play.api.Logging
 import play.api.http.HeaderNames._
 import scalaxb.XMLFormat
 import scalaxb.`package`.fromXML
