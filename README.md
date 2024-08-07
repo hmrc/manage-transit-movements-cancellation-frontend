@@ -22,6 +22,18 @@ sm2 --stop MANAGE_TRANSIT_MOVEMENTS_CANCELLATION_FRONTEND
 sbt run
 </pre>
 
+
+### Feature toggles
+
+The following features can be toggled in [application.conf](conf/application.conf):
+
+| Key                        | Argument type | sbt                                                            | Description                                                                                                                                                                                    |
+|----------------------------|---------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `trader-test.enabled`      | `Boolean`     | `sbt -Dtrader-test.enabled=true run`                           | If enabled, this will override the behaviour of the "Is this page not working properly?" and "feedback" links. This is so we can receive feedback in the absence of Deskpro in `externaltest`. |
+| `banners.showUserResearch` | `Boolean`     | `sbt -Dbanners.showUserResearch=true run`                      | Controls whether or not we show the user research banner.                                                                                                                                      |
+| `play.http.router`         | `String`      | `sbt -Dplay.http.router=testOnlyDoNotUseInAppConf.Routes run`  | Controls which router is used for the application, either `prod.Routes` or `testOnlyDoNotUseInAppConf.Routes`                                                                                  |
+
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").

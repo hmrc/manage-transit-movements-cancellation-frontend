@@ -19,16 +19,16 @@ package controllers
 import cats.data.OptionT
 import controllers.actions._
 import forms.CancellationReasonFormProvider
-import logging.Logging
 import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
 import models.{DepartureId, LocalReferenceNumber}
 import pages.CancellationReasonPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DepartureMessageService
-import services.submission.{AuditService, SubmissionService}
-import uk.gov.hmrc.http.HttpReads.is2xx
+import services.submission.{AuditService, MetricsService, SubmissionService}
+import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CancellationReasonView
 
@@ -43,7 +43,8 @@ class CancellationReasonController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CancellationReasonView,
   auditService: AuditService,
-  submissionService: SubmissionService
+  submissionService: SubmissionService,
+  metricsService: MetricsService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -70,13 +71,17 @@ class CancellationReasonController @Inject() (
                 ie028       <- OptionT.liftF(departureMessageService.getIE028(departureId))
                 mrn = ie028.map(_.TransitOperation.MRN)
                 response <- OptionT.liftF(submissionService.submit(userAnswers.eoriNumber, ie015, mrn, value, DepartureId(departureId)))
-              } yield response.status match {
-                case x if is2xx(x) =>
-                  auditService.audit(DeclarationInvalidationRequest, userAnswers)
-                  Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(departureId, lrn))
-                case x =>
-                  logger.error(s"Error submitting IE014: $x")
-                  Redirect(routes.ErrorController.technicalDifficulties())
+              } yield {
+                val auditType = DeclarationInvalidationRequest
+                metricsService.increment(auditType.name, response)
+                response.status match {
+                  case x if is2xx(x) =>
+                    auditService.audit(auditType, userAnswers)
+                    Redirect(controllers.routes.CancellationSubmissionConfirmationController.onPageLoad(departureId, lrn))
+                  case x =>
+                    logger.error(s"Error submitting IE014: $x")
+                    Redirect(routes.ErrorController.technicalDifficulties())
+                }
               }
             ).getOrElse(
               Redirect(controllers.routes.ErrorController.technicalDifficulties())
