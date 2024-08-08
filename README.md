@@ -8,7 +8,7 @@ Service manager port: 10122
 ### Testing
 
 Run unit tests:
-<pre>sbt test</pre>  
+<pre>sbt test</pre>
 Run integration tests:
 <pre>sbt it/test</pre>
 Run accessibility linter tests:
@@ -22,6 +22,9 @@ sm2 --stop MANAGE_TRANSIT_MOVEMENTS_CANCELLATION_FRONTEND
 sbt run
 </pre>
 
+We then need to post an IE015 message followed by a message type that has the action to cancel a declaration such as an IE028 (MRN Allocated) or an IE928 (Positive Acknowledge).
+
+From the `/view-departure-declarations` page click the `Cancel declaration` link for the relevant movement.
 
 ### Feature toggles
 
