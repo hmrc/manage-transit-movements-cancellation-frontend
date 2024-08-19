@@ -44,7 +44,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
       .configure(conf = "microservice.services.customs-reference-data.port" -> server.port())
 
   private lazy val connector: ReferenceDataConnector = app.injector.instanceOf[ReferenceDataConnector]
-  private val code                                   = "GB00001"
+  private val code                                   = "AD000001"
 
   "Reference Data" - {
 
@@ -57,7 +57,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
             .willReturn(okJson(customsOfficeResponseJsonWithPhone))
         )
 
-        val expectedResult = CustomsOffice("ID1", "NAME001", "GB", Some("004412323232345"))
+        val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
 
         connector.getCustomsOffice(code).futureValue mustBe expectedResult
       }
@@ -68,7 +68,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
             .willReturn(okJson(customsOfficeResponseJsonWithOutPhone))
         )
 
-        val expectedResult = CustomsOffice("ID1", "NAME001", "GB", None)
+        val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", None)
 
         connector.getCustomsOffice(code).futureValue mustBe expectedResult
       }
@@ -121,12 +121,69 @@ object ReferenceDataConnectorSpec {
       |{
       | "data" :
       | [
-      |  {
-      |    "id":"ID1",
-      |    "name":"NAME001",
-      |    "countryId":"GB",
-      |    "phoneNumber":"004412323232345"
-      |  }
+      |    {
+      |      "languageCode": "ES",
+      |      "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
+      |      "phoneNumber": "+ (376) 84 1090",
+      |      "id": "AD000001",
+      |      "countryId": "AD",
+      |      "roles": [
+      |        {
+      |          "role": "AUT"
+      |        },
+      |        {
+      |          "role": "DEP"
+      |        },
+      |        {
+      |          "role": "DES"
+      |        },
+      |        {
+      |          "role": "TRA"
+      |        }
+      |      ]
+      |    },
+      |    {
+      |      "languageCode": "EN",
+      |      "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
+      |      "phoneNumber": "+ (376) 84 1090",
+      |      "id": "AD000001",
+      |      "countryId": "AD",
+      |      "roles": [
+      |        {
+      |          "role": "AUT"
+      |        },
+      |        {
+      |          "role": "DEP"
+      |        },
+      |        {
+      |          "role": "DES"
+      |        },
+      |        {
+      |          "role": "TRA"
+      |        }
+      |      ]
+      |    },
+      |    {
+      |      "languageCode": "FR",
+      |      "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
+      |      "phoneNumber": "+ (376) 84 1090",
+      |      "id": "AD000001",
+      |      "countryId": "AD",
+      |      "roles": [
+      |        {
+      |          "role": "AUT"
+      |        },
+      |        {
+      |          "role": "DEP"
+      |        },
+      |        {
+      |          "role": "DES"
+      |        },
+      |        {
+      |          "role": "TRA"
+      |        }
+      |      ]
+      |    }
       | ]
       |}
       |""".stripMargin
@@ -136,11 +193,66 @@ object ReferenceDataConnectorSpec {
       |{
       | "data" :
       | [
-      |  {
-      |    "id":"ID1",
-      |    "name":"NAME001",
-      |    "countryId":"GB"
-      |  }
+      |    {
+      |      "languageCode": "EN",
+      |      "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
+      |      "id": "AD000001",
+      |      "countryId": "AD",
+      |      "roles": [
+      |        {
+      |          "role": "AUT"
+      |        },
+      |        {
+      |          "role": "DEP"
+      |        },
+      |        {
+      |          "role": "DES"
+      |        },
+      |        {
+      |          "role": "TRA"
+      |        }
+      |      ]
+      |    },
+      |    {
+      |      "languageCode": "ES",
+      |      "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
+      |      "id": "AD000001",
+      |      "countryId": "AD",
+      |      "roles": [
+      |        {
+      |          "role": "AUT"
+      |        },
+      |        {
+      |          "role": "DEP"
+      |        },
+      |        {
+      |          "role": "DES"
+      |        },
+      |        {
+      |          "role": "TRA"
+      |        }
+      |      ]
+      |    },
+      |    {
+      |      "languageCode": "FR",
+      |      "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
+      |      "id": "AD000001",
+      |      "countryId": "AD",
+      |      "roles": [
+      |        {
+      |          "role": "AUT"
+      |        },
+      |        {
+      |          "role": "DEP"
+      |        },
+      |        {
+      |          "role": "DES"
+      |        },
+      |        {
+      |          "role": "TRA"
+      |        }
+      |      ]
+      |    }
       | ]
       |}
       |""".stripMargin
