@@ -16,7 +16,7 @@
 
 package connectors
 
-import config.FrontendAppConfig
+import config.{FrontendAppConfig, PhaseConfig}
 import models.DepartureMessages
 import play.api.Logging
 import play.api.http.HeaderNames._
@@ -32,15 +32,18 @@ import scala.xml.XML
 
 class DepartureMovementConnector @Inject() (
   appConfig: FrontendAppConfig,
-  http: HttpClientV2
+  http: HttpClientV2,
+  phaseConfig: PhaseConfig
 )(implicit ec: ExecutionContext)
     extends Logging {
+
+  private val version = phaseConfig.values.apiVersion
 
   def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: XMLFormat[T]): Future[T] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}/movements/departures/$departureId/messages/$messageId/body"
     http
       .get(url)
-      .setHeader(ACCEPT -> "application/vnd.hmrc.2.0+xml")
+      .setHeader(ACCEPT -> s"application/vnd.hmrc.$version+xml")
       .execute[HttpResponse]
       .map(_.body)
       .map(XML.loadString)
@@ -51,7 +54,7 @@ class DepartureMovementConnector @Inject() (
     val url = url"${appConfig.commonTransitConventionTradersUrl}movements/departures/$departureId/messages"
     http
       .get(url)
-      .setHeader(ACCEPT -> "application/vnd.hmrc.2.0+json")
+      .setHeader(ACCEPT -> s"application/vnd.hmrc.$version+json")
       .execute[Option[DepartureMessages]]
       .recover {
         case e =>
