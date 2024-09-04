@@ -22,6 +22,7 @@ import org.mongodb.scala.model._
 import services.DateTimeService
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import org.mongodb.scala._
 
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}

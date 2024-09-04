@@ -53,7 +53,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   lazy val timeoutSeconds: Int   = configuration.get[Int]("session.timeoutSeconds")
   lazy val countdownSeconds: Int = configuration.get[Int]("session.countdownSeconds")
 
-  lazy val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+  lazy val cacheTtl: Long = configuration.get[Long]("mongodb.timeToLiveInSeconds")
 
   lazy val replaceIndexes: Boolean = configuration.get[Boolean]("feature-flags.replace-indexes")
 
@@ -66,7 +66,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   val feedbackEmail: String = configuration.get[String]("trader-test.feedback.email")
   val feedbackForm: String  = configuration.get[String]("trader-test.feedback.link")
 
-  def mailto(implicit request: Request[_], messages: Messages): String = {
+  def mailto(implicit request: Request[?], messages: Messages): String = {
     val subject = messages("site.email.subject")
     val body = {
       val newLine      = "%0D%0A"

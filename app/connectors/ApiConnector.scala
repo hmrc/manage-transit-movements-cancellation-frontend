@@ -18,6 +18,7 @@ package connectors
 
 import config.{FrontendAppConfig, PhaseConfig}
 import models.DepartureId
+import play.api.libs.ws.XMLBodyWritables._
 import play.api.Logging
 import play.api.http.HeaderNames._
 import uk.gov.hmrc.http.HttpReads.Implicits._

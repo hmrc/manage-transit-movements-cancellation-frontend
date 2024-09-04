@@ -24,7 +24,7 @@
     config: FrontendAppConfig
 )
 
-@(messageKey: String, rows: Seq[SummaryListRow], rejected: Boolean)(implicit request: Request[_], messages: Messages)
+@(messageKey: String, rows: Seq[SummaryListRow], rejected: Boolean)(implicit request: Request[?], messages: Messages)
 
 @mainTemplate(
     title = messages(s"$messageKey.title")

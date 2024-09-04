@@ -26,7 +26,7 @@
     config: FrontendAppConfig
 )
 
-@(lrn: LocalReferenceNumber, departureId: String, viewModel: CannotSendCancellationRequestViewModel)(implicit request: Request[_], messages: Messages)
+@(lrn: LocalReferenceNumber, departureId: String, viewModel: CannotSendCancellationRequestViewModel)(implicit request: Request[?], messages: Messages)
 
 @mainTemplate(
     title = messages("cannotSendCancellationRequest.title"),

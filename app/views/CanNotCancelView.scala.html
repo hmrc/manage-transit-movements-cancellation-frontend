@@ -23,7 +23,7 @@
     config: FrontendAppConfig
 )
 
-@(departureList: String)(implicit request: Request[_], messages: Messages)
+@(departureList: String)(implicit request: Request[?], messages: Messages)
 
 @main_template(
     title = messages("canNotCancel.title"),

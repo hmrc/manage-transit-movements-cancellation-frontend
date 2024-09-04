@@ -43,7 +43,7 @@ object CustomsOffice {
     implicit val reads: Reads[TempCustomsOffice] = (
       __.read[CustomsOffice] and
         (__ \ "languageCode").read[String]
-    )(TempCustomsOffice.apply _)
+    )(TempCustomsOffice.apply)
 
     Reads {
       case JsArray(customsOffices) =>

@@ -42,7 +42,7 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
 
   val prefix: String
 
-  val hasSignOutLink: Boolean = true
+  def hasSignOutLink: Boolean = true
 
   if (hasSignOutLink) {
     "must render sign out link in header" in {
@@ -105,7 +105,7 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     "must render title" in {
       val title      = doc.title()
       val messageKey = s"$prefix.title"
-      title mustBe s"${messages(messageKey, args: _*)} - Departure declarations - Manage your transit movements - GOV.UK"
+      title mustBe s"${messages(messageKey, args *)} - Departure declarations - Manage your transit movements - GOV.UK"
       assert(messages.isDefinedAt(messageKey))
     }
 
@@ -113,7 +113,7 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     "must render heading" in {
       val heading    = getElementByTag(doc, "h1")
       val messageKey = s"$prefix.heading"
-      assertElementIncludesText(heading, messages(messageKey, args: _*))
+      assertElementIncludesText(heading, messages(messageKey, args *))
       assert(messages.isDefinedAt(messageKey))
     }
 
@@ -163,16 +163,16 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
     }
 
   def pageWithContent(doc: Document, tag: String, expectedText: String): Unit =
-    pageWithContent(doc, tag, expectedText, _ equals _)
+    pageWithContent(doc, tag, expectedText, _ `equals` _)
 
   def pageWithContent(tag: String, expectedText: String): Unit =
-    pageWithContent(doc, tag, expectedText, _ equals _)
+    pageWithContent(doc, tag, expectedText, _ `equals` _)
 
   def pageWithPartialContent(tag: String, expectedText: String): Unit =
     pageWithPartialContent(doc, tag, expectedText)
 
   def pageWithPartialContent(doc: Document, tag: String, expectedText: String): Unit =
-    pageWithContent(doc, tag, expectedText, _ contains _)
+    pageWithContent(doc, tag, expectedText, _ `contains` _)
 
   private def pageWithContent(doc: Document, tag: String, expectedText: String, condition: (String, String) => Boolean): Unit =
     s"must render $tag with text $expectedText" in {
