@@ -53,7 +53,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   lazy val timeoutSeconds: Int   = configuration.get[Int]("session.timeoutSeconds")
   lazy val countdownSeconds: Int = configuration.get[Int]("session.countdownSeconds")
 
-  lazy val cacheTtl: Long = configuration.get[Long]("mongodb.timeToLiveInSeconds")
+  lazy val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
   lazy val replaceIndexes: Boolean = configuration.get[Boolean]("feature-flags.replace-indexes")
 
