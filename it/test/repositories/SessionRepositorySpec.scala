@@ -33,7 +33,7 @@ class SessionRepositorySpec extends ItSpecBase with DefaultPlayMongoRepositorySu
 
   implicit private val sensitiveFormats: SensitiveFormats = app.injector.instanceOf[SensitiveFormats]
 
-  override protected val repository = new SessionRepository(mongoComponent, config, dateTimeService)
+  override protected val repository: SessionRepository = new SessionRepository(mongoComponent, config, dateTimeService)
 
   private lazy val userAnswers1 = UserAnswers("AB123", EoriNumber("EoriNumber1"), LocalReferenceNumber("AB123"), Json.obj(), dateTimeService.currentInstant)
   private lazy val userAnswers2 = UserAnswers("CD123", EoriNumber("EoriNumber2"), LocalReferenceNumber("AB123"), Json.obj(), dateTimeService.currentInstant)
