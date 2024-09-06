@@ -79,7 +79,7 @@ object SessionRepository {
   def indexes(appConfig: FrontendAppConfig): Seq[IndexModel] = {
     val userAnswersLastUpdatedIndex: IndexModel = IndexModel(
       keys = Indexes.ascending("lastUpdated"),
-      indexOptions = IndexOptions().name("user-answers-last-updated-index").expireAfter(appConfig.cacheTtl.asInstanceOf[Number].longValue, TimeUnit.SECONDS)
+      indexOptions = IndexOptions().name("user-answers-last-updated-index").expireAfter(appConfig.cacheTtl.toLong, TimeUnit.SECONDS)
     )
 
     Seq(userAnswersLastUpdatedIndex)
