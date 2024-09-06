@@ -21,7 +21,7 @@
     heading: Heading
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[?], messages: Messages)
 
 @main_template(
     title = messages("unauthorised.title"),

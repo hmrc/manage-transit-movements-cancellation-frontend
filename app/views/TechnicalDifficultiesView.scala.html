@@ -21,7 +21,7 @@
     heading: Heading
 )
 
-@(contactUrl: String)(implicit request: Request[_], messages: Messages)
+@(contactUrl: String)(implicit request: Request[?], messages: Messages)
 
 @main_template(
     title = messages("technicalDifficulties.title"),

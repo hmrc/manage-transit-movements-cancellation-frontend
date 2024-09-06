@@ -60,7 +60,7 @@ class SubmissionService @Inject() (
     )
   }
 
-  def attributes: Map[String, DataRecord[_]] =
+  def attributes: Map[String, DataRecord[?]] =
     Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461Value.toString, scope)))
 
   def messageSequence(eoriNumber: EoriNumber, officeOfDeparture: String): MESSAGESequence =

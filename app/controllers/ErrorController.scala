@@ -29,7 +29,7 @@ class ErrorController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   errorTemplate: ErrorTemplate,
   notFoundView: NotFoundView,
-  technicalDifficulties: TechnicalDifficultiesView,
+  technicalDifficultiesView: TechnicalDifficultiesView,
   appConfig: FrontendAppConfig
 ) extends FrontendBaseController
     with I18nSupport {
@@ -52,7 +52,7 @@ class ErrorController @Inject() (
 
   def technicalDifficulties: Action[AnyContent] = Action {
     implicit request =>
-      InternalServerError(technicalDifficulties(appConfig.contactHost))
+      InternalServerError(technicalDifficultiesView(appConfig.contactHost))
   }
 
   def internalServerError: Action[AnyContent] = Action {

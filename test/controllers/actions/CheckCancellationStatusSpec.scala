@@ -63,7 +63,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
     "must return 303 and redirect to CannotSendCancellationRequest when status is not one of the allowed" in {
 
-      val messageType = Gen.alphaNumStr.map(MessageType.Other).sample.value
+      val messageType = Gen.alphaNumStr.map(MessageType.Other.apply).sample.value
 
       when(mockDepartureMessageService.getMessageMetaDataHead(any())(any(), any()))
         .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now()))))

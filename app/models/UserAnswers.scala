@@ -77,7 +77,7 @@ object UserAnswers {
       (__ \ "lrn").read[LocalReferenceNumber] and
       (__ \ "data").read[JsObject](sensitiveFormats.jsObjectReads) and
       (__ \ "lastUpdated").read(MongoJavatimeFormats.instantReads)
-  )(UserAnswers.apply _)
+  )(UserAnswers.apply)
 
   implicit def writes(implicit sensitiveFormats: SensitiveFormats): OWrites[UserAnswers] =
     writes(sensitiveFormats.jsObjectWrites)
@@ -91,7 +91,9 @@ object UserAnswers {
       (__ \ "lrn").write[LocalReferenceNumber] and
       (__ \ "data").write[JsObject](jsObjectWrites) and
       (__ \ "lastUpdated").write(MongoJavatimeFormats.instantWrites)
-  )(unlift(UserAnswers.unapply))
+  )(
+    ua => Tuple.fromProductTyped(ua)
+  )
 
   implicit def format(implicit sensitiveFormats: SensitiveFormats): Format[UserAnswers] =
     Format(reads, writes)

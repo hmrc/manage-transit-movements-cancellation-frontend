@@ -26,7 +26,7 @@
     errorSummary: ErrorSummary
 )
 
-@(form: Form[Boolean], departureId: String, lrn: LocalReferenceNumber)(implicit request: Request[_], messages: Messages)
+@(form: Form[Boolean], departureId: String, lrn: LocalReferenceNumber)(implicit request: Request[?], messages: Messages)
 
 @mainTemplate(
     title = messages("confirmCancellation.title"),

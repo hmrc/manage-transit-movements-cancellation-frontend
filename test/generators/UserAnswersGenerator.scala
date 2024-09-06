@@ -28,7 +28,7 @@ import java.time.Instant
 trait UserAnswersGenerator extends UserAnswersEntryGenerators with TryValues {
   self: Generators =>
 
-  val generators: Seq[Gen[(QuestionPage[_], JsValue)]] =
+  val generators: Seq[Gen[(QuestionPage[?], JsValue)]] =
     arbitrary[(ConfirmCancellationPage.type, JsValue)] ::
       arbitrary[(CancellationReasonPage.type, JsValue)] ::
       Nil
@@ -42,7 +42,7 @@ trait UserAnswersGenerator extends UserAnswersEntryGenerators with TryValues {
         id         <- arbitrary[String]
         eoriNumber <- arbitrary[EoriNumber]
         data <- generators match {
-          case Nil => Gen.const(Map[QuestionPage[_], JsValue]())
+          case Nil => Gen.const(Map[QuestionPage[?], JsValue]())
           case _   => Gen.mapOf(oneOf(generators))
         }
         lrn <- Gen.alphaNumStr

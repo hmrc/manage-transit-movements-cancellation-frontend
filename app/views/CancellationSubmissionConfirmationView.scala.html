@@ -25,7 +25,7 @@
     config: FrontendAppConfig
 )
 
-@(lrn: LocalReferenceNumber)(implicit request: Request[_], messages: Messages)
+@(lrn: LocalReferenceNumber)(implicit request: Request[?], messages: Messages)
 
 @main_template(
     title = messages("cancellationSubmissionConfirmation.title"),

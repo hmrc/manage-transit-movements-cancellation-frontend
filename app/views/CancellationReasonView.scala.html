@@ -25,7 +25,7 @@
     errorSummary: ErrorSummary
 )
 
-@(form: Form[String], departureId: String, lrn: LocalReferenceNumber, maxLength: Int)(implicit request: Request[_], messages: Messages)
+@(form: Form[String], departureId: String, lrn: LocalReferenceNumber, maxLength: Int)(implicit request: Request[?], messages: Messages)
 
 @mainTemplate(
     title = messages("cancellationReason.title"),

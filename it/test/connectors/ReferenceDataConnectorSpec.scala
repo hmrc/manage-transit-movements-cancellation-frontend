@@ -83,7 +83,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
     }
   }
 
-  private def checkNoReferenceDataFoundResponse(url: String, result: => Future[_]): Assertion = {
+  private def checkNoReferenceDataFoundResponse(url: String, result: => Future[?]): Assertion = {
     server.stubFor(
       get(urlEqualTo(url))
         .willReturn(okJson(emptyResponseJson))
@@ -94,7 +94,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
     }
   }
 
-  private def checkErrorResponse(url: String, result: => Future[_]): Assertion = {
+  private def checkErrorResponse(url: String, result: => Future[?]): Assertion = {
     val errorResponses: Gen[Int] = Gen.chooseNum(400: Int, 599: Int)
 
     forAll(errorResponses) {

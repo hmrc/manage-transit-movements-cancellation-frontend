@@ -37,7 +37,6 @@ class ApiConnectorSpec extends ItSpecBase with WireMockServerHandler {
   private val url = s"/movements/departures/$departureId/messages"
 
   "ApiConnector" - {
-
     "submit" - {
       val body: NodeSeq =
         <ncts:CC014C PhaseID="NCTS5.0" xmlns:ncts="http://ncts.dgtaxud.ec">
