@@ -37,6 +37,7 @@ class NotFoundViewSpec extends ViewBehaviours {
 
   behave like pageWithContent("p", "If you typed the web address, check it is correct.")
   behave like pageWithContent("p", "If you pasted the web address, check you copied the entire address.")
+
   behave like pageWithLink(
     "contact",
     "Contact the New Computerised Transit System (NCTS) helpdesk if you need to speak to someone about your transit movements (opens in a new tab)",

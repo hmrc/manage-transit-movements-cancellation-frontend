@@ -35,7 +35,7 @@ object EnumerableSpec {
         values.toSeq
           .map(
             v => v.toString -> v
-          ) *
+          )*
       )
   }
 }
