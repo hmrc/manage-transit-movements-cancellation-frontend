@@ -86,13 +86,13 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryConsignmentItemType03: Arbitrary[ConsignmentItemType03] =
+  implicit lazy val arbitraryConsignmentItemType03: Arbitrary[CUSTOM_ConsignmentItemType03] =
     Arbitrary {
       for {
-        goodsItemNumber            <- nonEmptyString
+        goodsItemNumber            <- arbitrary[BigInt]
         declarationGoodsItemNumber <- arbitrary[BigInt]
-        commodity                  <- arbitrary[CommodityType08]
-      } yield ConsignmentItemType03(
+        commodity                  <- arbitrary[CUSTOM_CommodityType08]
+      } yield CUSTOM_ConsignmentItemType03(
         goodsItemNumber = goodsItemNumber,
         declarationGoodsItemNumber = declarationGoodsItemNumber,
         declarationType = None,
@@ -112,13 +112,13 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryConsignmentItemType04: Arbitrary[ConsignmentItemType04] =
+  implicit lazy val arbitraryConsignmentItemType04: Arbitrary[CUSTOM_ConsignmentItemType04] =
     Arbitrary {
       for {
-        goodsItemNumber            <- nonEmptyString
+        goodsItemNumber            <- arbitrary[BigInt]
         declarationGoodsItemNumber <- arbitrary[BigInt]
-        commodity                  <- arbitrary[CommodityType08]
-      } yield ConsignmentItemType04(
+        commodity                  <- arbitrary[CUSTOM_CommodityType08]
+      } yield CUSTOM_ConsignmentItemType04(
         goodsItemNumber = goodsItemNumber,
         declarationGoodsItemNumber = declarationGoodsItemNumber,
         declarationType = None,
@@ -134,11 +134,11 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryCommodityType08: Arbitrary[CommodityType08] =
+  implicit lazy val arbitraryCommodityType08: Arbitrary[CUSTOM_CommodityType08] =
     Arbitrary {
       for {
         descriptionOfGoods <- nonEmptyString
-      } yield CommodityType08(
+      } yield CUSTOM_CommodityType08(
         descriptionOfGoods = descriptionOfGoods,
         cusCode = None,
         CommodityCode = None,
@@ -206,12 +206,12 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryConsignmentType04: Arbitrary[ConsignmentType04] =
+  implicit lazy val arbitraryConsignmentType04: Arbitrary[CUSTOM_ConsignmentType04] =
     Arbitrary {
       for {
         containerIndicator <- arbitrary[Flag]
         grossMass          <- arbitrary[BigDecimal]
-      } yield ConsignmentType04(
+      } yield CUSTOM_ConsignmentType04(
         countryOfDispatch = None,
         countryOfDestination = None,
         containerIndicator = containerIndicator,
@@ -410,52 +410,25 @@ trait ScalaxbModelGenerators {
   implicit lazy val arbitraryMESSAGESequence: Arbitrary[MESSAGESequence] =
     Arbitrary {
       for {
-        messageSender                   <- nonEmptyString
-        messagE_1Sequence2              <- arbitrary[MESSAGE_1Sequence]
-        messagE_TYPESequence3           <- arbitrary[MESSAGE_TYPESequence]
-        correlatioN_IDENTIFIERSequence4 <- arbitrary[CORRELATION_IDENTIFIERSequence]
-      } yield MESSAGESequence(
-        messageSender = messageSender,
-        messagE_1Sequence2 = messagE_1Sequence2,
-        messagE_TYPESequence3 = messagE_TYPESequence3,
-        correlatioN_IDENTIFIERSequence4 = correlatioN_IDENTIFIERSequence4
-      )
-    }
-
-  implicit lazy val arbitraryMESSAGE_1Sequence: Arbitrary[MESSAGE_1Sequence] =
-    Arbitrary {
-      for {
+        messageSender          <- nonEmptyString
         messageRecipient       <- nonEmptyString
         preparationDateAndTime <- arbitrary[XMLGregorianCalendar]
         messageIdentification  <- nonEmptyString
-      } yield MESSAGE_1Sequence(
+        messageType            <- arbitrary[MessageTypes]
+        correlationIdentifier  <- Gen.option(nonEmptyString)
+      } yield MESSAGESequence(
+        messageSender = messageSender,
         messageRecipient = messageRecipient,
         preparationDateAndTime = preparationDateAndTime,
-        messageIdentification = messageIdentification
-      )
-    }
-
-  implicit lazy val arbitraryMESSAGE_TYPESequence: Arbitrary[MESSAGE_TYPESequence] =
-    Arbitrary {
-      for {
-        messageType <- arbitrary[MessageTypes]
-      } yield MESSAGE_TYPESequence(
-        messageType = messageType
+        messageIdentification = messageIdentification,
+        messageType = messageType,
+        correlationIdentifier = correlationIdentifier
       )
     }
 
   implicit lazy val arbitraryMessageTypes: Arbitrary[MessageTypes] =
     Arbitrary {
       Gen.oneOf(MessageTypes.values)
-    }
-
-  implicit lazy val arbitraryCORRELATION_IDENTIFIERSequence: Arbitrary[CORRELATION_IDENTIFIERSequence] =
-    Arbitrary {
-      for {
-        correlationIdentifier <- Gen.option(nonEmptyString)
-      } yield CORRELATION_IDENTIFIERSequence(
-        correlationIdentifier = correlationIdentifier
-      )
     }
 
   implicit lazy val arbitraryXMLGregorianCalendar: Arbitrary[XMLGregorianCalendar] =

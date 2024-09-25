@@ -70,17 +70,11 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
 
         result mustBe MESSAGESequence(
           messageSender = eoriNumber.value,
-          messagE_1Sequence2 = MESSAGE_1Sequence(
-            messageRecipient = "NTA.GB",
-            preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
-            messageIdentification = "foo"
-          ),
-          messagE_TYPESequence3 = MESSAGE_TYPESequence(
-            messageType = CC014C
-          ),
-          correlatioN_IDENTIFIERSequence4 = CORRELATION_IDENTIFIERSequence(
-            correlationIdentifier = None
-          )
+          messageRecipient = "NTA.GB",
+          preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
+          messageIdentification = "foo",
+          messageType = CC014C,
+          correlationIdentifier = None
         )
       }
 
@@ -89,17 +83,11 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
 
         result mustBe MESSAGESequence(
           messageSender = eoriNumber.value,
-          messagE_1Sequence2 = MESSAGE_1Sequence(
-            messageRecipient = "NTA.XI",
-            preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
-            messageIdentification = "foo"
-          ),
-          messagE_TYPESequence3 = MESSAGE_TYPESequence(
-            messageType = CC014C
-          ),
-          correlatioN_IDENTIFIERSequence4 = CORRELATION_IDENTIFIERSequence(
-            correlationIdentifier = None
-          )
+          messageRecipient = "NTA.XI",
+          preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
+          messageIdentification = "foo",
+          messageType = CC014C,
+          correlationIdentifier = None
         )
       }
     }
