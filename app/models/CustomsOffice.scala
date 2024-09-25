@@ -32,9 +32,7 @@ object CustomsOffice {
 
   implicit val format: OFormat[CustomsOffice] = Json.format[CustomsOffice]
 
-  implicit val order: Order[CustomsOffice] = (x: CustomsOffice, y: CustomsOffice) => {
-    x.name.compareToIgnoreCase(y.name)
-  }
+  implicit val order: Order[CustomsOffice] = (x: CustomsOffice, y: CustomsOffice) => x.name.compareToIgnoreCase(y.name)
 
   implicit val listReads: Reads[List[CustomsOffice]] = {
 
