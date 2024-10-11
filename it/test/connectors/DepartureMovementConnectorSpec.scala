@@ -109,7 +109,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
             .willReturn(okJson(responseJson.toString()))
         )
 
-        connector.getMessageMetaData(departureId).futureValue mustBe Some(expectedResult)
+        connector.getMessageMetaData(departureId).futureValue mustBe expectedResult
       }
     }
 

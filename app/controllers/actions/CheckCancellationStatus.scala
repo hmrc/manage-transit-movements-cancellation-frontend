@@ -47,8 +47,8 @@ class CheckCancellationStatus(
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     departureMessageService.getMessageMetaDataHead(departureId).map {
-      case Some(MessageMetaData(_, messageType, _)) =>
-        messageType match {
+      case Some(message) =>
+        message.messageType match {
           case Other(status) =>
             logger.warn(s"Cannot cancel declaration when latest message is $status")
             Some(Redirect(controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn)))
