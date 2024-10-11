@@ -16,10 +16,10 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import generated._
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import generated.*
 import itbase.{ItSpecBase, WireMockServerHandler}
-import models.{DepartureMessages, MessageMetaData, MessageType}
+import models.{DepartureMessages, MessageMetaData, MessageStatus, MessageType}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import scalaxb.XMLCalendar
@@ -93,12 +93,14 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
             MessageMetaData(
               "634982098f02f00b",
               MessageType.DepartureNotification,
-              LocalDateTime.parse("2022-11-11T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME)
+              LocalDateTime.parse("2022-11-11T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME),
+              MessageStatus.Success
             ),
             MessageMetaData(
               "634982098f02f00a",
               MessageType.AllocatedMRN,
-              LocalDateTime.parse("2022-11-10T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME)
+              LocalDateTime.parse("2022-11-10T15:32:51.459Z", DateTimeFormatter.ISO_DATE_TIME),
+              MessageStatus.Success
             )
           )
         )
