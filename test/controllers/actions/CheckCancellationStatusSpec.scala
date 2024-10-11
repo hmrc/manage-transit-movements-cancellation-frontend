@@ -18,18 +18,18 @@ package controllers.actions
 
 import base.SpecBase
 import generators.Generators
-import models.MessageType._
+import models.MessageType.*
 import models.requests.IdentifierRequest
-import models.{EoriNumber, MessageMetaData, MessageType}
+import models.{EoriNumber, MessageMetaData, MessageStatus, MessageType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
-import play.api.mvc.Results._
-import play.api.mvc._
+import play.api.mvc.Results.*
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,7 +48,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
       forAll(messageType) {
         messageType =>
           when(mockDepartureMessageService.getMessageMetaDataHead(any())(any(), any()))
-            .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now()))))
+            .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now(), MessageStatus.Success))))
 
           val checkCancellationStatus = new CheckCancellationStatusProvider(mockDepartureMessageService)
 
@@ -66,7 +66,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
       val messageType = Gen.alphaNumStr.map(MessageType.Other.apply).sample.value
 
       when(mockDepartureMessageService.getMessageMetaDataHead(any())(any(), any()))
-        .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now()))))
+        .thenReturn(Future.successful(Some(MessageMetaData("", messageType, LocalDateTime.now(), MessageStatus.Success))))
 
       val checkCancellationStatus = new CheckCancellationStatusProvider(mockDepartureMessageService)
 

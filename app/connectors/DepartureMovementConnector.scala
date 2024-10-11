@@ -50,16 +50,11 @@ class DepartureMovementConnector @Inject() (
       .map(fromXML(_))
   }
 
-  def getMessageMetaData(departureId: String)(implicit hc: HeaderCarrier): Future[Option[DepartureMessages]] = {
+  def getMessageMetaData(departureId: String)(implicit hc: HeaderCarrier): Future[DepartureMessages] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}movements/departures/$departureId/messages"
     http
       .get(url)
       .setHeader(ACCEPT -> s"application/vnd.hmrc.$version+json")
-      .execute[Option[DepartureMessages]]
-      .recover {
-        case e =>
-          logger.warn("getMessageMetaData failed with exception", e)
-          None
-      }
+      .execute[DepartureMessages]
   }
 }

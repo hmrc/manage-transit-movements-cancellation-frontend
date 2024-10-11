@@ -18,9 +18,9 @@ package services
 
 import cats.data.OptionT
 import connectors.DepartureMovementConnector
-import generated._
-import models.MessageType._
-import models.{MessageMetaData, MessageType}
+import generated.*
+import models.MessageType.*
+import models.{MessageMetaData, MessageStatus, MessageType}
 import play.api.Logging
 import scalaxb.XMLFormat
 import uk.gov.hmrc.http.HeaderCarrier
@@ -37,15 +37,14 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
     connectors
       .getMessageMetaData(departureId)
       .map {
-        _.flatMap {
-          _.messages
-            .filter {
-              message => messageType.fold(true)(_ == message.messageType)
-            }
-            .sortBy(_.received)
-            .reverse
-            .headOption
-        }
+        _.messages
+          .filter {
+            message => messageType.fold(true)(_ == message.messageType)
+          }
+          .filterNot(_.status == MessageStatus.Failed)
+          .sortBy(_.received)
+          .reverse
+          .headOption
       }
 
   def getMessageMetaDataHead(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[MessageMetaData]] =

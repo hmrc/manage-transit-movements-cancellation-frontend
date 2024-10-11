@@ -32,6 +32,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import models.MessageStatus
 
 class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
 
@@ -39,22 +40,22 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
   private val service       = new DepartureMessageService(mockConnector)
 
   private val message1: MessageMetaData =
-    MessageMetaData("message1Id", DepartureNotification, LocalDateTime.now())
+    MessageMetaData("message1Id", DepartureNotification, LocalDateTime.now(), MessageStatus.Success)
 
   private val message2: MessageMetaData =
-    MessageMetaData("message2Id", DepartureNotification, LocalDateTime.now().minusDays(1))
+    MessageMetaData("message2Id", DepartureNotification, LocalDateTime.now().minusDays(1), MessageStatus.Success)
 
   private val message3: MessageMetaData =
-    MessageMetaData("message3Id", AllocatedMRN, LocalDateTime.now().plusDays(1))
+    MessageMetaData("message3Id", AllocatedMRN, LocalDateTime.now().plusDays(1), MessageStatus.Success)
 
   private val message4: MessageMetaData =
-    MessageMetaData("message4Id", AllocatedMRN, LocalDateTime.now().plusDays(2))
+    MessageMetaData("message4Id", AllocatedMRN, LocalDateTime.now().plusDays(2), MessageStatus.Success)
 
   private val message5: MessageMetaData =
-    MessageMetaData("message5Id", DeclarationInvalidationRequest, LocalDateTime.now().plusDays(3))
+    MessageMetaData("message5Id", DeclarationInvalidationRequest, LocalDateTime.now().plusDays(3), MessageStatus.Success)
 
   private val message6: MessageMetaData =
-    MessageMetaData("message6Id", InvalidationDecision, LocalDateTime.now().plusDays(3))
+    MessageMetaData("message6Id", InvalidationDecision, LocalDateTime.now().plusDays(3), MessageStatus.Success)
 
   private val departureMessages: DepartureMessages =
     DepartureMessages(List(message1, message2, message3, message4, message5, message6))
@@ -72,12 +73,26 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
   "DepartureMessageService" - {
 
     "getMessageMetaDataHead" - {
-      "must return latest message" in {
-        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+      "must return latest message" - {
+        "when all statuses are success" in {
+          when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
 
-        service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message6)
+          service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message6)
 
-        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+          verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+        }
+
+        "when latest status is Failed" in {
+          val message1 = MessageMetaData("message1Id", DepartureNotification, LocalDateTime.now(), MessageStatus.Success)
+          val message2 = MessageMetaData("message2Id", DeclarationInvalidationRequest, LocalDateTime.now(), MessageStatus.Failed)
+          val messages = DepartureMessages(List(message1, message2))
+
+          when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(messages))
+
+          service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message1)
+
+          verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
+        }
       }
     }
 
@@ -87,7 +102,7 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
           ie014 =>
             beforeEach()
 
-            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
             when(mockConnector.getMessage[CC014CType](any(), any())(any(), any())).thenReturn(Future.successful(ie014))
 
             service.getIE014(departureId).futureValue mustBe Some(ie014)
@@ -95,14 +110,6 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
             verify(mockConnector).getMessage[CC014CType](eqTo(departureId), eqTo("message5Id"))(any(), any())
         }
-      }
-
-      "when getMessageMetaData call returns None" in {
-        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(None))
-
-        service.getIE014(departureId).futureValue mustBe None
-
-        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
       }
     }
 
@@ -112,7 +119,7 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
           ie015 =>
             beforeEach()
 
-            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
             when(mockConnector.getMessage[CC015CType](any(), any())(any(), any())).thenReturn(Future.successful(ie015))
 
             service.getIE015(departureId).futureValue mustBe Some(ie015)
@@ -120,14 +127,6 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
             verify(mockConnector).getMessage[CC015CType](eqTo(departureId), eqTo("message1Id"))(any(), any())
         }
-      }
-
-      "when getMessageMetaData call returns None" in {
-        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(None))
-
-        service.getIE015(departureId).futureValue mustBe None
-
-        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
       }
     }
 
@@ -137,7 +136,7 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
           ie028 =>
             beforeEach()
 
-            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(Some(departureMessages)))
+            when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
             when(mockConnector.getMessage[CC028CType](any(), any())(any(), any())).thenReturn(Future.successful(ie028))
 
             service.getIE028(departureId).futureValue mustBe Some(ie028)
@@ -145,14 +144,6 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
             verify(mockConnector).getMessage[CC028CType](eqTo(departureId), eqTo("message4Id"))(any(), any())
         }
-      }
-
-      "when getMessageMetaData call returns None" in {
-        when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(None))
-
-        service.getIE028(departureId).futureValue mustBe None
-
-        verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
       }
     }
   }
