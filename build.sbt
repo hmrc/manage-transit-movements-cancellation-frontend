@@ -45,7 +45,7 @@ lazy val microservice = (project in file("."))
     resolvers ++= Seq(
       Resolver.jcenterRepo
     ),
-    Assets / pipelineStages := Seq(digest, concat)
+    Assets / pipelineStages := Seq(digest)
   )
   .settings(CodeCoverageSettings.settings *)
   .settings(
