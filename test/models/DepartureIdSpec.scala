@@ -17,8 +17,9 @@
 package models
 
 import base.SpecBase
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalatest.EitherValues
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsNumber, Json}
 import play.api.mvc.PathBindable
 
 class DepartureIdSpec extends SpecBase with EitherValues {
@@ -43,6 +44,11 @@ class DepartureIdSpec extends SpecBase with EitherValues {
     "must serialize and deserialize" in {
       val departureId = DepartureId("1")
       Json.toJson(departureId).validate[DepartureId].asOpt.value mustBe departureId
+    }
+
+    "must return an error when not a JsString" in {
+      val json = JsNumber(arbitrary[BigDecimal].sample.value)
+      json.validate[DepartureId] `mustBe` a[JsError]
     }
   }
 }
