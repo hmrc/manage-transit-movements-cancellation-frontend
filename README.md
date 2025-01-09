@@ -26,6 +26,8 @@ We then need to post an IE015 message followed by a message type that has the ac
 
 From the `/view-departure-declarations` page click the `Cancel declaration` link for the relevant movement.
 
+Completing the journey will submit an IE014 (Declaration Invalidation Request) message.
+
 ### Feature toggles
 
 The following features can be toggled in [application.conf](conf/application.conf):
@@ -34,6 +36,7 @@ The following features can be toggled in [application.conf](conf/application.con
 |----------------------------|---------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `trader-test.enabled`      | `Boolean`     | `sbt -Dtrader-test.enabled=true run`                           | If enabled, this will override the behaviour of the "Is this page not working properly?" and "feedback" links. This is so we can receive feedback in the absence of Deskpro in `externaltest`. |
 | `banners.showUserResearch` | `Boolean`     | `sbt -Dbanners.showUserResearch=true run`                      | Controls whether or not we show the user research banner.                                                                                                                                      |
+| `play.additional.module`   | `String`      | `sbt -Dplay.additional.module=config.PostTransitionModule run` | Controls which module (TransitionModule or PostTransitionModule) we bind to the application at start-up.                                                                                       |
 | `play.http.router`         | `String`      | `sbt -Dplay.http.router=testOnlyDoNotUseInAppConf.Routes run`  | Controls which router is used for the application, either `prod.Routes` or `testOnlyDoNotUseInAppConf.Routes`                                                                                  |
 
 
