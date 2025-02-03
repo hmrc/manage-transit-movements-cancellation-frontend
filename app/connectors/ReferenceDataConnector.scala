@@ -44,7 +44,7 @@ class ReferenceDataConnector @Inject() (config: FrontendAppConfig, http: HttpCli
   }
 
   private def version2Header: Seq[(String, String)] = Seq(
-    HeaderNames.Accept -> "application/vnd.hmrc.2.0+json"
+    HeaderNames.Accept -> "application/vnd.hmrc.2.1+json"
   )
 
   implicit def responseHandlerGeneric[A](implicit reads: Reads[List[A]], order: Order[A]): HttpReads[NonEmptySet[A]] =
