@@ -16,12 +16,12 @@
 
 package connectors
 
-import config.{FrontendAppConfig, PhaseConfig}
+import config.FrontendAppConfig
 import models.DepartureId
-import play.api.libs.ws.XMLBodyWritables._
 import play.api.Logging
-import play.api.http.HeaderNames._
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.http.HeaderNames.*
+import play.api.libs.ws.XMLBodyWritables.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, HttpResponse, StringContextOps}
 
@@ -31,13 +31,12 @@ import scala.xml.NodeSeq
 
 class ApiConnector @Inject() (
   http: HttpClientV2,
-  appConfig: FrontendAppConfig,
-  phaseConfig: PhaseConfig
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends HttpErrorFunctions
     with Logging {
 
-  private val version = phaseConfig.values.apiVersion
+  private val version = 2.1
 
   def submit(xml: NodeSeq, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"

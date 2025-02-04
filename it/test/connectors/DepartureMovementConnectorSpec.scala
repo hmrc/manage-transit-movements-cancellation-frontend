@@ -107,7 +107,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
         server.stubFor(
           get(urlEqualTo(s"/movements/departures/$departureId/messages"))
-            .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+json"))
+            .withHeader("Accept", equalTo("application/vnd.hmrc.2.1+json"))
             .willReturn(okJson(responseJson.toString()))
         )
 
@@ -183,7 +183,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
           server.stubFor(
             get(urlEqualTo(url))
-              .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+xml"))
+              .withHeader("Accept", equalTo("application/vnd.hmrc.2.1+xml"))
               .willReturn(ok(xml.toString()))
           )
 
@@ -237,7 +237,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
           server.stubFor(
             get(urlEqualTo(url))
-              .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+xml"))
+              .withHeader("Accept", equalTo("application/vnd.hmrc.2.1+xml"))
               .willReturn(ok(xml.toString()))
           )
 
