@@ -43,7 +43,8 @@ class SessionExpiredControllerSpec extends SpecBase {
       val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual "http://localhost:9485/manage-transit-movements/what-do-you-want-to-do"
+      redirectLocation(result).value mustEqual
+        s"http://localhost:9949/auth-login-stub/gg-sign-in?continue=http%3A%2F%2Flocalhost%3A9485%2Fmanage-transit-movements%2Fview-departure-declarations"
     }
   }
 }
