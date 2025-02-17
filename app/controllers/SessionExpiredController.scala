@@ -38,6 +38,6 @@ class SessionExpiredController @Inject() (
 
   def onSubmit(): Action[AnyContent] = Action {
     _ =>
-      Redirect(s"${config.manageTransitMovementsUrl}/what-do-you-want-to-do")
+      Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
   }
 }
