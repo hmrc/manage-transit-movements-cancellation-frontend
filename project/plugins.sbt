@@ -18,6 +18,6 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-accessibility-linter" % "1.0.0")
 
-addSbtPlugin("io.github.irundaia" % "sbt-sassify" % "1.5.2")
+addSbtPlugin("uk.gov.hmrc" % "sbt-sass-compiler" % "0.8.0")
 
 addSbtPlugin("org.scalaxb" % "sbt-scalaxb" % "1.12.1" exclude("org.scala-lang.modules", "scala-xml_2.12"))
