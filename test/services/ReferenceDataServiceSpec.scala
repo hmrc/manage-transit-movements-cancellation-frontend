@@ -16,24 +16,18 @@
 
 package services
 
+import base.SpecBase
 import connectors.ReferenceDataConnector
 import models.CustomsOffice
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ReferenceDataServiceSpec extends AnyFreeSpec with ScalaFutures with Matchers with MockitoSugar {
+class ReferenceDataServiceSpec extends SpecBase {
 
   private val mockConnector: ReferenceDataConnector = mock[ReferenceDataConnector]
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val customsOffice = CustomsOffice("ID1", "NAME001", "GB", None)
 
@@ -42,7 +36,7 @@ class ReferenceDataServiceSpec extends AnyFreeSpec with ScalaFutures with Matche
     "getCustomsOfficeByCode should" - {
       "return a customsOffice" in {
 
-        when(mockConnector.getCustomsOffice(any())(any(), any())).thenReturn(Future.successful(customsOffice))
+        when(mockConnector.getCustomsOffice(any())(any(), any())).thenReturn(Future.successful(Right(customsOffice)))
 
         val service = new ReferenceDataServiceImpl(mockConnector)
 
