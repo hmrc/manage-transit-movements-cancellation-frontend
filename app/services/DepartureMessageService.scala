@@ -42,8 +42,7 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
             message => messageType.fold(true)(_ == message.messageType)
           }
           .filterNot(_.status == MessageStatus.Failed)
-          .sortBy(_.received)
-          .reverse
+          .sorted
           .headOption
       }
 

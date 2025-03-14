@@ -25,6 +25,9 @@ case class MessageMetaData(id: String, messageType: MessageType, received: Local
 
 object MessageMetaData {
 
+  implicit val ordering: Ordering[MessageMetaData] =
+    Ordering.by[MessageMetaData, LocalDateTime](_.received).reverse
+
   implicit lazy val reads: Reads[MessageMetaData] = (
     (__ \ "id").read[String] and
       (__ \ "type").read[MessageType] and
