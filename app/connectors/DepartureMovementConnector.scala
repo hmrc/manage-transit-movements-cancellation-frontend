@@ -16,13 +16,13 @@
 
 package connectors
 
-import config.{FrontendAppConfig, PhaseConfig}
+import config.FrontendAppConfig
 import models.DepartureMessages
 import play.api.Logging
-import play.api.http.HeaderNames._
+import play.api.http.HeaderNames.*
 import scalaxb.XMLFormat
 import scalaxb.`package`.fromXML
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -32,12 +32,11 @@ import scala.xml.XML
 
 class DepartureMovementConnector @Inject() (
   appConfig: FrontendAppConfig,
-  http: HttpClientV2,
-  phaseConfig: PhaseConfig
+  http: HttpClientV2
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private val version = phaseConfig.values.apiVersion
+  private val version = 2.1
 
   def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: XMLFormat[T]): Future[T] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}/movements/departures/$departureId/messages/$messageId/body"
