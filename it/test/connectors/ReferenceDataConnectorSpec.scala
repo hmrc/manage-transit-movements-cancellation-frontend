@@ -22,14 +22,14 @@ import connectors.ReferenceDataConnectorSpec._
 import itbase.{ItSpecBase, WireMockServerHandler}
 import models.CustomsOffice
 import org.scalacheck.Gen
-import org.scalatest.Assertion
+import org.scalatest.{Assertion, EitherValues}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
+class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler with EitherValues {
 
   override def beforeEach(): Unit = {
     server.resetAll()
@@ -59,7 +59,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
         val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
 
-        connector.getCustomsOffice(code).futureValue mustBe expectedResult
+        connector.getCustomsOffice(code).futureValue.value mustBe expectedResult
       }
 
       "should handle a 200 response for customs office with code end point with no phone number" in {
@@ -70,7 +70,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
         val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", None)
 
-        connector.getCustomsOffice(code).futureValue mustBe expectedResult
+        connector.getCustomsOffice(code).futureValue.value mustBe expectedResult
       }
 
       "should throw a NoReferenceDataFoundException for an empty response" in {
@@ -83,18 +83,16 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
     }
   }
 
-  private def checkNoReferenceDataFoundResponse(url: String, result: => Future[?]): Assertion = {
+  private def checkNoReferenceDataFoundResponse(url: String, result: => Future[Either[Exception, ?]]): Assertion = {
     server.stubFor(
       get(urlEqualTo(url))
         .willReturn(okJson(emptyResponseJson))
     )
 
-    whenReady[Throwable, Assertion](result.failed) {
-      _ mustBe a[NoReferenceDataFoundException]
-    }
+    result.futureValue.left.value mustBe a[NoReferenceDataFoundException]
   }
 
-  private def checkErrorResponse(url: String, result: => Future[?]): Assertion = {
+  private def checkErrorResponse(url: String, result: => Future[Either[Exception, ?]]): Assertion = {
     val errorResponses: Gen[Int] = Gen.chooseNum(400: Int, 599: Int)
 
     forAll(errorResponses) {
@@ -107,9 +105,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler {
             )
         )
 
-        whenReady[Throwable, Assertion](result.failed) {
-          _ mustBe an[Exception]
-        }
+        result.futureValue.left.value mustBe an[Exception]
     }
   }
 }
