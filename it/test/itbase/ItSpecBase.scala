@@ -34,7 +34,6 @@ trait ItSpecBase extends AnyFreeSpec with Matchers with ScalaFutures with Option
   def guiceApplicationBuilder(): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure("metrics.enabled" -> false)
-      .configure("play.additional.module" -> "config.TransitionModule")
       .configure("logger.level" -> "INFO")
 
   final override def fakeApplication(): Application =
