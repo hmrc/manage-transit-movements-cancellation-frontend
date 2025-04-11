@@ -159,7 +159,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               messageType = CC015C,
               correlationIdentifier = None
             ),
-            TransitOperation = TransitOperationType06(
+            TransitOperation = TransitOperationType03(
               LRN = "HnVr",
               declarationType = "Pbg",
               additionalDeclarationType = "A",
@@ -167,16 +167,16 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               reducedDatasetIndicator = Number1,
               bindingItinerary = Number0
             ),
-            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType03(
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType05(
               referenceNumber = "GB000060"
             ),
             CustomsOfficeOfDestinationDeclared = CustomsOfficeOfDestinationDeclaredType01(
               referenceNumber = "XI000142"
             ),
-            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType14(
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType23(
               identificationNumber = Some("idNumber")
             ),
-            Consignment = ConsignmentType20(
+            Consignment = ConsignmentType23(
               grossMass = 6430669292.48125
             )
           )
@@ -222,15 +222,15 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               messageType = CC028C,
               correlationIdentifier = None
             ),
-            TransitOperation = TransitOperationType11(
+            TransitOperation = TransitOperationType50(
               LRN = "LRN123",
               MRN = "3817-MRNAllocated2",
               declarationAcceptanceDate = XMLCalendar("2022-12-25")
             ),
-            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType03(
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType05(
               referenceNumber = "GB000060"
             ),
-            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType20(
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType13(
               identificationNumber = Some("Fzsisks")
             )
           )
