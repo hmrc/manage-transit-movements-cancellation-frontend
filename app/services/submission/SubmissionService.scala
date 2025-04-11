@@ -49,19 +49,21 @@ class SubmissionService @Inject() (
     toXML(transform(eoriNumber, ie015, mrn, justification), s"ncts:${CC014C.toString}", scope)
 
   private def transform(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): CC014CType = {
-    val officeOfDeparture = ie015.CustomsOfficeOfDeparture
+    val officeOfDeparture           = ie015.CustomsOfficeOfDeparture
+    val holderOfTheTransitProcedure = ie015.HolderOfTheTransitProcedure
     CC014CType(
       messageSequence1 = messageSequence(eoriNumber, officeOfDeparture.referenceNumber),
-      TransitOperation = transitOperation(ie015.TransitOperation.LRN, mrn),
+      TransitOperation = transitOperation(Option(ie015.TransitOperation.LRN), mrn),
       Invalidation = invalidation(justification),
       CustomsOfficeOfDeparture = officeOfDeparture,
-      HolderOfTheTransitProcedure = holderOfTransit(ie015.HolderOfTheTransitProcedure),
+      HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
       attributes = attributes
     )
   }
 
+  // TODO: If phase 5 set id to NCTS5u461 otherwise set to NCTS6
   def attributes: Map[String, DataRecord[?]] =
-    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461Value.toString, scope)))
+    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461.toString, scope)))
 
   def messageSequence(eoriNumber: EoriNumber, officeOfDeparture: String): MESSAGESequence =
     MESSAGESequence(
@@ -73,9 +75,9 @@ class SubmissionService @Inject() (
       correlationIdentifier = None
     )
 
-  def transitOperation(lrn: String, mrn: Option[String]): TransitOperationType05 =
-    TransitOperationType05(
-      LRN = if (mrn.isDefined) None else Some(lrn),
+  def transitOperation(lrn: Option[String], mrn: Option[String]): TransitOperationType56 =
+    TransitOperationType56(
+      LRN = lrn,
       MRN = mrn
     )
 
@@ -86,29 +88,5 @@ class SubmissionService @Inject() (
       decision = None,
       initiatedByCustoms = Number0,
       justification = Some(justification)
-    )
-
-  def holderOfTransit(ie015: HolderOfTheTransitProcedureType14): HolderOfTheTransitProcedureType02 =
-    HolderOfTheTransitProcedureType02(
-      identificationNumber = ie015.identificationNumber,
-      TIRHolderIdentificationNumber = ie015.TIRHolderIdentificationNumber,
-      name = ie015.name,
-      Address = ie015.Address.map {
-        address =>
-          AddressType15(
-            streetAndNumber = address.streetAndNumber,
-            postcode = address.postcode,
-            city = address.city,
-            country = address.country
-          )
-      },
-      ContactPerson = ie015.ContactPerson.map {
-        contactPerson =>
-          ContactPersonType04(
-            name = contactPerson.name,
-            phoneNumber = contactPerson.phoneNumber,
-            eMailAddress = contactPerson.eMailAddress
-          )
-      }
     )
 }
