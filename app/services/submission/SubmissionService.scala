@@ -48,7 +48,7 @@ class SubmissionService @Inject() (
   private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): NodeSeq =
     toXML(transform(eoriNumber, ie015, mrn, justification), s"ncts:${CC014C.toString}", scope)
 
-  private def transform(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): CC014CType = {
+  def transform(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): CC014CType = {
     val officeOfDeparture           = ie015.CustomsOfficeOfDeparture
     val holderOfTheTransitProcedure = ie015.HolderOfTheTransitProcedure
     CC014CType(

@@ -17,9 +17,10 @@
 package services.submission
 
 import base.{MockApplicationBuilder, SpecBase}
-import generated._
+import generated.*
 import generators.Generators
 import org.mockito.Mockito.{reset, when}
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -53,6 +54,21 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
 
     when(mockMessageIdentificationService.randomIdentifier)
       .thenReturn("foo")
+  }
+
+  "transform" - {
+    "must return HolderOfTransitProcedureType23" in {
+
+      forAll(arbitrary[CC015CType], nonEmptyString, nonEmptyString) {
+        (ie015, mrn, justification) =>
+
+          val result = service.transform(eoriNumber, ie015, Some(mrn), justification)
+
+          result.HolderOfTheTransitProcedure mustBe ie015.HolderOfTheTransitProcedure
+
+      }
+
+    }
   }
 
   "attributes" - {
@@ -155,73 +171,4 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
     }
   }
 
-//  "holderOfTransit" - {
-//    "must create holder of transit" - {
-//      "when address and contact person defined" in {
-//        val ie015 = HolderOfTheTransitProcedureType23(
-//          identificationNumber = Some("in"),
-//          TIRHolderIdentificationNumber = Some("tirhin"),
-//          name = Some("hotn"),
-//          Address = Some(
-//            AddressType17(
-//              streetAndNumber = "san",
-//              postcode = Some("pc"),
-//              city = "c",
-//              country = "GB"
-//            )
-//          ),
-//          ContactPerson = Some(
-//            ContactPersonType05(
-//              name = "cpn",
-//              phoneNumber = "cppn",
-//              eMailAddress = Some("cpea")
-//            )
-//          )
-//        )
-//
-//        val result = service.holderOfTransit(ie015)
-//
-//        result mustBe HolderOfTheTransitProcedureType02(
-//          identificationNumber = Some("in"),
-//          TIRHolderIdentificationNumber = Some("tirhin"),
-//          name = Some("hotn"),
-//          Address = Some(
-//            AddressType15(
-//              streetAndNumber = "san",
-//              postcode = Some("pc"),
-//              city = "c",
-//              country = "GB"
-//            )
-//          ),
-//          ContactPerson = Some(
-//            ContactPersonType04(
-//              name = "cpn",
-//              phoneNumber = "cppn",
-//              eMailAddress = Some("cpea")
-//            )
-//          )
-//        )
-//      }
-//
-//      "when address and contact person undefined" in {
-//        val ie015 = HolderOfTheTransitProcedureType14(
-//          identificationNumber = Some("in"),
-//          TIRHolderIdentificationNumber = Some("tirhin"),
-//          name = Some("hotn"),
-//          Address = None,
-//          ContactPerson = None
-//        )
-//
-//        val result = service.holderOfTransit(ie015)
-//
-//        result mustBe HolderOfTheTransitProcedureType02(
-//          identificationNumber = Some("in"),
-//          TIRHolderIdentificationNumber = Some("tirhin"),
-//          name = Some("hotn"),
-//          Address = None,
-//          ContactPerson = None
-//        )
-//      }
-//    }
-//  }
 }
