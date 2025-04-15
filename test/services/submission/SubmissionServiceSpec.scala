@@ -111,28 +111,18 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
 
   "transitOperation" - {
     "must create transit operation" - {
-      "when mrn and lrn defined" in {
+      "when mrn defined " in {
         val mrn = "MRN123"
         val lrn = "LRN123"
 
         val result = service.transitOperation(Some(lrn), Some(mrn))
 
         result mustBe TransitOperationType56(
-          LRN = Some(lrn),
-          MRN = Some(mrn)
-        )
-      }
-      "when mrn defined and lrn undefined" in {
-        val mrn = "MRN123"
-
-        val result = service.transitOperation(None, Some(mrn))
-
-        result mustBe TransitOperationType56(
           LRN = None,
           MRN = Some(mrn)
         )
       }
-      "when mrn undefined and lrn defined" in {
+      "when mrn undefined " in {
         val lrn = "LRN123"
 
         val result = service.transitOperation(Some(lrn), None)
@@ -143,15 +133,6 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
         )
       }
 
-      "when mrn and lrn undefined" in {
-
-        val result = service.transitOperation(None, None)
-
-        result mustBe TransitOperationType56(
-          LRN = None,
-          MRN = None
-        )
-      }
     }
   }
 

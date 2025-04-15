@@ -77,7 +77,7 @@ class SubmissionService @Inject() (
 
   def transitOperation(lrn: Option[String], mrn: Option[String]): TransitOperationType56 =
     TransitOperationType56(
-      LRN = lrn,
+      LRN = if (mrn.isDefined) None else lrn,
       MRN = mrn
     )
 
