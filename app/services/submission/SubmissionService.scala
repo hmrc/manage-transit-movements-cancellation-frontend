@@ -19,7 +19,7 @@ package services.submission
 import config.FrontendAppConfig
 import connectors.ApiConnector
 import generated.*
-import models.{DepartureId, EoriNumber}
+import models.{DepartureId, EoriNumber, IE015}
 import scalaxb.DataRecord
 import scalaxb.`package`.toXML
 import services.DateTimeService
@@ -40,25 +40,24 @@ class SubmissionService @Inject() (
 
   def submit(
     eoriNumber: EoriNumber,
-    ie015: CC015CType,
+    ie015: IE015,
     mrn: Option[String],
     justification: String,
     departureId: DepartureId
   )(implicit hc: HeaderCarrier): Future[HttpResponse] =
     connector.submit(buildXml(eoriNumber, ie015, mrn, justification), departureId)
 
-  private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): NodeSeq =
+  private def buildXml(eoriNumber: EoriNumber, ie015: IE015, mrn: Option[String], justification: String): NodeSeq =
     toXML(transform(eoriNumber, ie015, mrn, justification), s"ncts:${CC014C.toString}", scope)
 
-  def transform(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): CC014CType = {
-    val officeOfDeparture           = ie015.CustomsOfficeOfDeparture
-    val holderOfTheTransitProcedure = ie015.HolderOfTheTransitProcedure
+  def transform(eoriNumber: EoriNumber, ie015: IE015, mrn: Option[String], justification: String): CC014CType = {
+    val officeOfDeparture = ie015.customsOfficeOfDeparture
     CC014CType(
       messageSequence1 = messageSequence(eoriNumber, officeOfDeparture.referenceNumber),
-      TransitOperation = transitOperation(Option(ie015.TransitOperation.LRN), mrn),
+      TransitOperation = transitOperation(Option(ie015.transitOperation.lrn), mrn),
       Invalidation = invalidation(justification),
-      CustomsOfficeOfDeparture = officeOfDeparture,
-      HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
+      CustomsOfficeOfDeparture = officeOfDeparture.toScalaxb,
+      HolderOfTheTransitProcedure = ie015.holderOfTheTransitProcedure.toScalaxb,
       attributes = attributes
     )
   }

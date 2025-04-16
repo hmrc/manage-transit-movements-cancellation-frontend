@@ -16,7 +16,7 @@
 
 package generators
 
-import generated._
+import generated.*
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import scalaxb.XMLCalendar
@@ -39,47 +39,6 @@ trait ScalaxbModelGenerators {
         messageSequence1 = messageSequence1,
         TransitOperation = transitOperation,
         Invalidation = invalidation,
-        CustomsOfficeOfDeparture = customsOfficeOfDeparture,
-        HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
-        attributes = Map.empty
-      )
-    }
-
-  implicit lazy val arbitraryCC015CType: Arbitrary[CC015CType] =
-    Arbitrary {
-      for {
-        messageSequence1                         <- arbitrary[MESSAGESequence]
-        transitOperation                         <- arbitrary[TransitOperationType03]
-        customsOfficeOfDeparture                 <- arbitrary[CustomsOfficeOfDepartureType05]
-        customsOfficeOfDestinationDeclaredType01 <- arbitrary[CustomsOfficeOfDestinationDeclaredType01]
-        holderOfTheTransitProcedure              <- arbitrary[HolderOfTheTransitProcedureType23]
-        consignment                              <- arbitrary[ConsignmentType23]
-      } yield CC015CType(
-        messageSequence1 = messageSequence1,
-        TransitOperation = transitOperation,
-        Authorisation = Nil,
-        CustomsOfficeOfDeparture = customsOfficeOfDeparture,
-        CustomsOfficeOfDestinationDeclared = customsOfficeOfDestinationDeclaredType01,
-        CustomsOfficeOfTransitDeclared = Nil,
-        CustomsOfficeOfExitForTransitDeclared = Nil,
-        HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
-        Representative = None,
-        Guarantee = Nil,
-        Consignment = consignment,
-        attributes = Map.empty
-      )
-    }
-
-  implicit lazy val arbitraryCC028CType: Arbitrary[CC028CType] =
-    Arbitrary {
-      for {
-        messageSequence1            <- arbitrary[MESSAGESequence]
-        transitOperation            <- arbitrary[TransitOperationType50]
-        customsOfficeOfDeparture    <- arbitrary[CustomsOfficeOfDepartureType05]
-        holderOfTheTransitProcedure <- arbitrary[HolderOfTheTransitProcedureType13]
-      } yield CC028CType(
-        messageSequence1 = messageSequence1,
-        TransitOperation = transitOperation,
         CustomsOfficeOfDeparture = customsOfficeOfDeparture,
         HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
         attributes = Map.empty
@@ -201,7 +160,7 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryTransitOperationType03: Arbitrary[TransitOperationType03] =
+  implicit lazy val arbitraryTransitOperation: Arbitrary[TransitOperationType03] =
     Arbitrary {
       for {
         lrn                       <- nonEmptyString
