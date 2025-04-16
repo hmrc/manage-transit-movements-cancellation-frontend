@@ -59,6 +59,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
 
   lazy val referenceDataUrl: String = configuration.get[Service]("microservice.services.customs-reference-data").fullServiceUrl
 
+  lazy val phase6Enabled: Boolean = configuration.get[Boolean]("feature-flags.phase-6-enabled")
+
   val encryptionKey: String      = configuration.get[String]("encryption.key")
   val encryptionEnabled: Boolean = configuration.get[Boolean]("encryption.enabled")
 

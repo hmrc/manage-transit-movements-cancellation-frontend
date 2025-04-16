@@ -16,8 +16,9 @@
 
 package services.submission
 
+import config.FrontendAppConfig
 import connectors.ApiConnector
-import generated._
+import generated.*
 import models.{DepartureId, EoriNumber}
 import scalaxb.DataRecord
 import scalaxb.`package`.toXML
@@ -31,7 +32,8 @@ import scala.xml.{NamespaceBinding, NodeSeq}
 class SubmissionService @Inject() (
   dateTimeService: DateTimeService,
   messageIdentificationService: MessageIdentificationService,
-  connector: ApiConnector
+  connector: ApiConnector,
+  frontendAppConfig: FrontendAppConfig
 ) {
 
   private val scope: NamespaceBinding = scalaxb.toScope(Some("ncts") -> "http://ncts.dgtaxud.ec")
@@ -61,9 +63,10 @@ class SubmissionService @Inject() (
     )
   }
 
-  // TODO: If phase 5 set id to NCTS5u461 otherwise set to NCTS6
-  def attributes: Map[String, DataRecord[?]] =
-    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461.toString, scope)))
+  def attributes: Map[String, DataRecord[?]] = {
+    val phaseId = if (frontendAppConfig.phase6Enabled) NCTS6 else NCTS5u461
+    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(phaseId.toString, scope)))
+  }
 
   def messageSequence(eoriNumber: EoriNumber, officeOfDeparture: String): MESSAGESequence =
     MESSAGESequence(
