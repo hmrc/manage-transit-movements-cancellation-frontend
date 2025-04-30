@@ -45,7 +45,9 @@ class CannotSendCancellationRequestController @Inject() (
       implicit request =>
         departureMessageService.getIE015(departureId).flatMap {
           case Some(ie015) =>
-            referenceDataService.getCustomsOfficeByCode(ie015.customsOfficeOfDeparture.referenceNumber).map {
+            val customsOfficeRefNumber = ie015.CustomsOfficeOfDeparture.referenceNumber
+
+            referenceDataService.getCustomsOfficeByCode(customsOfficeRefNumber).map {
               customsOffice =>
                 Ok(view(lrn, departureId, CannotSendCancellationRequestViewModel(customsOffice)))
             }

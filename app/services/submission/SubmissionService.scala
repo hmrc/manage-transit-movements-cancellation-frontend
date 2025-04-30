@@ -16,10 +16,9 @@
 
 package services.submission
 
-import config.FrontendAppConfig
 import connectors.ApiConnector
-import generated.*
-import models.{DepartureId, EoriNumber, IE015}
+import generated._
+import models.{DepartureId, EoriNumber}
 import scalaxb.DataRecord
 import scalaxb.`package`.toXML
 import services.DateTimeService
@@ -32,40 +31,37 @@ import scala.xml.{NamespaceBinding, NodeSeq}
 class SubmissionService @Inject() (
   dateTimeService: DateTimeService,
   messageIdentificationService: MessageIdentificationService,
-  connector: ApiConnector,
-  frontendAppConfig: FrontendAppConfig
+  connector: ApiConnector
 ) {
 
   private val scope: NamespaceBinding = scalaxb.toScope(Some("ncts") -> "http://ncts.dgtaxud.ec")
 
   def submit(
     eoriNumber: EoriNumber,
-    ie015: IE015,
+    ie015: CC015CType,
     mrn: Option[String],
     justification: String,
     departureId: DepartureId
   )(implicit hc: HeaderCarrier): Future[HttpResponse] =
     connector.submit(buildXml(eoriNumber, ie015, mrn, justification), departureId)
 
-  private def buildXml(eoriNumber: EoriNumber, ie015: IE015, mrn: Option[String], justification: String): NodeSeq =
+  private def buildXml(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): NodeSeq =
     toXML(transform(eoriNumber, ie015, mrn, justification), s"ncts:${CC014C.toString}", scope)
 
-  def transform(eoriNumber: EoriNumber, ie015: IE015, mrn: Option[String], justification: String): CC014CType = {
-    val officeOfDeparture = ie015.customsOfficeOfDeparture
+  private def transform(eoriNumber: EoriNumber, ie015: CC015CType, mrn: Option[String], justification: String): CC014CType = {
+    val officeOfDeparture = ie015.CustomsOfficeOfDeparture
     CC014CType(
       messageSequence1 = messageSequence(eoriNumber, officeOfDeparture.referenceNumber),
-      TransitOperation = transitOperation(Option(ie015.transitOperation.lrn), mrn),
+      TransitOperation = transitOperation(ie015.TransitOperation.LRN, mrn),
       Invalidation = invalidation(justification),
-      CustomsOfficeOfDeparture = officeOfDeparture.toScalaxb,
-      HolderOfTheTransitProcedure = ie015.holderOfTheTransitProcedure.toScalaxb,
+      CustomsOfficeOfDeparture = officeOfDeparture,
+      HolderOfTheTransitProcedure = holderOfTransit(ie015.HolderOfTheTransitProcedure),
       attributes = attributes
     )
   }
 
-  def attributes: Map[String, DataRecord[?]] = {
-    val phaseId = if (frontendAppConfig.phase6Enabled) NCTS6 else NCTS5u461
-    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(phaseId.toString, scope)))
-  }
+  def attributes: Map[String, DataRecord[?]] =
+    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461Value.toString, scope)))
 
   def messageSequence(eoriNumber: EoriNumber, officeOfDeparture: String): MESSAGESequence =
     MESSAGESequence(
@@ -77,9 +73,9 @@ class SubmissionService @Inject() (
       correlationIdentifier = None
     )
 
-  def transitOperation(lrn: Option[String], mrn: Option[String]): TransitOperationType56 =
-    TransitOperationType56(
-      LRN = if (mrn.isDefined) None else lrn,
+  def transitOperation(lrn: String, mrn: Option[String]): TransitOperationType05 =
+    TransitOperationType05(
+      LRN = if (mrn.isDefined) None else Some(lrn),
       MRN = mrn
     )
 
@@ -90,5 +86,29 @@ class SubmissionService @Inject() (
       decision = None,
       initiatedByCustoms = Number0,
       justification = Some(justification)
+    )
+
+  def holderOfTransit(ie015: HolderOfTheTransitProcedureType14): HolderOfTheTransitProcedureType02 =
+    HolderOfTheTransitProcedureType02(
+      identificationNumber = ie015.identificationNumber,
+      TIRHolderIdentificationNumber = ie015.TIRHolderIdentificationNumber,
+      name = ie015.name,
+      Address = ie015.Address.map {
+        address =>
+          AddressType15(
+            streetAndNumber = address.streetAndNumber,
+            postcode = address.postcode,
+            city = address.city,
+            country = address.country
+          )
+      },
+      ContactPerson = ie015.ContactPerson.map {
+        contactPerson =>
+          ContactPersonType04(
+            name = contactPerson.name,
+            phoneNumber = contactPerson.phoneNumber,
+            eMailAddress = contactPerson.eMailAddress
+          )
+      }
     )
 }

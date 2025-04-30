@@ -16,7 +16,7 @@
 
 package generators
 
-import models.*
+import models._
 import org.scalacheck.Arbitrary
 
 trait ModelGenerators extends UserAnswersEntryGenerators {
@@ -42,42 +42,4 @@ trait ModelGenerators extends UserAnswersEntryGenerators {
         number <- stringsWithMaxLength(17)
       } yield EoriNumber(number)
     }
-
-  implicit lazy val arbitraryIE015: Arbitrary[IE015] = {
-    import models.IE015.*
-    Arbitrary {
-      for {
-        lrn                  <- nonEmptyString
-        referenceNumber      <- nonEmptyString
-        identificationNumber <- nonEmptyString
-      } yield IE015(
-        transitOperation = TransitOperation(
-          lrn
-        ),
-        customsOfficeOfDeparture = CustomsOfficeOfDeparture(
-          referenceNumber
-        ),
-        holderOfTheTransitProcedure = HolderOfTheTransitProcedure(
-          identificationNumber = Some(identificationNumber),
-          tirHolderIdentificationNumber = None,
-          name = None,
-          address = None,
-          contactPerson = None
-        )
-      )
-    }
-  }
-
-  implicit lazy val arbitraryIE028: Arbitrary[IE028] = {
-    import models.IE028.*
-    Arbitrary {
-      for {
-        mrn <- nonEmptyString
-      } yield IE028(
-        transitOperation = TransitOperation(
-          mrn = mrn
-        )
-      )
-    }
-  }
 }
