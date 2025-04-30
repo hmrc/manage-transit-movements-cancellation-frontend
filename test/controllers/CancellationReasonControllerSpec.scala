@@ -18,23 +18,22 @@ package controllers
 
 import base.SpecBase
 import forms.CancellationReasonFormProvider
-import generated.{CC015CType, CC028CType}
 import generators.Generators
 import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
-import models.DepartureId
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito._
+import models.{DepartureId, IE015, IE028}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.*
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages.CancellationReasonPage
 import play.api.data.Form
-import play.api.inject._
+import play.api.inject.*
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.submission.{AuditService, SubmissionService}
 import uk.gov.hmrc.http.HttpResponse
 import views.html.CancellationReasonView
@@ -118,7 +117,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
     }
 
     "must submit IE014 when IE015 found and IE028 found" in {
-      forAll(arbitrary[CC015CType], arbitrary[CC028CType]) {
+      forAll(arbitrary[IE015], arbitrary[IE028]) {
         (ie015, ie028) =>
           beforeEach()
 
@@ -144,7 +143,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
           verify(mockSubmissionService).submit(
             eqTo(eoriNumber),
             eqTo(ie015),
-            eqTo(Some(ie028.TransitOperation.MRN)),
+            eqTo(Some(ie028.transitOperation.mrn)),
             eqTo(validAnswer),
             eqTo(DepartureId(departureId))
           )(any())
@@ -152,7 +151,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
     }
 
     "must submit IE014 when IE015 found and IE028 not found" in {
-      forAll(arbitrary[CC015CType]) {
+      forAll(arbitrary[IE015]) {
         ie015 =>
           beforeEach()
 
@@ -180,7 +179,7 @@ class CancellationReasonControllerSpec extends SpecBase with MockitoSugar with S
     }
 
     "must redirect to technical difficulties when cannot submit" in {
-      forAll(arbitrary[CC015CType], Gen.choose(400: Int, 599: Int)) {
+      forAll(arbitrary[IE015], Gen.choose(400: Int, 599: Int)) {
         (ie015, errorCode) =>
           beforeEach()
 

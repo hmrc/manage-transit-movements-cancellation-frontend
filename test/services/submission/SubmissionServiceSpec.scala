@@ -17,12 +17,15 @@
 package services.submission
 
 import base.{MockApplicationBuilder, SpecBase}
-import generated._
+import generated.*
 import generators.Generators
+import models.IE015
 import org.mockito.Mockito.{reset, when}
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.Helpers.running
 import scalaxb.XMLCalendar
 import services.DateTimeService
 
@@ -55,11 +58,37 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
       .thenReturn("foo")
   }
 
+  "transform" - {
+    "must return HolderOfTransitProcedureType23" in {
+      forAll(arbitrary[IE015], nonEmptyString, nonEmptyString) {
+        (ie015, mrn, justification) =>
+          val result = service.transform(eoriNumber, ie015, Some(mrn), justification)
+          result.HolderOfTheTransitProcedure mustEqual ie015.holderOfTheTransitProcedure.toScalaxb
+      }
+    }
+  }
+
   "attributes" - {
-    "must assign phase ID" in {
-      val result = service.attributes
-      result.keys.size mustBe 1
-      result.get("@PhaseID").value.value.toString mustBe "NCTS5.1"
+    "must assign phase ID" - {
+      "when phase6 disabled" in {
+        val app = super.guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> "false").build()
+        running(app) {
+          val service = app.injector.instanceOf[SubmissionService]
+          val result  = service.attributes
+          result.keys.size mustEqual 1
+          result.get("@PhaseID").value.value.toString mustEqual "NCTS5.1"
+        }
+      }
+
+      "when phase6 enabled" in {
+        val app = super.guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> "true").build()
+        running(app) {
+          val service = app.injector.instanceOf[SubmissionService]
+          val result  = service.attributes
+          result.keys.size mustEqual 1
+          result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
+        }
+      }
     }
   }
 
@@ -68,7 +97,7 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
       "when GB office of destination" in {
         val result = service.messageSequence(eoriNumber, "GB00001")
 
-        result mustBe MESSAGESequence(
+        result mustEqual MESSAGESequence(
           messageSender = eoriNumber.value,
           messageRecipient = "NTA.GB",
           preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
@@ -81,7 +110,7 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
       "when XI office of destination" in {
         val result = service.messageSequence(eoriNumber, "XI00001")
 
-        result mustBe MESSAGESequence(
+        result mustEqual MESSAGESequence(
           messageSender = eoriNumber.value,
           messageRecipient = "NTA.XI",
           preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
@@ -95,23 +124,24 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
 
   "transitOperation" - {
     "must create transit operation" - {
-      val lrn = "LRN123"
-
-      "when mrn defined" in {
+      "when mrn defined " in {
         val mrn = "MRN123"
+        val lrn = "LRN123"
 
-        val result = service.transitOperation(lrn, Some(mrn))
+        val result = service.transitOperation(Some(lrn), Some(mrn))
 
-        result mustBe TransitOperationType05(
+        result mustEqual TransitOperationType56(
           LRN = None,
           MRN = Some(mrn)
         )
       }
 
-      "when mrn undefined" in {
-        val result = service.transitOperation(lrn, None)
+      "when mrn undefined " in {
+        val lrn = "LRN123"
 
-        result mustBe TransitOperationType05(
+        val result = service.transitOperation(Some(lrn), None)
+
+        result mustEqual TransitOperationType56(
           LRN = Some(lrn),
           MRN = None
         )
@@ -125,83 +155,13 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
 
       val result = service.invalidation(justification)
 
-      result mustBe InvalidationType02(
+      result mustEqual InvalidationType02(
         requestDateAndTime = Some(XMLCalendar("2020-01-01T09:30:00")),
         decisionDateAndTime = None,
         decision = None,
         initiatedByCustoms = Number0,
         justification = Some(justification)
       )
-    }
-  }
-
-  "holderOfTransit" - {
-    "must create holder of transit" - {
-      "when address and contact person defined" in {
-        val ie015 = HolderOfTheTransitProcedureType14(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = Some(
-            AddressType17(
-              streetAndNumber = "san",
-              postcode = Some("pc"),
-              city = "c",
-              country = "GB"
-            )
-          ),
-          ContactPerson = Some(
-            ContactPersonType05(
-              name = "cpn",
-              phoneNumber = "cppn",
-              eMailAddress = Some("cpea")
-            )
-          )
-        )
-
-        val result = service.holderOfTransit(ie015)
-
-        result mustBe HolderOfTheTransitProcedureType02(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = Some(
-            AddressType15(
-              streetAndNumber = "san",
-              postcode = Some("pc"),
-              city = "c",
-              country = "GB"
-            )
-          ),
-          ContactPerson = Some(
-            ContactPersonType04(
-              name = "cpn",
-              phoneNumber = "cppn",
-              eMailAddress = Some("cpea")
-            )
-          )
-        )
-      }
-
-      "when address and contact person undefined" in {
-        val ie015 = HolderOfTheTransitProcedureType14(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = None,
-          ContactPerson = None
-        )
-
-        val result = service.holderOfTransit(ie015)
-
-        result mustBe HolderOfTheTransitProcedureType02(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = None,
-          ContactPerson = None
-        )
-      }
     }
   }
 }
