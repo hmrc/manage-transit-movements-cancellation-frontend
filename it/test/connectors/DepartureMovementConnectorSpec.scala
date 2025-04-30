@@ -17,10 +17,12 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import generated.*
 import itbase.{ItSpecBase, WireMockServerHandler}
-import models.*
+import models.{DepartureMessages, MessageMetaData, MessageStatus, MessageType}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
+import scalaxb.XMLCalendar
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -109,7 +111,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
             .willReturn(okJson(responseJson.toString()))
         )
 
-        connector.getMessageMetaData(departureId).futureValue mustEqual expectedResult
+        connector.getMessageMetaData(departureId).futureValue mustBe expectedResult
       }
     }
 
@@ -119,8 +121,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
       "must return message" - {
         "when IE015" in {
-          import models.IE015.*
-
           val xml: Node =
             <ncts:CC015C xmlns:ncts="http://ncts.dgtaxud.ec">
               <messageSender>message sender</messageSender>
@@ -150,19 +150,34 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               </Consignment>
             </ncts:CC015C>
 
-          val expectedResult = IE015(
-            transitOperation = TransitOperation(
-              lrn = "HnVr"
+          val expectedResult = CC015CType(
+            messageSequence1 = MESSAGESequence(
+              messageSender = "message sender",
+              messageRecipient = "NTA.GB",
+              preparationDateAndTime = XMLCalendar("2022-01-22T07:43:36"),
+              messageIdentification = "messageId",
+              messageType = CC015C,
+              correlationIdentifier = None
             ),
-            customsOfficeOfDeparture = CustomsOfficeOfDeparture(
+            TransitOperation = TransitOperationType06(
+              LRN = "HnVr",
+              declarationType = "Pbg",
+              additionalDeclarationType = "A",
+              security = "1",
+              reducedDatasetIndicator = Number1,
+              bindingItinerary = Number0
+            ),
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType03(
               referenceNumber = "GB000060"
             ),
-            holderOfTheTransitProcedure = HolderOfTheTransitProcedure(
-              identificationNumber = Some("idNumber"),
-              tirHolderIdentificationNumber = None,
-              name = None,
-              address = None,
-              contactPerson = None
+            CustomsOfficeOfDestinationDeclared = CustomsOfficeOfDestinationDeclaredType01(
+              referenceNumber = "XI000142"
+            ),
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType14(
+              identificationNumber = Some("idNumber")
+            ),
+            Consignment = ConsignmentType20(
+              grossMass = 6430669292.48125
             )
           )
 
@@ -172,14 +187,12 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               .willReturn(ok(xml.toString()))
           )
 
-          val result = connector.getMessage[IE015](departureId, messageId).futureValue
+          val result = connector.getMessage[CC015CType](departureId, messageId).futureValue
 
-          result mustEqual expectedResult
+          result mustBe expectedResult
         }
 
         "when IE028" in {
-          import models.IE028.*
-
           val xml: Node =
             <ncts:CC028C xmlns:ncts="http://ncts.dgtaxud.ec">
               <messageSender>message sender</messageSender>
@@ -200,9 +213,25 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               </HolderOfTheTransitProcedure>
             </ncts:CC028C>
 
-          val expectedResult = IE028(
-            transitOperation = TransitOperation(
-              mrn = "3817-MRNAllocated2"
+          val expectedResult = CC028CType(
+            messageSequence1 = MESSAGESequence(
+              messageSender = "message sender",
+              messageRecipient = "NTA.GB",
+              preparationDateAndTime = XMLCalendar("2022-12-25T07:36:28"),
+              messageIdentification = "messageId",
+              messageType = CC028C,
+              correlationIdentifier = None
+            ),
+            TransitOperation = TransitOperationType11(
+              LRN = "LRN123",
+              MRN = "3817-MRNAllocated2",
+              declarationAcceptanceDate = XMLCalendar("2022-12-25")
+            ),
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType03(
+              referenceNumber = "GB000060"
+            ),
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType20(
+              identificationNumber = Some("Fzsisks")
             )
           )
 
@@ -212,9 +241,9 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               .willReturn(ok(xml.toString()))
           )
 
-          val result = connector.getMessage[IE028](departureId, messageId).futureValue
+          val result = connector.getMessage[CC028CType](departureId, messageId).futureValue
 
-          result mustEqual expectedResult
+          result mustBe expectedResult
         }
       }
     }

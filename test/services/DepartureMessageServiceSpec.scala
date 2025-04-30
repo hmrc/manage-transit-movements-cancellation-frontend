@@ -18,11 +18,11 @@ package services
 
 import base.SpecBase
 import connectors.DepartureMovementConnector
-import generated.*
+import generated._
 import generators.Generators
-import models.MessageType.*
-import models.{DepartureMessages, IE015, IE028, MessageMetaData, MessageStatus}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import models.MessageType._
+import models.{DepartureMessages, MessageMetaData}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -32,6 +32,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import models.MessageStatus
 
 class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
 
@@ -76,7 +77,7 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
         "when all statuses are success" in {
           when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
 
-          service.getMessageMetaDataHead(departureId).futureValue.value mustEqual message6
+          service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message6)
 
           verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
         }
@@ -88,7 +89,7 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
 
           when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(messages))
 
-          service.getMessageMetaDataHead(departureId).futureValue.value mustEqual message1
+          service.getMessageMetaDataHead(departureId).futureValue mustBe Some(message1)
 
           verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
         }
@@ -102,46 +103,46 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
             beforeEach()
 
             when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
-            when(mockConnector.getMessage(any(), any())(any(), any())).thenReturn(Future.successful(ie014))
+            when(mockConnector.getMessage[CC014CType](any(), any())(any(), any())).thenReturn(Future.successful(ie014))
 
-            service.getIE014(departureId).futureValue.value mustEqual ie014
+            service.getIE014(departureId).futureValue mustBe Some(ie014)
 
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
-            verify(mockConnector).getMessage(eqTo(departureId), eqTo("message5Id"))(any(), any())
+            verify(mockConnector).getMessage[CC014CType](eqTo(departureId), eqTo("message5Id"))(any(), any())
         }
       }
     }
 
     "getIE015" - {
       "when success" in {
-        forAll(arbitrary[IE015]) {
+        forAll(arbitrary[CC015CType]) {
           ie015 =>
             beforeEach()
 
             when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
-            when(mockConnector.getMessage[IE015](any(), any())(any(), any())).thenReturn(Future.successful(ie015))
+            when(mockConnector.getMessage[CC015CType](any(), any())(any(), any())).thenReturn(Future.successful(ie015))
 
-            service.getIE015(departureId).futureValue.value mustEqual ie015
+            service.getIE015(departureId).futureValue mustBe Some(ie015)
 
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
-            verify(mockConnector).getMessage[IE015](eqTo(departureId), eqTo("message1Id"))(any(), any())
+            verify(mockConnector).getMessage[CC015CType](eqTo(departureId), eqTo("message1Id"))(any(), any())
         }
       }
     }
 
     "getIE028" - {
       "when success" in {
-        forAll(arbitrary[IE028]) {
+        forAll(arbitrary[CC028CType]) {
           ie028 =>
             beforeEach()
 
             when(mockConnector.getMessageMetaData(any())(any())).thenReturn(Future.successful(departureMessages))
-            when(mockConnector.getMessage[IE028](any(), any())(any(), any())).thenReturn(Future.successful(ie028))
+            when(mockConnector.getMessage[CC028CType](any(), any())(any(), any())).thenReturn(Future.successful(ie028))
 
-            service.getIE028(departureId).futureValue.value mustEqual ie028
+            service.getIE028(departureId).futureValue mustBe Some(ie028)
 
             verify(mockConnector).getMessageMetaData(eqTo(departureId))(any())
-            verify(mockConnector).getMessage[IE028](eqTo(departureId), eqTo("message4Id"))(any(), any())
+            verify(mockConnector).getMessage[CC028CType](eqTo(departureId), eqTo("message4Id"))(any(), any())
         }
       }
     }
