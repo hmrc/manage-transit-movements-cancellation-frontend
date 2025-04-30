@@ -20,13 +20,14 @@ import cats.data.OptionT
 import connectors.DepartureMovementConnector
 import generated.*
 import models.MessageType.*
-import models.{MessageMetaData, MessageStatus, MessageType}
+import models.{IE015, IE028, MessageMetaData, MessageStatus, MessageType}
 import play.api.Logging
-import scalaxb.XMLFormat
+import scalaxb.`package`.fromXML
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.Node
 
 class DepartureMessageService @Inject() (connectors: DepartureMovementConnector) extends Logging {
 
@@ -49,22 +50,24 @@ class DepartureMessageService @Inject() (connectors: DepartureMovementConnector)
   def getMessageMetaDataHead(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[MessageMetaData]] =
     getMessageMetaData(departureId, None)
 
-  def getIE014(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC014CType]] =
-    getMessage[CC014CType](departureId, DeclarationInvalidationRequest)
+  def getIE014(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC014CType]] = {
+    implicit val format: Node => CC014CType = fromXML[CC014CType](_)
+    getMessage(departureId, DeclarationInvalidationRequest)
+  }
 
-  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC015CType]] =
-    getMessage[CC015CType](departureId, DepartureNotification)
+  def getIE015(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE015]] =
+    getMessage(departureId, DepartureNotification)
 
-  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[CC028CType]] =
-    getMessage[CC028CType](departureId, AllocatedMRN)
+  def getIE028(departureId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[IE028]] =
+    getMessage(departureId, AllocatedMRN)
 
-  def getMessage[T](
+  private def getMessage[T](
     departureId: String,
     messageType: MessageType
-  )(implicit ec: ExecutionContext, hc: HeaderCarrier, format: XMLFormat[T]): Future[Option[T]] = (
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier, format: Node => T): Future[Option[T]] = (
     for {
       metaData <- OptionT(getMessageMetaData(departureId, Some(messageType)))
-      message  <- OptionT.liftF(connectors.getMessage[T](departureId, metaData.id))
+      message  <- OptionT.liftF(connectors.getMessage(departureId, metaData.id))
     } yield message
   ).value
 }
