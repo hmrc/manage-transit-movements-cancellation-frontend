@@ -17,7 +17,7 @@
 package controllers
 
 import cats.data.OptionT
-import controllers.actions._
+import controllers.actions.*
 import forms.CancellationReasonFormProvider
 import models.AuditType.DeclarationInvalidationRequest
 import models.Constants.commentMaxLength
@@ -69,7 +69,7 @@ class CancellationReasonController @Inject() (
                 userAnswers <- OptionT.fromOption[Future](request.userAnswers.set(CancellationReasonPage, value).toOption)
                 ie015       <- OptionT(departureMessageService.getIE015(departureId))
                 ie028       <- OptionT.liftF(departureMessageService.getIE028(departureId))
-                mrn = ie028.map(_.TransitOperation.MRN)
+                mrn = ie028.map(_.transitOperation.mrn)
                 response <- OptionT.liftF(submissionService.submit(userAnswers.eoriNumber, ie015, mrn, value, DepartureId(departureId)))
               } yield {
                 val auditType = DeclarationInvalidationRequest

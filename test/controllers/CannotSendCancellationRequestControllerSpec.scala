@@ -17,17 +17,16 @@
 package controllers
 
 import base.SpecBase
-import generated.CC015CType
 import generators.Generators
-import models.CustomsOffice
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import models.{CustomsOffice, IE015}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.ReferenceDataService
 import viewModels.CannotSendCancellationRequestViewModel
 import views.html.CannotSendCancellationRequestView
@@ -53,13 +52,13 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with ScalaChe
 
   "CannotSendUnloadingRemarksController" - {
     "return OK and the correct view for a GET" in {
-      forAll(arbitrary[CC015CType]) {
+      forAll(arbitrary[IE015]) {
         ie015 =>
           beforeEach()
 
           dataRetrievalWithData(emptyUserAnswers)
 
-          val customsOfficeRefNumber = ie015.CustomsOfficeOfDeparture.referenceNumber
+          val customsOfficeRefNumber = ie015.customsOfficeOfDeparture.referenceNumber
 
           val viewModel = CannotSendCancellationRequestViewModel(customsOffice)
 
