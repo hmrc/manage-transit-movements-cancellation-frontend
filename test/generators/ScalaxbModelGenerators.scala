@@ -45,47 +45,6 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryCC015CType: Arbitrary[CC015CType] =
-    Arbitrary {
-      for {
-        messageSequence1                         <- arbitrary[MESSAGESequence]
-        transitOperation                         <- arbitrary[TransitOperationType06]
-        customsOfficeOfDeparture                 <- arbitrary[CustomsOfficeOfDepartureType03]
-        customsOfficeOfDestinationDeclaredType01 <- arbitrary[CustomsOfficeOfDestinationDeclaredType01]
-        holderOfTheTransitProcedure              <- arbitrary[HolderOfTheTransitProcedureType14]
-        consignment                              <- arbitrary[ConsignmentType20]
-      } yield CC015CType(
-        messageSequence1 = messageSequence1,
-        TransitOperation = transitOperation,
-        Authorisation = Nil,
-        CustomsOfficeOfDeparture = customsOfficeOfDeparture,
-        CustomsOfficeOfDestinationDeclared = customsOfficeOfDestinationDeclaredType01,
-        CustomsOfficeOfTransitDeclared = Nil,
-        CustomsOfficeOfExitForTransitDeclared = Nil,
-        HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
-        Representative = None,
-        Guarantee = Nil,
-        Consignment = consignment,
-        attributes = Map.empty
-      )
-    }
-
-  implicit lazy val arbitraryCC028CType: Arbitrary[CC028CType] =
-    Arbitrary {
-      for {
-        messageSequence1            <- arbitrary[MESSAGESequence]
-        transitOperation            <- arbitrary[TransitOperationType11]
-        customsOfficeOfDeparture    <- arbitrary[CustomsOfficeOfDepartureType03]
-        holderOfTheTransitProcedure <- arbitrary[HolderOfTheTransitProcedureType20]
-      } yield CC028CType(
-        messageSequence1 = messageSequence1,
-        TransitOperation = transitOperation,
-        CustomsOfficeOfDeparture = customsOfficeOfDeparture,
-        HolderOfTheTransitProcedure = holderOfTheTransitProcedure,
-        attributes = Map.empty
-      )
-    }
-
   implicit lazy val arbitraryConsignmentItemType03: Arbitrary[CUSTOM_ConsignmentItemType03] =
     Arbitrary {
       for {

@@ -20,15 +20,13 @@ import config.FrontendAppConfig
 import models.DepartureMessages
 import play.api.Logging
 import play.api.http.HeaderNames.*
-import scalaxb.XMLFormat
-import scalaxb.`package`.fromXML
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.xml.XML
+import scala.xml.{Node, XML}
 
 class DepartureMovementConnector @Inject() (
   appConfig: FrontendAppConfig,
@@ -38,7 +36,7 @@ class DepartureMovementConnector @Inject() (
 
   private val version = 2.1
 
-  def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: XMLFormat[T]): Future[T] = {
+  def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: Node => T): Future[T] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}/movements/departures/$departureId/messages/$messageId/body"
     http
       .get(url)
@@ -46,7 +44,7 @@ class DepartureMovementConnector @Inject() (
       .execute[HttpResponse]
       .map(_.body)
       .map(XML.loadString)
-      .map(fromXML(_))
+      .map(format(_))
   }
 
   def getMessageMetaData(departureId: String)(implicit hc: HeaderCarrier): Future[DepartureMessages] = {

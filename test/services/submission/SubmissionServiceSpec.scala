@@ -17,8 +17,9 @@
 package services.submission
 
 import base.{MockApplicationBuilder, SpecBase}
-import generated._
+import generated.*
 import generators.Generators
+import models.IE015.*
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
@@ -132,76 +133,6 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
         initiatedByCustoms = Number0,
         justification = Some(justification)
       )
-    }
-  }
-
-  "holderOfTransit" - {
-    "must create holder of transit" - {
-      "when address and contact person defined" in {
-        val ie015 = HolderOfTheTransitProcedureType14(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = Some(
-            AddressType17(
-              streetAndNumber = "san",
-              postcode = Some("pc"),
-              city = "c",
-              country = "GB"
-            )
-          ),
-          ContactPerson = Some(
-            ContactPersonType05(
-              name = "cpn",
-              phoneNumber = "cppn",
-              eMailAddress = Some("cpea")
-            )
-          )
-        )
-
-        val result = service.holderOfTransit(ie015)
-
-        result mustBe HolderOfTheTransitProcedureType02(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = Some(
-            AddressType15(
-              streetAndNumber = "san",
-              postcode = Some("pc"),
-              city = "c",
-              country = "GB"
-            )
-          ),
-          ContactPerson = Some(
-            ContactPersonType04(
-              name = "cpn",
-              phoneNumber = "cppn",
-              eMailAddress = Some("cpea")
-            )
-          )
-        )
-      }
-
-      "when address and contact person undefined" in {
-        val ie015 = HolderOfTheTransitProcedureType14(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = None,
-          ContactPerson = None
-        )
-
-        val result = service.holderOfTransit(ie015)
-
-        result mustBe HolderOfTheTransitProcedureType02(
-          identificationNumber = Some("in"),
-          TIRHolderIdentificationNumber = Some("tirhin"),
-          name = Some("hotn"),
-          Address = None,
-          ContactPerson = None
-        )
-      }
     }
   }
 }
