@@ -16,7 +16,6 @@
 
 package services.submission
 
-import config.FrontendAppConfig
 import connectors.ApiConnector
 import generated.*
 import models.{DepartureId, EoriNumber, IE015}
@@ -32,8 +31,7 @@ import scala.xml.{NamespaceBinding, NodeSeq}
 class SubmissionService @Inject() (
   dateTimeService: DateTimeService,
   messageIdentificationService: MessageIdentificationService,
-  connector: ApiConnector,
-  frontendAppConfig: FrontendAppConfig
+  connector: ApiConnector
 ) {
 
   private val scope: NamespaceBinding = scalaxb.toScope(Some("ncts") -> "http://ncts.dgtaxud.ec")
@@ -54,7 +52,7 @@ class SubmissionService @Inject() (
     val officeOfDeparture = ie015.customsOfficeOfDeparture
     CC014CType(
       messageSequence1 = messageSequence(eoriNumber, officeOfDeparture.referenceNumber),
-      TransitOperation = transitOperation(Option(ie015.transitOperation.lrn), mrn),
+      TransitOperation = transitOperation(ie015.transitOperation.lrn, mrn),
       Invalidation = invalidation(justification),
       CustomsOfficeOfDeparture = officeOfDeparture.toScalaxb,
       HolderOfTheTransitProcedure = ie015.holderOfTheTransitProcedure.toScalaxb,
@@ -62,10 +60,8 @@ class SubmissionService @Inject() (
     )
   }
 
-  def attributes: Map[String, DataRecord[?]] = {
-    val phaseId = if (frontendAppConfig.phase6Enabled) NCTS6 else NCTS5u461
-    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(phaseId.toString, scope)))
-  }
+  def attributes: Map[String, DataRecord[?]] =
+    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461Value.toString, scope)))
 
   def messageSequence(eoriNumber: EoriNumber, officeOfDeparture: String): MESSAGESequence =
     MESSAGESequence(
@@ -77,9 +73,9 @@ class SubmissionService @Inject() (
       correlationIdentifier = None
     )
 
-  def transitOperation(lrn: Option[String], mrn: Option[String]): TransitOperationType56 =
-    TransitOperationType56(
-      LRN = if (mrn.isDefined) None else lrn,
+  def transitOperation(lrn: String, mrn: Option[String]): TransitOperationType05 =
+    TransitOperationType05(
+      LRN = if (mrn.isDefined) None else Some(lrn),
       MRN = mrn
     )
 

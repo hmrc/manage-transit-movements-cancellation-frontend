@@ -54,8 +54,8 @@ object IE015 {
 
   case class CustomsOfficeOfDeparture(referenceNumber: String) {
 
-    def toScalaxb: CustomsOfficeOfDepartureType05 =
-      CustomsOfficeOfDepartureType05(
+    def toScalaxb: CustomsOfficeOfDepartureType03 =
+      CustomsOfficeOfDepartureType03(
         referenceNumber = referenceNumber
       )
   }
@@ -76,8 +76,8 @@ object IE015 {
     contactPerson: Option[ContactPerson]
   ) {
 
-    def toScalaxb: HolderOfTheTransitProcedureType23 =
-      HolderOfTheTransitProcedureType23(
+    def toScalaxb: HolderOfTheTransitProcedureType02 =
+      HolderOfTheTransitProcedureType02(
         identificationNumber = identificationNumber,
         TIRHolderIdentificationNumber = tirHolderIdentificationNumber,
         name = name,
@@ -105,8 +105,8 @@ object IE015 {
     country: String
   ) {
 
-    def toScalaxb: AddressType14 =
-      AddressType14(
+    def toScalaxb: AddressType15 =
+      AddressType15(
         streetAndNumber = streetAndNumber,
         postcode = postcode,
         city = city,
@@ -131,8 +131,8 @@ object IE015 {
     eMailAddress: Option[String]
   ) {
 
-    def toScalaxb: ContactPersonType03 =
-      ContactPersonType03(
+    def toScalaxb: ContactPersonType04 =
+      ContactPersonType04(
         name = name,
         phoneNumber = phoneNumber,
         eMailAddress = eMailAddress
