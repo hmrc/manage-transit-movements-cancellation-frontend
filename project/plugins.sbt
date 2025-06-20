@@ -6,9 +6,9 @@ resolvers += Resolver.typesafeRepo("releases")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.24.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.5.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.6.0")
 
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.6")
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.7")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.2.2")
 
@@ -18,6 +18,6 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-accessibility-linter" % "1.0.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-sass-compiler" % "0.8.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-sass-compiler" % "0.12.0")
 
 addSbtPlugin("org.scalaxb" % "sbt-scalaxb" % "1.12.1" exclude("org.scala-lang.modules", "scala-xml_2.12"))

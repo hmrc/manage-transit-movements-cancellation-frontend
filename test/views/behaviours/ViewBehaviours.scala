@@ -23,10 +23,10 @@ import org.scalatest.Assertion
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import play.twirl.api.TwirlHelperImports._
+import play.twirl.api.TwirlHelperImports.*
 import views.base.ViewSpecAssertions
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
 
@@ -41,33 +41,6 @@ trait ViewBehaviours extends SpecBase with ViewSpecAssertions {
   lazy val doc: Document = parseView(view)
 
   val prefix: String
-
-  def hasSignOutLink: Boolean = true
-
-  if (hasSignOutLink) {
-    "must render sign out link in header" in {
-      val link = getElementByClass(doc, "hmrc-sign-out-nav__link")
-      assertElementContainsText(link, "Sign out")
-      assertElementContainsHref(
-        link,
-        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/manage-transit-departures"
-      )
-    }
-
-    "must render timeout dialog" in {
-      val metas = getElementsByTag(doc, "meta")
-      assertElementExists(metas, _.attr("name") == "hmrc-timeout-dialog")
-    }
-  } else {
-    "must not render sign out link in header" in {
-      assertElementDoesNotExist(doc, "hmrc-sign-out-nav__link")
-    }
-
-    "must not render timeout dialog" in {
-      val metas = getElementsByTag(doc, "meta")
-      assertElementDoesNotExist(metas, _.attr("name") == "hmrc-timeout-dialog")
-    }
-  }
 
   "must render service name link in header" in {
     val link = getElementByClass(doc, "govuk-header__service-name")

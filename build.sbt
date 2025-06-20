@@ -11,7 +11,6 @@ ThisBuild / scalafmtOnCompile := true
 lazy val microservice = (project in file("."))
   .enablePlugins(
     PlayScala,
-    SbtAutoBuildPlugin,
     SbtDistributablesPlugin,
     ScalaxbPlugin
   )
@@ -42,9 +41,6 @@ lazy val microservice = (project in file("."))
     ),
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    resolvers ++= Seq(
-      Resolver.jcenterRepo
-    ),
     Assets / pipelineStages := Seq(digest)
   )
   .settings(CodeCoverageSettings.settings *)
