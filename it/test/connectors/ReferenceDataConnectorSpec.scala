@@ -16,15 +16,16 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import connectors.ReferenceDataConnector.NoReferenceDataFoundException
-import connectors.ReferenceDataConnectorSpec._
+import connectors.ReferenceDataConnectorSpec.*
 import itbase.{ItSpecBase, WireMockServerHandler}
 import models.CustomsOffice
 import org.scalacheck.Gen
 import org.scalatest.{Assertion, EitherValues}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.Helpers.running
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -43,53 +44,237 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
       .guiceApplicationBuilder()
       .configure(conf = "microservice.services.customs-reference-data.port" -> server.port())
 
-  private lazy val connector: ReferenceDataConnector = app.injector.instanceOf[ReferenceDataConnector]
-  private val code                                   = "AD000001"
+  private lazy val phase5App: GuiceApplicationBuilder => GuiceApplicationBuilder =
+    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> false)
+
+  private lazy val phase6App: GuiceApplicationBuilder => GuiceApplicationBuilder =
+    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> true)
+
+  private val code = "AD000001"
 
   "Reference Data" - {
 
     "getCustomsOffice" - {
-      val url = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
 
-      "should handle a 200 response for customs office with code end point with valid phone number" in {
-        server.stubFor(
-          get(urlEqualTo(url))
-            .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+json"))
-            .willReturn(okJson(customsOfficeResponseJsonWithPhone))
-        )
+      "when phase 5" - {
+        val url = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
 
-        val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
+        val customsOfficeResponseJson: String =
+          """
+            |{
+            | "data" :
+            | [
+            |    {
+            |      "languageCode": "ES",
+            |      "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
+            |      "phoneNumber": "+ (376) 84 1090",
+            |      "id": "AD000001",
+            |      "countryId": "AD",
+            |      "roles": [
+            |        {
+            |          "role": "AUT"
+            |        },
+            |        {
+            |          "role": "DEP"
+            |        },
+            |        {
+            |          "role": "DES"
+            |        },
+            |        {
+            |          "role": "TRA"
+            |        }
+            |      ]
+            |    },
+            |    {
+            |      "languageCode": "EN",
+            |      "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
+            |      "phoneNumber": "+ (376) 84 1090",
+            |      "id": "AD000001",
+            |      "countryId": "AD",
+            |      "roles": [
+            |        {
+            |          "role": "AUT"
+            |        },
+            |        {
+            |          "role": "DEP"
+            |        },
+            |        {
+            |          "role": "DES"
+            |        },
+            |        {
+            |          "role": "TRA"
+            |        }
+            |      ]
+            |    },
+            |    {
+            |      "languageCode": "FR",
+            |      "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
+            |      "phoneNumber": "+ (376) 84 1090",
+            |      "id": "AD000001",
+            |      "countryId": "AD",
+            |      "roles": [
+            |        {
+            |          "role": "AUT"
+            |        },
+            |        {
+            |          "role": "DEP"
+            |        },
+            |        {
+            |          "role": "DES"
+            |        },
+            |        {
+            |          "role": "TRA"
+            |        }
+            |      ]
+            |    }
+            | ]
+            |}
+            |""".stripMargin
 
-        connector.getCustomsOffice(code).futureValue.value mustBe expectedResult
+        "should handle a 200 response for customs office with code end point" in {
+          running(phase5App) {
+            app =>
+              val connector = app.injector.instanceOf[ReferenceDataConnector]
+              server.stubFor(
+                get(urlEqualTo(url))
+                  .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+json"))
+                  .willReturn(okJson(customsOfficeResponseJson))
+              )
+
+              val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
+
+              connector.getCustomsOffice(code).futureValue.value mustEqual expectedResult
+          }
+        }
+
+        "should throw a NoReferenceDataFoundException for an empty response" in {
+          running(phase5App) {
+            app =>
+              val connector = app.injector.instanceOf[ReferenceDataConnector]
+              checkNoReferenceDataFoundResponse(url, emptyPhase5ResponseJson, connector.getCustomsOffice(code))
+          }
+        }
+
+        "should handle client and server errors for customs office end point" in {
+          running(phase5App) {
+            app =>
+              val connector = app.injector.instanceOf[ReferenceDataConnector]
+              checkErrorResponse(url, connector.getCustomsOffice(code))
+          }
+        }
       }
 
-      "should handle a 200 response for customs office with code end point with no phone number" in {
-        server.stubFor(
-          get(urlEqualTo(url))
-            .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+json"))
-            .willReturn(okJson(customsOfficeResponseJsonWithOutPhone))
-        )
+      "when phase 6" - {
+        val url = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
 
-        val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", None)
+        val customsOfficeResponseJson: String =
+          """
+            |[
+            |  {
+            |    "languageCode": "ES",
+            |    "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
+            |    "phoneNumber": "+ (376) 84 1090",
+            |    "id": "AD000001",
+            |    "countryId": "AD",
+            |    "roles": [
+            |      {
+            |        "role": "AUT"
+            |      },
+            |      {
+            |        "role": "DEP"
+            |      },
+            |      {
+            |        "role": "DES"
+            |      },
+            |      {
+            |        "role": "TRA"
+            |      }
+            |    ]
+            |  },
+            |  {
+            |    "languageCode": "EN",
+            |    "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
+            |    "phoneNumber": "+ (376) 84 1090",
+            |    "id": "AD000001",
+            |    "countryId": "AD",
+            |    "roles": [
+            |      {
+            |        "role": "AUT"
+            |      },
+            |      {
+            |        "role": "DEP"
+            |      },
+            |      {
+            |        "role": "DES"
+            |      },
+            |      {
+            |        "role": "TRA"
+            |      }
+            |    ]
+            |  },
+            |  {
+            |    "languageCode": "FR",
+            |    "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
+            |    "phoneNumber": "+ (376) 84 1090",
+            |    "id": "AD000001",
+            |    "countryId": "AD",
+            |    "roles": [
+            |      {
+            |        "role": "AUT"
+            |      },
+            |      {
+            |        "role": "DEP"
+            |      },
+            |      {
+            |        "role": "DES"
+            |      },
+            |      {
+            |        "role": "TRA"
+            |      }
+            |    ]
+            |  }
+            |]
+            |""".stripMargin
 
-        connector.getCustomsOffice(code).futureValue.value mustBe expectedResult
-      }
+        "should handle a 200 response for customs office with code end point" in {
+          running(phase6App) {
+            app =>
+              val connector = app.injector.instanceOf[ReferenceDataConnector]
+              server.stubFor(
+                get(urlEqualTo(url))
+                  .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+json"))
+                  .willReturn(okJson(customsOfficeResponseJson))
+              )
 
-      "should throw a NoReferenceDataFoundException for an empty response" in {
-        checkNoReferenceDataFoundResponse(url, connector.getCustomsOffice(code))
-      }
+              val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
 
-      "should handle client and server errors for customs office end point" in {
-        checkErrorResponse(url, connector.getCustomsOffice(code))
+              connector.getCustomsOffice(code).futureValue.value mustEqual expectedResult
+          }
+        }
+
+        "should throw a NoReferenceDataFoundException for an empty response" in {
+          running(phase6App) {
+            app =>
+              val connector = app.injector.instanceOf[ReferenceDataConnector]
+              checkNoReferenceDataFoundResponse(url, emptyPhase6ResponseJson, connector.getCustomsOffice(code))
+          }
+        }
+
+        "should handle client and server errors for customs office end point" in {
+          running(phase6App) {
+            app =>
+              val connector = app.injector.instanceOf[ReferenceDataConnector]
+              checkErrorResponse(url, connector.getCustomsOffice(code))
+          }
+        }
       }
     }
   }
 
-  private def checkNoReferenceDataFoundResponse(url: String, result: => Future[Either[Exception, ?]]): Assertion = {
+  private def checkNoReferenceDataFoundResponse(url: String, json: String, result: => Future[Either[Exception, ?]]): Assertion = {
     server.stubFor(
       get(urlEqualTo(url))
-        .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+json"))
-        .willReturn(okJson(emptyResponseJson))
+        .willReturn(okJson(json))
     )
 
     result.futureValue.left.value mustBe a[NoReferenceDataFoundException]
@@ -102,7 +287,6 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
       errorResponse =>
         server.stubFor(
           get(urlEqualTo(url))
-            .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+json"))
             .willReturn(
               aResponse()
                 .withStatus(errorResponse)
@@ -116,165 +300,15 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
 
 object ReferenceDataConnectorSpec {
 
-  private val customsOfficeResponseJsonWithPhone: String =
-    """
-      |{
-      | "data" :
-      | [
-      |    {
-      |      "languageCode": "ES",
-      |      "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
-      |      "phoneNumber": "+ (376) 84 1090",
-      |      "id": "AD000001",
-      |      "countryId": "AD",
-      |      "roles": [
-      |        {
-      |          "role": "AUT"
-      |        },
-      |        {
-      |          "role": "DEP"
-      |        },
-      |        {
-      |          "role": "DES"
-      |        },
-      |        {
-      |          "role": "TRA"
-      |        }
-      |      ]
-      |    },
-      |    {
-      |      "languageCode": "EN",
-      |      "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
-      |      "phoneNumber": "+ (376) 84 1090",
-      |      "id": "AD000001",
-      |      "countryId": "AD",
-      |      "roles": [
-      |        {
-      |          "role": "AUT"
-      |        },
-      |        {
-      |          "role": "DEP"
-      |        },
-      |        {
-      |          "role": "DES"
-      |        },
-      |        {
-      |          "role": "TRA"
-      |        }
-      |      ]
-      |    },
-      |    {
-      |      "languageCode": "FR",
-      |      "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
-      |      "phoneNumber": "+ (376) 84 1090",
-      |      "id": "AD000001",
-      |      "countryId": "AD",
-      |      "roles": [
-      |        {
-      |          "role": "AUT"
-      |        },
-      |        {
-      |          "role": "DEP"
-      |        },
-      |        {
-      |          "role": "DES"
-      |        },
-      |        {
-      |          "role": "TRA"
-      |        }
-      |      ]
-      |    }
-      | ]
-      |}
-      |""".stripMargin
-
-  private val customsOfficeResponseJsonWithOutPhone: String =
-    """
-      |{
-      | "data" :
-      | [
-      |    {
-      |      "languageCode": "EN",
-      |      "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
-      |      "id": "AD000001",
-      |      "countryId": "AD",
-      |      "roles": [
-      |        {
-      |          "role": "AUT"
-      |        },
-      |        {
-      |          "role": "DEP"
-      |        },
-      |        {
-      |          "role": "DES"
-      |        },
-      |        {
-      |          "role": "TRA"
-      |        }
-      |      ]
-      |    },
-      |    {
-      |      "languageCode": "ES",
-      |      "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
-      |      "id": "AD000001",
-      |      "countryId": "AD",
-      |      "roles": [
-      |        {
-      |          "role": "AUT"
-      |        },
-      |        {
-      |          "role": "DEP"
-      |        },
-      |        {
-      |          "role": "DES"
-      |        },
-      |        {
-      |          "role": "TRA"
-      |        }
-      |      ]
-      |    },
-      |    {
-      |      "languageCode": "FR",
-      |      "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
-      |      "id": "AD000001",
-      |      "countryId": "AD",
-      |      "roles": [
-      |        {
-      |          "role": "AUT"
-      |        },
-      |        {
-      |          "role": "DEP"
-      |        },
-      |        {
-      |          "role": "DES"
-      |        },
-      |        {
-      |          "role": "TRA"
-      |        }
-      |      ]
-      |    }
-      | ]
-      |}
-      |""".stripMargin
-
-  val countryCodeResponseJson: String =
-    """
-      |{
-      | "data":
-      | [
-      |  {
-      |    "code":"GB",
-      |    "state":"valid",
-      |    "description":"United Kingdom"
-      |  }
-      | ]
-      |}
-      |""".stripMargin
-
-  private val emptyResponseJson: String =
+  private val emptyPhase5ResponseJson: String =
     """
       |{
       |  "data": []
       |}
+      |""".stripMargin
+
+  private val emptyPhase6ResponseJson: String =
+    """
+      |[]
       |""".stripMargin
 }
