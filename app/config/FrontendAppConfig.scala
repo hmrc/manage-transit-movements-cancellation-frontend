@@ -30,6 +30,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, service: Servic
   val contactHost: String             = configuration.get[String]("contact-frontend.host")
 
   val signOutUrl: String            = configuration.get[String]("urls.logoutContinue") + configuration.get[String]("urls.feedback")
+  lazy val feedbackUrl: String      = configuration.get[String]("urls.feedback")
   lazy val nctsHelpdeskUrl: String  = configuration.get[String]("urls.nctsHelpdesk")
   lazy val nctsEnquiriesUrl: String = configuration.get[String]("urls.nctsEnquiries")
 

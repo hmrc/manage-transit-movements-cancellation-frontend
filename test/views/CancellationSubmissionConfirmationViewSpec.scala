@@ -36,6 +36,13 @@ class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
   behave like pageWithPanel(
     body = s"for Local Reference Number (LRN) $lrn"
   )
+  behave like pageWithContent("h2", "Before you go")
+
+  behave like pageWithLink(
+    id = "takeSurvey",
+    expectedText = "Take a short survey",
+    expectedHref = frontendAppConfig.feedbackUrl
+  )
 
   behave like pageWithContent("h2", "What happens next")
 
