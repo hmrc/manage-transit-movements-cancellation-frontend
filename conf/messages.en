@@ -27,6 +27,11 @@ site.lrn = LRN: {0}
 site.email.link = If you have any questions or issues, email us at {0}
 site.email.subject = NCTS Phase 5 - Help with testing
 
+survey.h2 = Before you go
+survey.link = Take a short survey
+survey.prelink = Your feedback helps us make our service better.
+survey.postlink = to share your feedback on this service.
+
 error.title.prefix = Error:
 error.summary.title = There is a problem
 

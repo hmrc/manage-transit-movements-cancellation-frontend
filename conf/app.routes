@@ -22,7 +22,6 @@ GET        /:departureId/cannot-cancel-declaration/:lrn             controllers.
 
 GET        /keep-alive                                              controllers.KeepAliveController.keepAlive()
 
-GET        /can-not-cancel                                          controllers.CanNotCancelController.onPageLoad()
 GET        /declaration-not-found                                   controllers.DeclarationNotFoundController.onPageLoad()
 GET        /bad-request                                             controllers.ErrorController.badRequest()
 GET        /not-found                                               controllers.ErrorController.notFound()

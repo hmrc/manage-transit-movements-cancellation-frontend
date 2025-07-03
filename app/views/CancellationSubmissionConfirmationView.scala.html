@@ -17,11 +17,13 @@
 @import config.FrontendAppConfig
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.components.Heading
+@import views.html.components.Feedback
 
 @this(
     main_template: MainTemplate,
     heading: Heading,
     govukPanel: GovukPanel,
+    feedback: Feedback,
     config: FrontendAppConfig
 )
 
@@ -42,4 +44,6 @@
     <p class="govuk-body">@messages("cancellationSubmissionConfirmation.para2")</p>
     <p class="govuk-body"><a id="manage-transit-movements" href=@config.manageTransitMovementsViewDeparturesUrl class="govuk-link">
     @messages("cancellationSubmissionConfirmation.linkText")</a> @messages("cancellationSubmissionConfirmation.linkSuffix")</p>
+
+    @feedback()
 }
