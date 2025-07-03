@@ -49,5 +49,13 @@ class CannotSendCancellationRequestViewSpec extends ViewBehaviours {
     expectedHref = "http://localhost:9485/manage-transit-movements/view-departure-declarations"
   )
 
+  behave like pageWithContent("h2", "Before you go")
+
+  behave like pageWithLink(
+    id = "takeSurvey",
+    expectedText = "Take a short survey",
+    expectedHref = frontendAppConfig.feedbackUrl
+  )
+
   behave like pageWithContent("p", paragraph)
 }
