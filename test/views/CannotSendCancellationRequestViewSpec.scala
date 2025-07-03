@@ -19,10 +19,10 @@ package views
 import org.scalacheck.Gen
 import play.twirl.api.HtmlFormat
 import viewModels.CannotSendCancellationRequestViewModel
-import views.behaviours.ViewBehaviours
+import views.behaviours.FeedbackViewBehaviours
 import views.html.CannotSendCancellationRequestView
 
-class CannotSendCancellationRequestViewSpec extends ViewBehaviours {
+class CannotSendCancellationRequestViewSpec extends FeedbackViewBehaviours {
 
   private val paragraph = Gen.alphaNumStr.sample.value
 
@@ -49,13 +49,7 @@ class CannotSendCancellationRequestViewSpec extends ViewBehaviours {
     expectedHref = "http://localhost:9485/manage-transit-movements/view-departure-declarations"
   )
 
-  behave like pageWithContent("h2", "Before you go")
-
-  behave like pageWithLink(
-    id = "takeSurvey",
-    expectedText = "Take a short survey",
-    expectedHref = frontendAppConfig.feedbackUrl
-  )
+  behave like pageWithFeedback()
 
   behave like pageWithContent("p", paragraph)
 }

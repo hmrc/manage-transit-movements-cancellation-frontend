@@ -17,10 +17,10 @@
 package views
 
 import play.twirl.api.HtmlFormat
-import views.behaviours.PanelViewBehaviours
+import views.behaviours.{FeedbackViewBehaviours, PanelViewBehaviours}
 import views.html.CancellationSubmissionConfirmationView
 
-class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
+class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours with FeedbackViewBehaviours {
 
   override def view: HtmlFormat.Appendable =
     injector.instanceOf[CancellationSubmissionConfirmationView].apply(lrn)(fakeRequest, messages)
@@ -36,13 +36,7 @@ class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours {
   behave like pageWithPanel(
     body = s"for Local Reference Number (LRN) $lrn"
   )
-  behave like pageWithContent("h2", "Before you go")
-
-  behave like pageWithLink(
-    id = "takeSurvey",
-    expectedText = "Take a short survey",
-    expectedHref = frontendAppConfig.feedbackUrl
-  )
+  behave like pageWithFeedback()
 
   behave like pageWithContent("h2", "What happens next")
 

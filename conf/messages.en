@@ -27,6 +27,11 @@ site.lrn = LRN: {0}
 site.email.link = If you have any questions or issues, email us at {0}
 site.email.subject = NCTS Phase 5 - Help with testing
 
+survey.h2 = Before you go
+survey.link = Take a short survey
+survey.prelink = Your feedback helps us make our service better.
+survey.postlink = to share your feedback on this service.
+
 error.title.prefix = Error:
 error.summary.title = There is a problem
 
@@ -72,10 +77,6 @@ cancellationSubmissionConfirmation.subHeading = What happens next
 cancellationSubmissionConfirmation.para2 = The office of departure will respond to your request within a few minutes.
 cancellationSubmissionConfirmation.linkText = Check the status of departure declarations
 cancellationSubmissionConfirmation.linkSuffix = for updates.
-cancellationSubmissionConfirmation.survey.subheading = Before you go
-cancellationSubmissionConfirmation.survey.firstContent = Your feedback helps us make our service better.
-cancellationSubmissionConfirmation.survey.secondContent = Take a short survey
-cancellationSubmissionConfirmation.survey.thirdContent = to share your feedback on this service.
 
 canNotCancel.title = You cannot cancel this departure declaration
 canNotCancel.heading = You cannot cancel this departure declaration

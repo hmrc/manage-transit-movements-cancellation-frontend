@@ -20,12 +20,10 @@
 
 @()(implicit messages: Messages)
 
-<h2 class="govuk-heading-m">@messages("cancellationSubmissionConfirmation.survey.subheading")</h2>
+<h2 class="govuk-heading-m">@messages("survey.h2")</h2>
 
 <p class="govuk-body">
- @messages("cancellationSubmissionConfirmation.survey.firstContent")
-<a class="govuk-link" id="takeSurvey" href="@config.feedbackUrl">@messages("cancellationSubmissionConfirmation.survey.secondContent")</a>
- @messages("cancellationSubmissionConfirmation.survey.thirdContent")
+    @messages("survey.prelink")
+    <a class="govuk-link" id="feedback" href="@config.feedbackUrl">@messages("survey.link")</a>
+    @messages("survey.postlink")
 </p>
-
-
