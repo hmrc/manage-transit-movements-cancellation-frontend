@@ -36,6 +36,7 @@ class CancellationSubmissionConfirmationViewSpec extends PanelViewBehaviours wit
   behave like pageWithPanel(
     body = s"for Local Reference Number (LRN) $lrn"
   )
+
   behave like pageWithFeedback()
 
   behave like pageWithContent("h2", "What happens next")
