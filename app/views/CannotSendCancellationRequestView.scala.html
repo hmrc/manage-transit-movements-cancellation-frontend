@@ -17,14 +17,14 @@
 @import config.FrontendAppConfig
 @import viewModels.CannotSendCancellationRequestViewModel
 @import views.html.components.{Button, Heading}
-@import views.html.components.FeedbackComponent
+@import views.html.components.Feedback
 
 @this(
         mainTemplate: MainTemplate,
         formHelper: FormWithCSRF,
         heading: Heading,
         button: Button,
-        feedbackComponent: FeedbackComponent,
+        feedback: Feedback,
         config: FrontendAppConfig
 )
 
@@ -43,10 +43,10 @@
         viewModel.message
     } </p>
 
-    <p>
+    <p class="govuk-body">
         <a id="viewStatus" class="govuk-link" href=@config.manageTransitMovementsViewDeparturesUrl>@messages("cannotSendCancellationRequest.linkText")</a>
     </p>
 
-    @feedbackComponent()
+    @feedback()
 
 }

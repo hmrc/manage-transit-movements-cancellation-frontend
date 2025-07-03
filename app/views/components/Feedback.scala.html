@@ -18,12 +18,14 @@
 
 @this(config: FrontendAppConfig)
 
-@(implicit messages: Messages)
+@()(implicit messages: Messages)
 
-<h2 class = "govuk-heading-m">@messages("cancellationSubmissionConfirmation.survey.subheading")</h2>
-<p class = "govuk-body">@messages("cancellationSubmissionConfirmation.survey.firstContent")
-    <a id = "takeSurvey" class = "govuk-link" href = @config.feedbackUrl>@messages("cancellationSubmissionConfirmation.survey.secondContent")
-    </a>
-    @messages("cancellationSubmissionConfirmation.survey.thirdContent")
+<h2 class="govuk-heading-m">@messages("cancellationSubmissionConfirmation.survey.subheading")</h2>
+
+<p class="govuk-body">
+ @messages("cancellationSubmissionConfirmation.survey.firstContent")
+<a class="govuk-link" id="takeSurvey" href="@config.feedbackUrl">@messages("cancellationSubmissionConfirmation.survey.secondContent")</a>
+ @messages("cancellationSubmissionConfirmation.survey.thirdContent")
 </p>
+
 

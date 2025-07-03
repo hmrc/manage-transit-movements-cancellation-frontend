@@ -19,7 +19,6 @@ package services.submission
 import base.{MockApplicationBuilder, SpecBase}
 import generated.*
 import generators.Generators
-import models.IE015.*
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
