@@ -16,7 +16,7 @@
 
 package generators
 
-import generated._
+import generated.*
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import scalaxb.XMLCalendar
@@ -31,10 +31,10 @@ trait ScalaxbModelGenerators {
     Arbitrary {
       for {
         messageSequence1            <- arbitrary[MESSAGESequence]
-        transitOperation            <- arbitrary[TransitOperationType05]
+        transitOperation            <- arbitrary[TransitOperationType56]
         invalidation                <- arbitrary[InvalidationType02]
-        customsOfficeOfDeparture    <- arbitrary[CustomsOfficeOfDepartureType03]
-        holderOfTheTransitProcedure <- arbitrary[HolderOfTheTransitProcedureType02]
+        customsOfficeOfDeparture    <- arbitrary[CustomsOfficeOfDepartureType05]
+        holderOfTheTransitProcedure <- arbitrary[HolderOfTheTransitProcedureType23]
       } yield CC014CType(
         messageSequence1 = messageSequence1,
         TransitOperation = transitOperation,
@@ -45,199 +45,17 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryConsignmentItemType03: Arbitrary[CUSTOM_ConsignmentItemType03] =
-    Arbitrary {
-      for {
-        goodsItemNumber            <- arbitrary[BigInt]
-        declarationGoodsItemNumber <- arbitrary[BigInt]
-        commodity                  <- arbitrary[CUSTOM_CommodityType08]
-      } yield CUSTOM_ConsignmentItemType03(
-        goodsItemNumber = goodsItemNumber,
-        declarationGoodsItemNumber = declarationGoodsItemNumber,
-        declarationType = None,
-        countryOfDispatch = None,
-        countryOfDestination = None,
-        referenceNumberUCR = None,
-        Consignee = None,
-        AdditionalSupplyChainActor = Nil,
-        Commodity = commodity,
-        Packaging = Nil,
-        PreviousDocument = Nil,
-        SupportingDocument = Nil,
-        TransportDocument = Nil,
-        AdditionalReference = Nil,
-        AdditionalInformation = Nil,
-        TransportCharges = None
-      )
-    }
-
-  implicit lazy val arbitraryConsignmentItemType04: Arbitrary[CUSTOM_ConsignmentItemType04] =
-    Arbitrary {
-      for {
-        goodsItemNumber            <- arbitrary[BigInt]
-        declarationGoodsItemNumber <- arbitrary[BigInt]
-        commodity                  <- arbitrary[CUSTOM_CommodityType08]
-      } yield CUSTOM_ConsignmentItemType04(
-        goodsItemNumber = goodsItemNumber,
-        declarationGoodsItemNumber = declarationGoodsItemNumber,
-        declarationType = None,
-        countryOfDestination = None,
-        Consignee = None,
-        Commodity = commodity,
-        Packaging = Nil,
-        PreviousDocument = Nil,
-        SupportingDocument = Nil,
-        TransportDocument = Nil,
-        AdditionalReference = Nil,
-        AdditionalInformation = Nil
-      )
-    }
-
-  implicit lazy val arbitraryCommodityType08: Arbitrary[CUSTOM_CommodityType08] =
-    Arbitrary {
-      for {
-        descriptionOfGoods <- nonEmptyString
-      } yield CUSTOM_CommodityType08(
-        descriptionOfGoods = descriptionOfGoods,
-        cusCode = None,
-        CommodityCode = None,
-        DangerousGoods = Nil,
-        GoodsMeasure = None
-      )
-    }
-
-  implicit lazy val arbitraryHolderOfTheTransitProcedureType02: Arbitrary[HolderOfTheTransitProcedureType02] =
+  implicit lazy val arbitraryHolderOfTheTransitProcedureType23: Arbitrary[HolderOfTheTransitProcedureType23] =
     Arbitrary {
       for {
         identificationNumber          <- Gen.option(nonEmptyString)
         tirHolderIdentificationNumber <- Gen.option(nonEmptyString)
         name                          <- Gen.option(nonEmptyString)
-      } yield HolderOfTheTransitProcedureType02(
-        identificationNumber = identificationNumber,
-        TIRHolderIdentificationNumber = tirHolderIdentificationNumber,
-        name = name,
-        Address = None,
-        ContactPerson = None
-      )
-    }
-
-  implicit lazy val arbitraryHolderOfTheTransitProcedureType05: Arbitrary[HolderOfTheTransitProcedureType05] =
-    Arbitrary {
-      for {
-        identificationNumber          <- Gen.option(nonEmptyString)
-        tirHolderIdentificationNumber <- Gen.option(nonEmptyString)
-        name                          <- Gen.option(nonEmptyString)
-      } yield HolderOfTheTransitProcedureType05(
-        identificationNumber = identificationNumber,
-        TIRHolderIdentificationNumber = tirHolderIdentificationNumber,
-        name = name,
-        Address = None,
-        ContactPerson = None
-      )
-    }
-
-  implicit lazy val arbitraryHolderOfTheTransitProcedureType14: Arbitrary[HolderOfTheTransitProcedureType14] =
-    Arbitrary {
-      for {
-        identificationNumber          <- Gen.option(nonEmptyString)
-        tirHolderIdentificationNumber <- Gen.option(nonEmptyString)
-        name                          <- Gen.option(nonEmptyString)
-      } yield HolderOfTheTransitProcedureType14(
-        identificationNumber = identificationNumber,
-        TIRHolderIdentificationNumber = tirHolderIdentificationNumber,
-        name = name,
-        Address = None,
-        ContactPerson = None
-      )
-    }
-
-  implicit lazy val arbitraryHolderOfTheTransitProcedureType20: Arbitrary[HolderOfTheTransitProcedureType20] =
-    Arbitrary {
-      for {
-        identificationNumber          <- Gen.option(nonEmptyString)
-        tirHolderIdentificationNumber <- Gen.option(nonEmptyString)
-        name                          <- Gen.option(nonEmptyString)
-      } yield HolderOfTheTransitProcedureType20(
+      } yield HolderOfTheTransitProcedureType23(
         identificationNumber = identificationNumber,
         TIRHolderIdentificationNumber = tirHolderIdentificationNumber,
         name = name,
         Address = None
-      )
-    }
-
-  implicit lazy val arbitraryConsignmentType04: Arbitrary[CUSTOM_ConsignmentType04] =
-    Arbitrary {
-      for {
-        containerIndicator <- arbitrary[Flag]
-        grossMass          <- arbitrary[BigDecimal]
-      } yield CUSTOM_ConsignmentType04(
-        countryOfDispatch = None,
-        countryOfDestination = None,
-        containerIndicator = containerIndicator,
-        inlandModeOfTransport = None,
-        modeOfTransportAtTheBorder = None,
-        grossMass = grossMass,
-        referenceNumberUCR = None,
-        Carrier = None,
-        Consignor = None,
-        Consignee = None,
-        AdditionalSupplyChainActor = Nil,
-        TransportEquipment = Nil,
-        LocationOfGoods = None,
-        DepartureTransportMeans = Nil,
-        CountryOfRoutingOfConsignment = Nil,
-        ActiveBorderTransportMeans = Nil,
-        PlaceOfLoading = None,
-        PlaceOfUnloading = None,
-        PreviousDocument = Nil,
-        SupportingDocument = Nil,
-        TransportDocument = Nil,
-        AdditionalReference = Nil,
-        AdditionalInformation = Nil,
-        TransportCharges = None,
-        HouseConsignment = Nil
-      )
-    }
-
-  implicit lazy val arbitraryConsignmentType20: Arbitrary[ConsignmentType20] =
-    Arbitrary {
-      for {
-        grossMass <- arbitrary[BigDecimal]
-      } yield ConsignmentType20(
-        countryOfDispatch = None,
-        countryOfDestination = None,
-        containerIndicator = None,
-        inlandModeOfTransport = None,
-        modeOfTransportAtTheBorder = None,
-        grossMass = grossMass,
-        referenceNumberUCR = None,
-        Carrier = None,
-        Consignor = None,
-        Consignee = None,
-        AdditionalSupplyChainActor = Nil,
-        TransportEquipment = Nil,
-        LocationOfGoods = None,
-        DepartureTransportMeans = Nil,
-        CountryOfRoutingOfConsignment = Nil,
-        ActiveBorderTransportMeans = Nil,
-        PlaceOfLoading = None,
-        PlaceOfUnloading = None,
-        PreviousDocument = Nil,
-        SupportingDocument = Nil,
-        TransportDocument = Nil,
-        AdditionalReference = Nil,
-        AdditionalInformation = Nil,
-        TransportCharges = None,
-        HouseConsignment = Nil
-      )
-    }
-
-  implicit lazy val arbitraryTraderAtDestinationType03: Arbitrary[TraderAtDestinationType03] =
-    Arbitrary {
-      for {
-        identificationNumber <- nonEmptyString
-      } yield TraderAtDestinationType03(
-        identificationNumber = identificationNumber
       )
     }
 
@@ -250,11 +68,11 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryCustomsOfficeOfDepartureType03: Arbitrary[CustomsOfficeOfDepartureType03] =
+  implicit lazy val arbitraryCustomsOfficeOfDepartureType05: Arbitrary[CustomsOfficeOfDepartureType05] =
     Arbitrary {
       for {
         referenceNumber <- nonEmptyString
-      } yield CustomsOfficeOfDepartureType03(
+      } yield CustomsOfficeOfDepartureType05(
         referenceNumber = referenceNumber
       )
     }
@@ -268,94 +86,14 @@ trait ScalaxbModelGenerators {
       )
     }
 
-  implicit lazy val arbitraryTransitOperationType05: Arbitrary[TransitOperationType05] =
+  implicit lazy val arbitraryTransitOperationType56: Arbitrary[TransitOperationType56] =
     Arbitrary {
       for {
         lrn <- Gen.option(nonEmptyString)
         mrn <- Gen.option(nonEmptyString)
-      } yield TransitOperationType05(
+      } yield TransitOperationType56(
         LRN = lrn,
         MRN = mrn
-      )
-    }
-
-  implicit lazy val arbitraryTransitOperationType06: Arbitrary[TransitOperationType06] =
-    Arbitrary {
-      for {
-        lrn                       <- nonEmptyString
-        declarationType           <- nonEmptyString
-        additionalDeclarationType <- nonEmptyString
-        security                  <- nonEmptyString
-        reducedDatasetIndicator   <- arbitrary[Flag]
-        bindingItinerary          <- arbitrary[Flag]
-      } yield TransitOperationType06(
-        LRN = lrn,
-        declarationType = declarationType,
-        additionalDeclarationType = additionalDeclarationType,
-        TIRCarnetNumber = None,
-        presentationOfTheGoodsDateAndTime = None,
-        security = security,
-        reducedDatasetIndicator = reducedDatasetIndicator,
-        specificCircumstanceIndicator = None,
-        communicationLanguageAtDeparture = None,
-        bindingItinerary = bindingItinerary,
-        limitDate = None
-      )
-    }
-
-  implicit lazy val arbitraryTransitOperationType11: Arbitrary[TransitOperationType11] =
-    Arbitrary {
-      for {
-        lrn                       <- nonEmptyString
-        mrn                       <- nonEmptyString
-        declarationAcceptanceDate <- arbitrary[XMLGregorianCalendar]
-      } yield TransitOperationType11(
-        LRN = lrn,
-        MRN = mrn,
-        declarationAcceptanceDate = declarationAcceptanceDate
-      )
-    }
-
-  implicit lazy val arbitraryTransitOperationType12: Arbitrary[TransitOperationType12] =
-    Arbitrary {
-      for {
-        lrn                       <- nonEmptyString
-        mrn                       <- nonEmptyString
-        declarationType           <- nonEmptyString
-        additionalDeclarationType <- nonEmptyString
-        declarationAcceptanceDate <- arbitrary[XMLGregorianCalendar]
-        releaseDate               <- arbitrary[XMLGregorianCalendar]
-        security                  <- nonEmptyString
-        reducedDatasetIndicator   <- arbitrary[Flag]
-        bindingItinerary          <- arbitrary[Flag]
-      } yield TransitOperationType12(
-        LRN = lrn,
-        MRN = mrn,
-        declarationType = declarationType,
-        additionalDeclarationType = additionalDeclarationType,
-        TIRCarnetNumber = None,
-        declarationAcceptanceDate = declarationAcceptanceDate,
-        releaseDate = releaseDate,
-        security = security,
-        reducedDatasetIndicator = reducedDatasetIndicator,
-        specificCircumstanceIndicator = None,
-        communicationLanguageAtDeparture = None,
-        bindingItinerary = bindingItinerary
-      )
-    }
-
-  implicit lazy val arbitraryTransitOperationType14: Arbitrary[TransitOperationType14] =
-    Arbitrary {
-      for {
-        mrn                     <- nonEmptyString
-        security                <- nonEmptyString
-        reducedDatasetIndicator <- arbitrary[Flag]
-      } yield TransitOperationType14(
-        MRN = mrn,
-        declarationType = None,
-        declarationAcceptanceDate = None,
-        security = security,
-        reducedDatasetIndicator = reducedDatasetIndicator
       )
     }
 
@@ -393,15 +131,6 @@ trait ScalaxbModelGenerators {
   implicit lazy val arbitraryXMLGregorianCalendar: Arbitrary[XMLGregorianCalendar] =
     Arbitrary {
       XMLCalendar(LocalDateTime.now().toString)
-    }
-
-  implicit lazy val arbitraryTransportChargesType: Arbitrary[TransportChargesType] =
-    Arbitrary {
-      for {
-        methodOfPayment <- nonEmptyString
-      } yield TransportChargesType(
-        methodOfPayment = methodOfPayment
-      )
     }
 
   implicit lazy val arbitraryInvalidationType02: Arbitrary[InvalidationType02] =
