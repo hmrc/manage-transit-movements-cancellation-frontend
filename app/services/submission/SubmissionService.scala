@@ -16,7 +16,8 @@
 
 package services.submission
 
-import connectors.ApiConnector
+import config.FrontendAppConfig
+import connectors.DepartureMovementConnector
 import generated.*
 import models.{DepartureId, EoriNumber, IE015}
 import scalaxb.DataRecord
@@ -31,7 +32,8 @@ import scala.xml.{NamespaceBinding, NodeSeq}
 class SubmissionService @Inject() (
   dateTimeService: DateTimeService,
   messageIdentificationService: MessageIdentificationService,
-  connector: ApiConnector
+  connector: DepartureMovementConnector,
+  config: FrontendAppConfig
 ) {
 
   private val scope: NamespaceBinding = scalaxb.toScope(Some("ncts") -> "http://ncts.dgtaxud.ec")
@@ -60,8 +62,10 @@ class SubmissionService @Inject() (
     )
   }
 
-  def attributes: Map[String, DataRecord[?]] =
-    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(NCTS5u461Value.toString, scope)))
+  def attributes: Map[String, DataRecord[?]] = {
+    val phaseId = if (config.phase6Enabled) NCTS6 else NCTS5u461
+    Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(phaseId.toString, scope)))
+  }
 
   def messageSequence(eoriNumber: EoriNumber, officeOfDeparture: String): MESSAGESequence =
     MESSAGESequence(
@@ -73,8 +77,8 @@ class SubmissionService @Inject() (
       correlationIdentifier = None
     )
 
-  def transitOperation(lrn: String, mrn: Option[String]): TransitOperationType05 =
-    TransitOperationType05(
+  def transitOperation(lrn: String, mrn: Option[String]): TransitOperationType56 =
+    TransitOperationType56(
       LRN = if (mrn.isDefined) None else Some(lrn),
       MRN = mrn
     )

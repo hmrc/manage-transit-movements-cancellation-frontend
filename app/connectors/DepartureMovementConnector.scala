@@ -17,16 +17,17 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.DepartureMessages
+import models.{DepartureId, DepartureMessages}
 import play.api.Logging
 import play.api.http.HeaderNames.*
+import play.api.libs.ws.XMLBodyWritables.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.xml.{Node, XML}
+import scala.xml.{Node, NodeSeq, XML}
 
 class DepartureMovementConnector @Inject() (
   appConfig: FrontendAppConfig,
@@ -34,7 +35,9 @@ class DepartureMovementConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private val version = 2.1
+  private val version = appConfig.phase6Enabled match {
+    case _ => 2.1
+  }
 
   def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: Node => T): Future[T] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}/movements/departures/$departureId/messages/$messageId/body"
@@ -53,5 +56,17 @@ class DepartureMovementConnector @Inject() (
       .get(url)
       .setHeader(ACCEPT -> s"application/vnd.hmrc.$version+json")
       .execute[DepartureMessages]
+  }
+
+  def submit(xml: NodeSeq, departureId: DepartureId)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val url = url"${appConfig.commonTransitConventionTradersUrl}movements/departures/${departureId.value}/messages"
+    http
+      .post(url)
+      .setHeader(
+        ACCEPT       -> s"application/vnd.hmrc.$version+json",
+        CONTENT_TYPE -> "application/xml"
+      )
+      .withBody(xml)
+      .execute[HttpResponse]
   }
 }
