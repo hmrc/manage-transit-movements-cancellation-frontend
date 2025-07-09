@@ -17,7 +17,7 @@
 package services.submission
 
 import config.FrontendAppConfig
-import connectors.ApiConnector
+import connectors.DepartureMovementConnector
 import generated.*
 import models.{DepartureId, EoriNumber, IE015}
 import scalaxb.DataRecord
@@ -32,7 +32,7 @@ import scala.xml.{NamespaceBinding, NodeSeq}
 class SubmissionService @Inject() (
   dateTimeService: DateTimeService,
   messageIdentificationService: MessageIdentificationService,
-  connector: ApiConnector,
+  connector: DepartureMovementConnector,
   config: FrontendAppConfig
 ) {
 
