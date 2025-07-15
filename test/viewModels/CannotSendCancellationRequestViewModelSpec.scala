@@ -33,7 +33,7 @@ class CannotSendCancellationRequestViewModelSpec extends SpecBase with ScalaChec
 
         val result: String = viewModel.message
 
-        result mustBe "If you have any questions, contact Customs at Dover on 00443243543."
+        result mustEqual "If you have any questions, contact Customs at Dover on 00443243543."
       }
 
       "When Customs Office name available and telephone does not exist" in {
@@ -42,35 +42,35 @@ class CannotSendCancellationRequestViewModelSpec extends SpecBase with ScalaChec
 
         val result: String = viewModel.message
 
-        result mustBe "If you have any questions, contact Customs at Dover."
+        result mustEqual "If you have any questions, contact Customs at Dover."
       }
 
       "When Customs Office name not available and telephone exists" in {
         val customsOffice = CustomsOffice("ID001", "", "GB", Some("00443243543"))
         val viewModel     = CannotSendCancellationRequestViewModel(customsOffice)
 
-        viewModel.message mustBe "If you have any questions, contact Customs office ID001 on 00443243543."
+        viewModel.message mustEqual "If you have any questions, contact Customs office ID001 on 00443243543."
       }
 
       "When Customs Office name available and telephone is None" in {
         val customsOffice = CustomsOffice("ID001", "Dover", "GB", None)
         val viewModel     = CannotSendCancellationRequestViewModel(customsOffice)
 
-        viewModel.message mustBe "If you have any questions, contact Customs at Dover."
+        viewModel.message mustEqual "If you have any questions, contact Customs at Dover."
       }
 
       "When Customs Office name not available and telephone does not exist" in {
         val customsOffice = CustomsOffice("ID001", "", "GB", Some(""))
         val viewModel     = CannotSendCancellationRequestViewModel(customsOffice)
 
-        viewModel.message mustBe "If you have any questions, contact Customs office ID001."
+        viewModel.message mustEqual "If you have any questions, contact Customs office ID001."
       }
 
       "When Customs Office name not available and telephone is None" in {
         val customsOffice = CustomsOffice("ID001", "", "GB", None)
         val viewModel     = CannotSendCancellationRequestViewModel(customsOffice)
 
-        viewModel.message mustBe "If you have any questions, contact Customs office ID001."
+        viewModel.message mustEqual "If you have any questions, contact Customs office ID001."
       }
     }
   }

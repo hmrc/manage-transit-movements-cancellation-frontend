@@ -39,7 +39,7 @@ class GroupEnrolmentResponseSpec extends SpecBase with ScalaCheckPropertyChecks 
 
             val expectedResult = Enrolment(value)
 
-            result.get.mustBe(expectedResult)
+            result.get.mustEqual(expectedResult)
         }
       }
     }
@@ -87,7 +87,7 @@ class GroupEnrolmentResponseSpec extends SpecBase with ScalaCheckPropertyChecks 
           )
         )
 
-        result.get.mustBe(expectedResult)
+        result.get.mustEqual(expectedResult)
       }
     }
 
@@ -124,7 +124,7 @@ class GroupEnrolmentResponseSpec extends SpecBase with ScalaCheckPropertyChecks 
 
             val expectedResult = BadRequest(value)
 
-            result.get.mustBe(expectedResult)
+            result.get.mustEqual(expectedResult)
         }
       }
     }

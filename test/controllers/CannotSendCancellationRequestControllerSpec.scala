@@ -71,7 +71,7 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with ScalaChe
 
           val view = app.injector.instanceOf[CannotSendCancellationRequestView]
 
-          status(result) mustBe OK
+          status(result) mustEqual OK
 
           contentAsString(result) mustEqual
             view(lrn, departureId, viewModel)(request, messages).toString
@@ -89,7 +89,7 @@ class CannotSendCancellationRequestControllerSpec extends SpecBase with ScalaChe
 
       val result = route(app, request).value
 
-      status(result) mustBe SEE_OTHER
+      status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual routes.ErrorController.technicalDifficulties().url
     }
   }

@@ -49,7 +49,7 @@ class SessionActionSpec extends SpecBase {
 
         val result = controller.onPageLoad()(fakeRequest)
 
-        status(result) mustBe SEE_OTHER
+        status(result) mustEqual SEE_OTHER
         redirectLocation(result).get must startWith(controllers.routes.SessionExpiredController.onPageLoad().url)
       }
     }
@@ -70,7 +70,7 @@ class SessionActionSpec extends SpecBase {
 
         val result = controller.onPageLoad()(request)
 
-        status(result) mustBe OK
+        status(result) mustEqual OK
       }
     }
   }

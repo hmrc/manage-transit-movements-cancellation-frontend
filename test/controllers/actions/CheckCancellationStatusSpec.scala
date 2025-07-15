@@ -76,7 +76,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustBe controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url
+      redirectLocation(result).value mustEqual controllers.routes.CannotSendCancellationRequestController.onPageLoad(departureId, lrn).url
     }
 
     "must return 303 and redirect to error page when message returns none" in {
@@ -92,7 +92,7 @@ class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with 
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustBe
+      redirectLocation(result).value mustEqual
         controllers.routes.ErrorController.technicalDifficulties().url
     }
   }
