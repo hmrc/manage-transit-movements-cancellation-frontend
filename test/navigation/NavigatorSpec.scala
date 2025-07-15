@@ -39,7 +39,7 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
         answers =>
           navigator
             .nextPage(UnknownPage, answers, departureId, lrn)
-            .mustBe(routes.ConfirmCancellationController.onPageLoad(departureId, lrn))
+            .mustEqual(routes.ConfirmCancellationController.onPageLoad(departureId, lrn))
       }
     }
 
@@ -50,7 +50,7 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
             .setValue(ConfirmCancellationPage, true)
           navigator
             .nextPage(ConfirmCancellationPage, updatedAnswers, departureId, lrn)
-            .mustBe(routes.CancellationReasonController.onPageLoad(departureId, lrn))
+            .mustEqual(routes.CancellationReasonController.onPageLoad(departureId, lrn))
       }
     }
 
@@ -61,7 +61,7 @@ class NavigatorSpec extends SpecBase with ScalaCheckPropertyChecks with Generato
             .setValue(ConfirmCancellationPage, false)
           navigator
             .nextPage(ConfirmCancellationPage, updatedAnswers, departureId, lrn)
-            .mustBe(Call(GET, "http://localhost:9485/manage-transit-movements/view-departure-declarations"))
+            .mustEqual(Call(GET, "http://localhost:9485/manage-transit-movements/view-departure-declarations"))
       }
     }
   }

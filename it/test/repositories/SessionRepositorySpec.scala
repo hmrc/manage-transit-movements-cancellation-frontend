@@ -56,16 +56,16 @@ class SessionRepositorySpec extends ItSpecBase with DefaultPlayMongoRepositorySu
 
         val result = repository.get(userAnswers1.id).futureValue
 
-        result.value.id `mustBe` userAnswers1.id
-        result.value.eoriNumber `mustBe` userAnswers1.eoriNumber
-        result.value.data `mustBe` userAnswers1.data
+        result.value.id mustEqual userAnswers1.id
+        result.value.eoriNumber mustEqual userAnswers1.eoriNumber
+        result.value.data mustEqual userAnswers1.data
       }
 
       "must return None when no UserAnswers match DepartureId" in {
 
         val result = repository.get(userAnswers3.id).futureValue
 
-        result `mustBe` None
+        result must not be defined
       }
     }
 
@@ -77,13 +77,13 @@ class SessionRepositorySpec extends ItSpecBase with DefaultPlayMongoRepositorySu
 
         val setResult = repository.set(userAnswers3).futureValue
 
-        setResult `mustBe` true
+        setResult mustEqual true
 
         val getResult = findOne(userAnswers3).get
 
-        getResult.id mustBe userAnswers3.id
-        getResult.eoriNumber mustBe userAnswers3.eoriNumber
-        getResult.data mustBe userAnswers3.data
+        getResult.id mustEqual userAnswers3.id
+        getResult.eoriNumber mustEqual userAnswers3.eoriNumber
+        getResult.data mustEqual userAnswers3.data
       }
 
       "must update document when it already exists" in {
@@ -92,14 +92,14 @@ class SessionRepositorySpec extends ItSpecBase with DefaultPlayMongoRepositorySu
 
         val setResult = repository.set(userAnswers1.copy(data = Json.obj("foo" -> "bar"))).futureValue
 
-        setResult `mustBe` true
+        setResult mustEqual true
 
         val secondGet = findOne(userAnswers1).get
 
-        firstGet.id mustBe secondGet.id
-        firstGet.eoriNumber mustBe secondGet.eoriNumber
+        firstGet.id mustEqual secondGet.id
+        firstGet.eoriNumber mustEqual secondGet.eoriNumber
         firstGet.data mustNot equal(secondGet.data)
-        firstGet.lastUpdated `isBefore` secondGet.lastUpdated mustBe true
+        firstGet.lastUpdated `isBefore` secondGet.lastUpdated mustEqual true
       }
     }
 
@@ -107,11 +107,11 @@ class SessionRepositorySpec extends ItSpecBase with DefaultPlayMongoRepositorySu
 
       "must remove document when given a valid LocalReferenceNumber and EoriNumber" in {
 
-        repository.get(userAnswers1.id).futureValue `mustBe` defined
+        repository.get(userAnswers1.id).futureValue mustBe defined
 
         repository.remove(userAnswers1.id, userAnswers1.eoriNumber).futureValue
 
-        repository.get(userAnswers1.id).futureValue `must` not `be` defined
+        repository.get(userAnswers1.id).futureValue must not be defined
       }
     }
   }

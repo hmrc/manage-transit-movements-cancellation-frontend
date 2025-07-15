@@ -40,7 +40,7 @@ class ReferenceDataServiceSpec extends SpecBase {
 
         val service = new ReferenceDataServiceImpl(mockConnector)
 
-        service.getCustomsOfficeByCode("GB00001").futureValue mustBe customsOffice
+        service.getCustomsOfficeByCode("GB00001").futureValue mustEqual customsOffice
 
         verify(mockConnector).getCustomsOffice(any())(any(), any())
       }

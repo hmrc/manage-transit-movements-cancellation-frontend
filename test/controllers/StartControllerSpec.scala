@@ -46,7 +46,7 @@ class StartControllerSpec extends SpecBase {
 
         val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(uaCaptor.capture)
-        uaCaptor.getValue.lastUpdated `isAfter` existingUserAnswers.lastUpdated mustBe true
+        uaCaptor.getValue.lastUpdated `isAfter` existingUserAnswers.lastUpdated mustEqual true
       }
 
       "when there are existing user answers" in {
@@ -63,7 +63,7 @@ class StartControllerSpec extends SpecBase {
 
         val uaCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(uaCaptor.capture)
-        uaCaptor.getValue.lastUpdated `equals` existingUserAnswers.lastUpdated mustBe true
+        uaCaptor.getValue.lastUpdated `equals` existingUserAnswers.lastUpdated mustEqual true
       }
     }
   }

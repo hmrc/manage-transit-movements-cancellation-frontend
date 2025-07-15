@@ -35,7 +35,7 @@ class LocalReferenceNumberSpec extends AnyFreeSpec with Generators with Matchers
       val departureId  = LocalReferenceNumber("AB123")
 
       val bind: Either[String, LocalReferenceNumber] = pathBindable.bind("localReferenceNumber", "AB123")
-      bind.value mustBe departureId
+      bind.value mustEqual departureId
     }
 
     "must not bind from url when LRN is too long" in {
@@ -45,7 +45,7 @@ class LocalReferenceNumberSpec extends AnyFreeSpec with Generators with Matchers
           val pathBindable = implicitly[PathBindable[LocalReferenceNumber]]
 
           val bind: Either[String, LocalReferenceNumber] = pathBindable.bind("localReferenceNumber", string)
-          bind.left.value mustBe "Invalid Local Reference Number"
+          bind.left.value mustEqual "Invalid Local Reference Number"
       }
     }
 
@@ -56,7 +56,7 @@ class LocalReferenceNumberSpec extends AnyFreeSpec with Generators with Matchers
           val pathBindable = implicitly[PathBindable[LocalReferenceNumber]]
 
           val bind: Either[String, LocalReferenceNumber] = pathBindable.bind("localReferenceNumber", string)
-          bind.left.value mustBe "Invalid Local Reference Number"
+          bind.left.value mustEqual "Invalid Local Reference Number"
       }
     }
 
@@ -65,7 +65,7 @@ class LocalReferenceNumberSpec extends AnyFreeSpec with Generators with Matchers
       val departureId  = LocalReferenceNumber("AB123")
 
       val bindValue = pathBindable.unbind("localReferenceNumber", departureId)
-      bindValue mustBe "AB123"
+      bindValue mustEqual "AB123"
     }
 
     "must serialise" in {
