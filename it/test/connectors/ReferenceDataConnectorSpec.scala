@@ -50,14 +50,13 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
   private lazy val phase6App: GuiceApplicationBuilder => GuiceApplicationBuilder =
     _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> true)
 
-  private val code = "AD000001"
-
   "Reference Data" - {
 
     "getCustomsOffice" - {
 
       "when phase 5" - {
-        val url = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
+        val code = "AD000001"
+        val url  = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
 
         val customsOfficeResponseJson: String =
           """
@@ -165,73 +164,29 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
       }
 
       "when phase 6" - {
-        val url = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
+        val code = "XI000014"
+        val url  = s"/$baseUrl/lists/CustomsOffices?referenceNumber=$code"
 
         val customsOfficeResponseJson: String =
           """
             |[
             |  {
-            |    "languageCode": "ES",
-            |    "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
-            |    "phoneNumber": "+ (376) 84 1090",
-            |    "id": "AD000001",
-            |    "countryId": "AD",
-            |    "roles": [
-            |      {
-            |        "role": "AUT"
-            |      },
-            |      {
-            |        "role": "DEP"
-            |      },
-            |      {
-            |        "role": "DES"
-            |      },
-            |      {
-            |        "role": "TRA"
-            |      }
-            |    ]
+            |    "customsOfficeLsd": {
+            |      "languageCode": "EN",
+            |      "customsOfficeUsualName": "Glasgow Airport"
+            |    },
+            |    "phoneNumber": "+44(0)300 106 3520",
+            |    "referenceNumber": "GB000054",
+            |    "countryCode": "GB"
             |  },
             |  {
-            |    "languageCode": "EN",
-            |    "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
-            |    "phoneNumber": "+ (376) 84 1090",
-            |    "id": "AD000001",
-            |    "countryId": "AD",
-            |    "roles": [
-            |      {
-            |        "role": "AUT"
-            |      },
-            |      {
-            |        "role": "DEP"
-            |      },
-            |      {
-            |        "role": "DES"
-            |      },
-            |      {
-            |        "role": "TRA"
-            |      }
-            |    ]
-            |  },
-            |  {
-            |    "languageCode": "FR",
-            |    "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
-            |    "phoneNumber": "+ (376) 84 1090",
-            |    "id": "AD000001",
-            |    "countryId": "AD",
-            |    "roles": [
-            |      {
-            |        "role": "AUT"
-            |      },
-            |      {
-            |        "role": "DEP"
-            |      },
-            |      {
-            |        "role": "DES"
-            |      },
-            |      {
-            |        "role": "TRA"
-            |      }
-            |    ]
+            |    "customsOfficeLsd": {
+            |      "languageCode": "EN",
+            |      "customsOfficeUsualName": "Belfast International Airport"
+            |    },
+            |    "phoneNumber": "+44 (0)3000 575 988",
+            |    "referenceNumber": "XI000014",
+            |    "countryCode": "XI"
             |  }
             |]
             |""".stripMargin
@@ -246,7 +201,7 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
                   .willReturn(okJson(customsOfficeResponseJson))
               )
 
-              val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
+              val expectedResult = CustomsOffice("XI000014", "Belfast International Airport", "XI", Some("+44 (0)3000 575 988"))
 
               connector.getCustomsOffice(code).futureValue.value mustEqual expectedResult
           }
