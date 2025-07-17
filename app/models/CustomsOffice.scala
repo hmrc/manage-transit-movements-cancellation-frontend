@@ -81,7 +81,7 @@ object CustomsOffice {
 
   def queryParameters(referenceNumber: String)(config: FrontendAppConfig): Seq[(String, String)] =
     if (config.phase6Enabled) {
-      Seq("referenceNumber" -> referenceNumber)
+      Seq("referenceNumbers" -> referenceNumber)
     } else {
       Seq("data.id" -> referenceNumber)
     }
