@@ -26,8 +26,6 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
