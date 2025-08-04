@@ -16,56 +16,35 @@
 
 package services.submission
 
-import base.{MockApplicationBuilder, SpecBase}
+import base.SpecBase
+import config.FrontendAppConfig
+import connectors.DepartureMovementConnector
 import generated.*
 import generators.Generators
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.running
 import scalaxb.XMLCalendar
 import services.DateTimeService
 
 import java.time.LocalDateTime
 
-class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with ScalaCheckPropertyChecks with Generators {
+class SubmissionServiceSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
+  private val mockFrontendAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  private lazy val mockDateTimeService                 = mock[DateTimeService]
+  private lazy val mockMessageIdentificationService    = mock[MessageIdentificationService]
+  private lazy val mockConnector                       = mock[DepartureMovementConnector]
 
-  private val service = app.injector.instanceOf[SubmissionService]
-
-  private lazy val mockDateTimeService              = mock[DateTimeService]
-  private lazy val mockMessageIdentificationService = mock[MessageIdentificationService]
-
-  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
-    super
-      .guiceApplicationBuilder()
-      .overrides(
-        bind[DateTimeService].toInstance(mockDateTimeService),
-        bind[MessageIdentificationService].toInstance(mockMessageIdentificationService)
-      )
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockDateTimeService)
-    reset(mockMessageIdentificationService)
-
-    when(mockDateTimeService.currentDateTime)
-      .thenReturn(LocalDateTime.of(2020, 1, 1, 9, 30, 0))
-
-    when(mockMessageIdentificationService.randomIdentifier)
-      .thenReturn("foo")
-  }
+  private val service = new SubmissionService(mockDateTimeService, mockMessageIdentificationService, mockConnector, mockFrontendAppConfig)
 
   "attributes" - {
     "must assign phase ID" - {
       "when phase6 disabled" in {
-        val app = guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> false).build()
-        running(app) {
-          val service = app.injector.instanceOf[SubmissionService]
-          val result  = service.attributes
-          result.keys.size mustEqual 1
-          result.get("@PhaseID").value.value.toString mustEqual "NCTS5.1"
-        }
+        when(mockFrontendAppConfig.phase6Enabled).thenReturn(false)
+        val service = app.injector.instanceOf[SubmissionService]
+        val result  = service.attributes
+        result.keys.size mustEqual 1
+        result.get("@PhaseID").value.value.toString mustEqual "NCTS5.1"
       }
 
       "when phase6 enabled" in {
@@ -83,6 +62,13 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
   "messageSequence" - {
     "must create message sequence" - {
       "when GB office of destination" in {
+
+        when(mockDateTimeService.currentDateTime)
+          .thenReturn(LocalDateTime.of(2020, 1, 1, 9, 30, 0))
+
+        when(mockMessageIdentificationService.randomIdentifier)
+          .thenReturn("foo")
+
         val result = service.messageSequence(eoriNumber, "GB00001")
 
         result mustEqual MESSAGESequence(
@@ -96,6 +82,12 @@ class SubmissionServiceSpec extends SpecBase with MockApplicationBuilder with Sc
       }
 
       "when XI office of destination" in {
+        when(mockDateTimeService.currentDateTime)
+          .thenReturn(LocalDateTime.of(2020, 1, 1, 9, 30, 0))
+
+        when(mockMessageIdentificationService.randomIdentifier)
+          .thenReturn("foo")
+
         val result = service.messageSequence(eoriNumber, "XI00001")
 
         result mustEqual MESSAGESequence(

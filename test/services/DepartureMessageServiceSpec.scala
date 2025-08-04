@@ -59,11 +59,6 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
   private val departureMessages: DepartureMessages =
     DepartureMessages(List(message1, message2, message3, message4, message5, message6))
 
-  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
-    super
-      .guiceApplicationBuilder()
-      .overrides(bind[DepartureMovementConnector].toInstance(mockConnector))
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConnector)
