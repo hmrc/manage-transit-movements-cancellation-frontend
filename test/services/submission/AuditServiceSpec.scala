@@ -16,37 +16,25 @@
 
 package services.submission
 
-import base.{MockApplicationBuilder, SpecBase}
+import base.SpecBase
 import models.AuditType.DeclarationInvalidationRequest
 import models.UserAnswers
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{reset, verify}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.verify
 import pages.CancellationReasonPage
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-class AuditServiceSpec extends SpecBase with MockApplicationBuilder {
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class AuditServiceSpec extends SpecBase {
 
   private val mockAuditConnector = mock[AuditConnector]
-
-  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
-    super
-      .guiceApplicationBuilder()
-      .overrides(
-        bind[AuditConnector].toInstance(mockAuditConnector)
-      )
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockAuditConnector)
-  }
 
   "audit" - {
     "must audit event" - {
       "ArrivalNotification" in {
-        val service = app.injector.instanceOf[AuditService]
+        val service = new AuditService(mockAuditConnector)
 
         val userAnswers = emptyUserAnswers.setValue(CancellationReasonPage, "Reason")
         service.audit(DeclarationInvalidationRequest, userAnswers)
