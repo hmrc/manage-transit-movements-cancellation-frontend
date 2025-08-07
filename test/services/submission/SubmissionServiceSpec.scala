@@ -23,7 +23,6 @@ import generated.*
 import generators.Generators
 import org.mockito.Mockito.when
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.test.Helpers.running
 import scalaxb.XMLCalendar
 import services.DateTimeService
 
@@ -41,20 +40,16 @@ class SubmissionServiceSpec extends SpecBase with ScalaCheckPropertyChecks with 
     "must assign phase ID" - {
       "when phase6 disabled" in {
         when(mockFrontendAppConfig.phase6Enabled).thenReturn(false)
-        val service = app.injector.instanceOf[SubmissionService]
-        val result  = service.attributes
+        val result = service.attributes
         result.keys.size mustEqual 1
         result.get("@PhaseID").value.value.toString mustEqual "NCTS5.1"
       }
 
       "when phase6 enabled" in {
-        val app = guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> true).build()
-        running(app) {
-          val service = app.injector.instanceOf[SubmissionService]
-          val result  = service.attributes
-          result.keys.size mustEqual 1
-          result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
-        }
+        when(mockFrontendAppConfig.phase6Enabled).thenReturn(true)
+        val result = service.attributes
+        result.keys.size mustEqual 1
+        result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
       }
     }
   }
