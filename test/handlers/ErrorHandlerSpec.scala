@@ -29,13 +29,13 @@ import play.api.test.Helpers._
 import scala.concurrent.Future
 
 // scalastyle:off magic.number
-class ErrorHandlerSpec extends SpecBase with JsonMatchers with OptionValues {
+class ErrorHandlerSpec extends SpecBase {
 
-  private lazy val handler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
+  private lazy val handler: ErrorHandler = new ErrorHandler()
 
   "must redirect to NotFound page when given a 404" in {
 
-    val result: Future[Result] = handler.onClientError(new FakeRequestHeader, 404)
+    val result: Future[Result] = handler.onClientError(fakeRequest, 404)
 
     status(result) mustEqual SEE_OTHER
     redirectLocation(result).value mustEqual controllers.routes.ErrorController.notFound().url
@@ -47,7 +47,7 @@ class ErrorHandlerSpec extends SpecBase with JsonMatchers with OptionValues {
       clientErrorCode =>
         beforeEach()
 
-        val result: Future[Result] = handler.onClientError(new FakeRequestHeader, clientErrorCode)
+        val result: Future[Result] = handler.onClientError(fakeRequest, clientErrorCode)
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.ErrorController.badRequest().url
@@ -60,25 +60,11 @@ class ErrorHandlerSpec extends SpecBase with JsonMatchers with OptionValues {
       serverErrorCode =>
         beforeEach()
 
-        val result: Future[Result] = handler.onClientError(new FakeRequestHeader, serverErrorCode)
+        val result: Future[Result] = handler.onClientError(fakeRequest, serverErrorCode)
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.ErrorController.technicalDifficulties().url
     }
-  }
-
-  class FakeRequestHeader extends RequestHeader {
-    override val target: RequestTarget = RequestTarget("/context/some-path", "/context/some-path", Map.empty)
-
-    override def method: String = "POST"
-
-    override def version: String = "HTTP/1.1"
-
-    override def headers: Headers = new Headers(Seq.empty)
-
-    override def connection: RemoteConnection = RemoteConnection("", secure = true, None)
-
-    override def attrs: TypedMap = TypedMap()
   }
 
 }

@@ -26,8 +26,6 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -58,11 +56,6 @@ class DepartureMessageServiceSpec extends SpecBase with ScalaCheckPropertyChecks
 
   private val departureMessages: DepartureMessages =
     DepartureMessages(List(message1, message2, message3, message4, message5, message6))
-
-  override def guiceApplicationBuilder(): GuiceApplicationBuilder =
-    super
-      .guiceApplicationBuilder()
-      .overrides(bind[DepartureMovementConnector].toInstance(mockConnector))
 
   override def beforeEach(): Unit = {
     super.beforeEach()

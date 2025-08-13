@@ -21,35 +21,22 @@ import generators.Generators
 import models.EoriNumber
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import org.mockito.Mockito.*
 import play.api.mvc.{AnyContent, Request, Results}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DataRetrievalActionSpec extends SpecBase with GuiceOneAppPerSuite with Generators {
+class DataRetrievalActionSpec extends SpecBase with Generators {
 
-  val sessionRepository: SessionRepository = mock[SessionRepository]
-
-  override lazy val app: Application = {
-
-    import play.api.inject._
-
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[SessionRepository].toInstance(sessionRepository)
-      )
-      .build()
-  }
+  private val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
   def harness(departureId: String, f: OptionalDataRequest[AnyContent] => Unit): Unit = {
 
-    lazy val actionProvider = app.injector.instanceOf[DataRetrievalActionProviderImpl]
+    lazy val actionProvider = new DataRetrievalActionProviderImpl(mockSessionRepository)
 
     actionProvider(departureId)
       .invokeBlock(
@@ -69,7 +56,7 @@ class DataRetrievalActionSpec extends SpecBase with GuiceOneAppPerSuite with Gen
 
       "where there are no existing answers for this LRN" in {
 
-        when(sessionRepository.get(any())) `thenReturn` Future.successful(None)
+        when(mockSessionRepository.get(any())) `thenReturn` Future.successful(None)
 
         harness(departureId, request => request.userAnswers must not be defined)
       }
@@ -79,7 +66,7 @@ class DataRetrievalActionSpec extends SpecBase with GuiceOneAppPerSuite with Gen
 
       "when there are existing answers for this LRN" in {
 
-        when(sessionRepository.get(any())) `thenReturn` Future.successful(Some(emptyUserAnswers))
+        when(mockSessionRepository.get(any())) `thenReturn` Future.successful(Some(emptyUserAnswers))
 
         harness(departureId, request => request.userAnswers mustBe defined)
       }

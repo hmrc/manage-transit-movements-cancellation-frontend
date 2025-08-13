@@ -18,9 +18,12 @@ package services
 
 import base.SpecBase
 
+import java.time.Clock
+
 class DateTimeServiceSpec extends SpecBase {
 
-  private val service = app.injector.instanceOf[DateTimeService]
+  private val fakeClock = Clock.systemUTC()
+  private val service   = new DateTimeService(fakeClock)
 
   "DateTimeService" - {
     "now" - {

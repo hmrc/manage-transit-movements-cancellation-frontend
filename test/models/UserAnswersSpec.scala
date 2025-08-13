@@ -23,7 +23,7 @@ import play.api.test.Helpers.running
 
 import java.time.Instant
 
-class UserAnswersSpec extends SpecBase with MockApplicationBuilder {
+class UserAnswersSpec extends SpecBase {
 
   "UserAnswers" - {
 

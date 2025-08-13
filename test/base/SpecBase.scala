@@ -16,18 +16,17 @@
 
 package base
 
-import config.FrontendAppConfig
 import models.{EoriNumber, UserAnswers}
+import org.apache.pekko.stream.testkit.NoMaterializer
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import pages.QuestionPage
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.Injector
 import play.api.libs.json.{Json, Reads, Writes}
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, BodyParsers}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.stubPlayBodyParsers
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Instant
@@ -41,15 +40,9 @@ trait SpecBase extends AnyFreeSpec with Matchers with OptionValues with TryValue
 
   def emptyUserAnswers: UserAnswers = UserAnswers(departureId, eoriNumber, lrn, Json.obj(), Instant.now())
 
-  def injector: Injector = app.injector
-
-  def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
-
-  def messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
-
   def fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
-  implicit def messages: Messages = messagesApi.preferred(fakeRequest)
+  implicit val bodyParser: BodyParsers.Default = new BodyParsers.Default(stubPlayBodyParsers(NoMaterializer))
 
   implicit class RichUserAnswers(userAnswers: UserAnswers) {
 
