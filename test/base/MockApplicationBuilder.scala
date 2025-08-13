@@ -16,8 +16,9 @@
 
 package base
 
+import config.FrontendAppConfig
 import connectors.DepartureMovementConnector
-import controllers.actions._
+import controllers.actions.*
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import models.{LocalReferenceNumber, UserAnswers}
 import org.mockito.ArgumentMatchers.any
@@ -26,7 +27,8 @@ import org.scalatest.{BeforeAndAfterEach, TestSuite}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.inject.bind
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.inject.{bind, Injector}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, ActionTransformer, Result}
@@ -36,7 +38,15 @@ import services.DepartureMessageService
 import scala.concurrent.{ExecutionContext, Future}
 
 trait MockApplicationBuilder extends GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
-  self: TestSuite =>
+  self: TestSuite & SpecBase =>
+
+  def injector: Injector = app.injector
+
+  def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
+
+  def messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
+
+  implicit def messages: Messages = messagesApi.preferred(fakeRequest)
 
   val lrn: LocalReferenceNumber = LocalReferenceNumber("lrn")
 

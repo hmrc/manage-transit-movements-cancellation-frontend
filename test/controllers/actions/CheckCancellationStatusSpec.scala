@@ -35,7 +35,7 @@ import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CheckCancellationStatusSpec extends SpecBase with BeforeAndAfterEach with Generators {
+class CheckCancellationStatusSpec extends SpecBase with Generators {
 
   private def fakeOkResult[A]: A => Future[Result] =
     _ => Future.successful(Ok)

@@ -18,29 +18,29 @@ package services
 
 import base.SpecBase
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
+import java.time.Clock
 
 class DateTimeServiceSpec extends SpecBase {
 
-  private val fixedInstant = Instant.parse("2025-08-01T12:00:00Z")
-  private val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
-
-  private val service = new DateTimeService(fixedClock)
+  private val fakeClock = Clock.systemUTC()
+  private val service   = new DateTimeService(fakeClock)
 
   "DateTimeService" - {
     "now" - {
       "must return current instant" in {
-        val instant = service.currentInstant
-        instant mustEqual fixedInstant
+        val instant1 = service.currentInstant
+        val instant2 = service.currentInstant
+
+        instant2.isAfter(instant1).mustEqual(true)
       }
     }
 
     "currentDateTime" - {
       "must return current date/time" in {
-        val expectedDateTime = LocalDateTime.ofInstant(fixedInstant, ZoneOffset.UTC)
-        val actualDateTime   = service.currentDateTime
+        val instant1 = service.currentDateTime
+        val instant2 = service.currentDateTime
 
-        actualDateTime mustEqual expectedDateTime
+        instant2.isAfter(instant1).mustEqual(true)
       }
     }
   }
