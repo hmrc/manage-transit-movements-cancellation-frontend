@@ -16,9 +16,9 @@
 
 package models
 
-import base.{MockApplicationBuilder, SpecBase}
+import base.SpecBase
 import pages.QuestionPage
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.test.Helpers.running
 
 import java.time.Instant
