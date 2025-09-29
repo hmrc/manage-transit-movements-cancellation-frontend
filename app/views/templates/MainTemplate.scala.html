@@ -14,9 +14,8 @@
  * limitations under the License.
  *@
 
-@import config.{FrontendAppConfig, MyBetaBanner}
+@import config.FrontendAppConfig
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
-@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardPage
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import resources._
@@ -26,11 +25,10 @@
     appConfig: FrontendAppConfig,
     hmrcStandardPage: HmrcStandardPage,
     hmrcTimeoutDialog: HmrcTimeoutDialog,
-    betaBanner: MyBetaBanner,
     stylesheets: Stylesheets,
     javascripts: Javascripts,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
-)(implicit cfConfig: ContactFrontendConfig)
+)
 
 @(
     title: String,
@@ -71,7 +69,6 @@
             signOutUrl = Option.when(canSignOut)(appConfig.signOutUrl)
         ),
         banners = Banners(
-            phaseBanner = Some(betaBanner()),
             userResearchBanner = if (appConfig.showUserResearchBanner) Some(UserResearchBanner(url = appConfig.userResearchUrl)) else None
         ),
         templateOverrides = TemplateOverrides(
