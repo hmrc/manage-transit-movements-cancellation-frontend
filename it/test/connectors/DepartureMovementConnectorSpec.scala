@@ -31,10 +31,10 @@ import scala.xml.{Node, NodeSeq}
 class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
   private lazy val phase5App: GuiceApplicationBuilder => GuiceApplicationBuilder =
-    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> false)
+    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-api-enabled" -> false)
 
   private lazy val phase6App: GuiceApplicationBuilder => GuiceApplicationBuilder =
-    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> true)
+    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-api-enabled" -> true)
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super

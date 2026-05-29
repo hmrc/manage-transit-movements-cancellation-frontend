@@ -35,7 +35,7 @@ class DepartureMovementConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private val version = if appConfig.phase6Enabled then 3.0 else 2.1
+  private val version = if appConfig.phase6APIEnabled then 3.0 else 2.1
 
   def getMessage[T](departureId: String, messageId: String)(implicit hc: HeaderCarrier, format: Node => T): Future[T] = {
     val url = url"${appConfig.commonTransitConventionTradersUrl}/movements/departures/$departureId/messages/$messageId/body"
