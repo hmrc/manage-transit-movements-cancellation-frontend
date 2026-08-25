@@ -33,7 +33,7 @@ object CustomsOffice {
 
   implicit val format: OFormat[CustomsOffice] = Json.format[CustomsOffice]
 
-  def reads: Reads[CustomsOffice] =
+  val reads: Reads[CustomsOffice] =
     (
       (__ \ "referenceNumber").read[String] and
         (__ \ "customsOfficeLsd" \ "customsOfficeUsualName").read[String] and

@@ -61,7 +61,6 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
 
     "must deserialise" - {
 
-      "when phase 6" - {
         "when phone number defined" in {
           forAll(nonEmptyString, nonEmptyString, nonEmptyString, nonEmptyString) {
             (id, name, phoneNumber, countryId) =>
@@ -98,7 +97,7 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
                 .as[CustomsOffice](CustomsOffice.reads) mustEqual customsOffice
           }
         }
-      }
+
     }
 
     "must fail to deserialise" - {
@@ -136,7 +135,6 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
       )
     }
 
-    "when phase 6" - {
       "must read list of customs offices" - {
         "when offices have distinct IDs" in {
           val json = Json.parse("""
@@ -193,7 +191,6 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
 
         }
       }
-    }
   }
 
 }

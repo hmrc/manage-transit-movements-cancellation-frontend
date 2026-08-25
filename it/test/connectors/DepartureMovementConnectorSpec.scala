@@ -30,8 +30,8 @@ import scala.xml.{Node, NodeSeq}
 
 class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandler {
 
-  private lazy val phase6App: GuiceApplicationBuilder => GuiceApplicationBuilder =
-    _ => guiceApplicationBuilder()
+  private lazy val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
+
 
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
@@ -107,11 +107,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
       "when phase 6" - {
         "must return Messages" in {
-
-          running(phase6App) {
-            app =>
-              val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
-
               server.stubFor(
                 get(urlEqualTo(s"/movements/departures/$departureId/messages"))
                   .withHeader("Accept", equalTo("application/vnd.hmrc.3.0+json"))
@@ -119,7 +114,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               )
 
               connector.getMessageMetaData(departureId).futureValue mustEqual expectedResult
-          }
         }
       }
 
@@ -134,11 +128,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
         "must return message" - {
           "when IE015" in {
             import models.IE015.*
-
-            running(phase6App) {
-              app =>
-                val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
-
+            
                 val xml: Node =
                   <ncts:CC015C xmlns:ncts="http://ncts.dgtaxud.ec">
                     <messageSender>message sender</messageSender>
@@ -193,17 +183,11 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
                 val result = connector.getMessage[IE015](departureId, messageId).futureValue
 
                 result mustEqual expectedResult
-            }
-
           }
 
           "when IE028" in {
             import models.IE028.*
-
-            running(phase6App) {
-              app =>
-                val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
-
+            
                 val xml: Node =
                   <ncts:CC028C xmlns:ncts="http://ncts.dgtaxud.ec">
                     <messageSender>message sender</messageSender>
@@ -239,7 +223,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
                 val result = connector.getMessage[IE028](departureId, messageId).futureValue
 
                 result mustEqual expectedResult
-            }
           }
         }
       }
@@ -256,9 +239,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
       "when phase 6" - {
         "must return OK for successful response" in {
-          running(phase6App) {
-            app =>
-              val connector: DepartureMovementConnector = app.injector.instanceOf[DepartureMovementConnector]
               server.stubFor(
                 post(urlEqualTo(url))
                   .withRequestBody(equalTo(body.toString()))
@@ -270,7 +250,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
               val result = connector.submit(body, DepartureId(departureId)).futureValue
 
               result.status mustEqual OK
-          }
         }
       }
     }
