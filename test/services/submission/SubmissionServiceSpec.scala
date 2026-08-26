@@ -38,9 +38,9 @@ class SubmissionServiceSpec extends SpecBase with ScalaCheckPropertyChecks with 
 
   "attributes" - {
     "must assign phase ID" - {
-        val result = service.attributes
-        result.keys.size mustEqual 1
-        result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
+      val result = service.attributes
+      result.keys.size mustEqual 1
+      result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
     }
   }
 

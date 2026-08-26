@@ -61,12 +61,12 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
 
     "must deserialise" - {
 
-        "when phone number defined" in {
-          forAll(nonEmptyString, nonEmptyString, nonEmptyString, nonEmptyString) {
-            (id, name, phoneNumber, countryId) =>
-              val customsOffice = CustomsOffice(id, name, countryId, Some(phoneNumber))
-              Json
-                .parse(s"""
+      "when phone number defined" in {
+        forAll(nonEmptyString, nonEmptyString, nonEmptyString, nonEmptyString) {
+          (id, name, phoneNumber, countryId) =>
+            val customsOffice = CustomsOffice(id, name, countryId, Some(phoneNumber))
+            Json
+              .parse(s"""
                      |{
                      |  "referenceNumber": "$id",
                      |  "customsOfficeLsd": {
@@ -76,16 +76,16 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
                      |  "phoneNumber": "$phoneNumber"
                      |}
                      |""".stripMargin)
-                .as[CustomsOffice](CustomsOffice.reads) mustEqual customsOffice
-          }
+              .as[CustomsOffice](CustomsOffice.reads) mustEqual customsOffice
         }
+      }
 
-        "when phone number undefined" in {
-          forAll(nonEmptyString, nonEmptyString, nonEmptyString) {
-            (id, name, countryId) =>
-              val customsOffice = CustomsOffice(id, name, countryId, None)
-              Json
-                .parse(s"""
+      "when phone number undefined" in {
+        forAll(nonEmptyString, nonEmptyString, nonEmptyString) {
+          (id, name, countryId) =>
+            val customsOffice = CustomsOffice(id, name, countryId, None)
+            Json
+              .parse(s"""
                      |{
                      |  "referenceNumber": "$id",
                      |  "customsOfficeLsd": {
@@ -94,9 +94,9 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
                      |  "countryCode": "$countryId"
                      |}
                      |""".stripMargin)
-                .as[CustomsOffice](CustomsOffice.reads) mustEqual customsOffice
-          }
+              .as[CustomsOffice](CustomsOffice.reads) mustEqual customsOffice
         }
+      }
 
     }
 
@@ -135,9 +135,9 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
       )
     }
 
-      "must read list of customs offices" - {
-        "when offices have distinct IDs" in {
-          val json = Json.parse("""
+    "must read list of customs offices" - {
+      "when offices have distinct IDs" in {
+        val json = Json.parse("""
                 |[
                 |  {
                 |    "referenceNumber" : "AD000001",
@@ -166,31 +166,31 @@ class CustomsOfficeSpec extends SpecBase with ScalaCheckPropertyChecks with Gene
                 |]
                 |""".stripMargin)
 
-          val result = json.as[List[CustomsOffice]](CustomsOffice.listReads)
+        val result = json.as[List[CustomsOffice]](CustomsOffice.listReads)
 
-          result mustEqual List(
-            CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", None),
-            CustomsOffice("AD000002", "DCNJ PORTA", "AD", None),
-            CustomsOffice("IT261101", "PASSO NUOVO", "IT", None)
-          )
+        result mustEqual List(
+          CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", None),
+          CustomsOffice("AD000002", "DCNJ PORTA", "AD", None),
+          CustomsOffice("IT261101", "PASSO NUOVO", "IT", None)
+        )
 
-        }
       }
+    }
 
-      "must fail to read list of customs offices" - {
-        "when not an array" in {
-          val json = Json.parse("""
+    "must fail to read list of customs offices" - {
+      "when not an array" in {
+        val json = Json.parse("""
                                     |{
                                     |  "foo" : "bar"
                                     |}
                                     |""".stripMargin)
 
-          val result = json.validate[List[CustomsOffice]](CustomsOffice.listReads)
+        val result = json.validate[List[CustomsOffice]](CustomsOffice.listReads)
 
-          result mustEqual JsError("error.expected.jsarray")
+        result mustEqual JsError("error.expected.jsarray")
 
-        }
       }
+    }
   }
 
 }
