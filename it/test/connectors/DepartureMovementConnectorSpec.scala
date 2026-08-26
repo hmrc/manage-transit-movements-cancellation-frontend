@@ -103,9 +103,7 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
           )
         )
       )
-
-
-      "when phase 6" - {
+      
         "must return Messages" in {
               server.stubFor(
                 get(urlEqualTo(s"/movements/departures/$departureId/messages"))
@@ -115,16 +113,14 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
               connector.getMessageMetaData(departureId).futureValue mustEqual expectedResult
         }
-      }
+      
 
     }
 
     "getMessage" - {
       val messageId = "messageId"
       val url       = s"/movements/departures/$departureId/messages/$messageId/body"
-
-
-      "when phase 6" - {
+      
         "must return message" - {
           "when IE015" in {
             import models.IE015.*
@@ -225,19 +221,17 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
                 result mustEqual expectedResult
           }
         }
-      }
     }
 
     "submit" - {
       val url = s"/movements/departures/$departureId/messages"
 
-      val body: NodeSeq =
+      val body: NodeSeq = {
         <ncts:CC014C PhaseID="NCTS5.0" xmlns:ncts="http://ncts.dgtaxud.ec">
           <messageSender>token</messageSender>
         </ncts:CC014C>
-
-
-      "when phase 6" - {
+      }
+      
         "must return OK for successful response" in {
               server.stubFor(
                 post(urlEqualTo(url))
@@ -251,7 +245,6 @@ class DepartureMovementConnectorSpec extends ItSpecBase with WireMockServerHandl
 
               result.status mustEqual OK
         }
-      }
     }
   }
 }
