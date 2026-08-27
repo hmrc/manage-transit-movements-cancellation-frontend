@@ -38,19 +38,9 @@ class SubmissionServiceSpec extends SpecBase with ScalaCheckPropertyChecks with 
 
   "attributes" - {
     "must assign phase ID" - {
-      "when phase6 disabled" in {
-        when(mockFrontendAppConfig.phase6APIEnabled).thenReturn(false)
-        val result = service.attributes
-        result.keys.size mustEqual 1
-        result.get("@PhaseID").value.value.toString mustEqual "NCTS5.1"
-      }
-
-      "when phase6 enabled" in {
-        when(mockFrontendAppConfig.phase6APIEnabled).thenReturn(true)
-        val result = service.attributes
-        result.keys.size mustEqual 1
-        result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
-      }
+      val result = service.attributes
+      result.keys.size mustEqual 1
+      result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
     }
   }
 

@@ -39,131 +39,15 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
 
   private val baseUrl = "customs-reference-data/test-only"
 
+  private lazy val connector: ReferenceDataConnector = app.injector.instanceOf[ReferenceDataConnector]
+
   override def guiceApplicationBuilder(): GuiceApplicationBuilder =
     super
       .guiceApplicationBuilder()
       .configure(conf = "microservice.services.customs-reference-data.port" -> server.port())
 
-  private lazy val phase5App: GuiceApplicationBuilder => GuiceApplicationBuilder =
-    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> false)
-
-  private lazy val phase6App: GuiceApplicationBuilder => GuiceApplicationBuilder =
-    _ => guiceApplicationBuilder().configure("feature-flags.phase-6-enabled" -> true)
-
   "Reference Data" - {
-
     "getCustomsOffice" - {
-
-      "when phase 5" - {
-        val code = "AD000001"
-        val url  = s"/$baseUrl/lists/CustomsOffices?data.id=$code"
-
-        val customsOfficeResponseJson: String =
-          """
-            |{
-            | "data" :
-            | [
-            |    {
-            |      "languageCode": "ES",
-            |      "name": "ADUANA DE ST. JULIÀ DE LÒRIA",
-            |      "phoneNumber": "+ (376) 84 1090",
-            |      "id": "AD000001",
-            |      "countryId": "AD",
-            |      "roles": [
-            |        {
-            |          "role": "AUT"
-            |        },
-            |        {
-            |          "role": "DEP"
-            |        },
-            |        {
-            |          "role": "DES"
-            |        },
-            |        {
-            |          "role": "TRA"
-            |        }
-            |      ]
-            |    },
-            |    {
-            |      "languageCode": "EN",
-            |      "name": "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA",
-            |      "phoneNumber": "+ (376) 84 1090",
-            |      "id": "AD000001",
-            |      "countryId": "AD",
-            |      "roles": [
-            |        {
-            |          "role": "AUT"
-            |        },
-            |        {
-            |          "role": "DEP"
-            |        },
-            |        {
-            |          "role": "DES"
-            |        },
-            |        {
-            |          "role": "TRA"
-            |        }
-            |      ]
-            |    },
-            |    {
-            |      "languageCode": "FR",
-            |      "name": "BUREAU DE SANT JULIÀ DE LÒRIA",
-            |      "phoneNumber": "+ (376) 84 1090",
-            |      "id": "AD000001",
-            |      "countryId": "AD",
-            |      "roles": [
-            |        {
-            |          "role": "AUT"
-            |        },
-            |        {
-            |          "role": "DEP"
-            |        },
-            |        {
-            |          "role": "DES"
-            |        },
-            |        {
-            |          "role": "TRA"
-            |        }
-            |      ]
-            |    }
-            | ]
-            |}
-            |""".stripMargin
-
-        "should handle a 200 response for customs office with code end point" in {
-          running(phase5App) {
-            app =>
-              val connector = app.injector.instanceOf[ReferenceDataConnector]
-              server.stubFor(
-                get(urlEqualTo(url))
-                  .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+json"))
-                  .willReturn(okJson(customsOfficeResponseJson))
-              )
-
-              val expectedResult = CustomsOffice("AD000001", "CUSTOMS OFFICE SANT JULIÀ DE LÒRIA", "AD", Some("+ (376) 84 1090"))
-
-              connector.getCustomsOffice(code).futureValue.value mustEqual expectedResult
-          }
-        }
-
-        "should throw a NoReferenceDataFoundException for an empty response" in {
-          running(phase5App) {
-            app =>
-              val connector = app.injector.instanceOf[ReferenceDataConnector]
-              checkNoReferenceDataFoundResponse(url, emptyPhase5ResponseJson, connector.getCustomsOffice(code))
-          }
-        }
-
-        "should handle client and server errors for customs office end point" in {
-          running(phase5App) {
-            app =>
-              val connector = app.injector.instanceOf[ReferenceDataConnector]
-              checkErrorResponse(url, connector.getCustomsOffice(code))
-          }
-        }
-      }
-
-      "when phase 6" - {
         val code = "XI000014"
         val url  = s"/$baseUrl/lists/CustomsOffices?referenceNumbers=$code"
 
@@ -192,9 +76,6 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
             |""".stripMargin
 
         "should handle a 200 response for customs office with code end point" in {
-          running(phase6App) {
-            app =>
-              val connector = app.injector.instanceOf[ReferenceDataConnector]
               server.stubFor(
                 get(urlEqualTo(url))
                   .withHeader("Accept", equalTo("application/vnd.hmrc.2.0+json"))
@@ -204,25 +85,15 @@ class ReferenceDataConnectorSpec extends ItSpecBase with WireMockServerHandler w
               val expectedResult = CustomsOffice("XI000014", "Belfast International Airport", "XI", Some("+44 (0)3000 575 988"))
 
               connector.getCustomsOffice(code).futureValue.value mustEqual expectedResult
-          }
         }
 
         "should throw a NoReferenceDataFoundException for an empty response" in {
-          running(phase6App) {
-            app =>
-              val connector = app.injector.instanceOf[ReferenceDataConnector]
-              checkNoReferenceDataFoundResponse(url, emptyPhase6ResponseJson, connector.getCustomsOffice(code))
-          }
+          checkNoReferenceDataFoundResponse(url, emptyPhase6ResponseJson, connector.getCustomsOffice(code))
         }
 
         "should handle client and server errors for customs office end point" in {
-          running(phase6App) {
-            app =>
-              val connector = app.injector.instanceOf[ReferenceDataConnector]
-              checkErrorResponse(url, connector.getCustomsOffice(code))
-          }
+          checkErrorResponse(url, connector.getCustomsOffice(code))
         }
-      }
     }
   }
 

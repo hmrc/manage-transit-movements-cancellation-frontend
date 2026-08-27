@@ -63,7 +63,7 @@ class SubmissionService @Inject() (
   }
 
   def attributes: Map[String, DataRecord[?]] = {
-    val phaseId = if (config.phase6APIEnabled) NCTS6 else NCTS5u461
+    val phaseId = NCTS6
     Map("@PhaseID" -> DataRecord(PhaseIDtype.fromString(phaseId.toString, scope)))
   }
 
