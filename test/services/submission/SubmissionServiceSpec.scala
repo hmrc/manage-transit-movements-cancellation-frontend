@@ -21,7 +21,9 @@ import config.FrontendAppConfig
 import connectors.DepartureMovementConnector
 import generated.*
 import generators.Generators
+import models.IE015
 import org.mockito.Mockito.when
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import scalaxb.XMLCalendar
 import services.DateTimeService
@@ -41,6 +43,54 @@ class SubmissionServiceSpec extends SpecBase with ScalaCheckPropertyChecks with 
       val result = service.attributes
       result.keys.size mustEqual 1
       result.get("@PhaseID").value.value.toString mustEqual "NCTS6"
+    }
+  }
+
+  "transform" - {
+    "must create IE014 from the declaration and cancellation reason" in {
+      forAll(arbitrary[IE015]) {
+        ie015 =>
+          when(mockDateTimeService.currentDateTime)
+            .thenReturn(LocalDateTime.of(2020, 1, 1, 9, 30, 0))
+
+          when(mockMessageIdentificationService.randomIdentifier)
+            .thenReturn("foo")
+
+          val result = service.transform(eoriNumber, ie015, Some("MRN123"), "There was a problem")
+
+          result mustEqual CC014CType(
+            messageSequence1 = MESSAGESequence(
+              messageSender = eoriNumber.value,
+              messageRecipient = s"NTA.${ie015.customsOfficeOfDeparture.referenceNumber.take(2)}",
+              preparationDateAndTime = XMLCalendar("2020-01-01T09:30:00"),
+              messageIdentification = "foo",
+              messageType = CC014C,
+              correlationIdentifier = None
+            ),
+            TransitOperation = TransitOperationType56(
+              LRN = None,
+              MRN = Some("MRN123")
+            ),
+            Invalidation = InvalidationType02(
+              requestDateAndTime = Some(XMLCalendar("2020-01-01T09:30:00")),
+              decisionDateAndTime = None,
+              decision = None,
+              initiatedByCustoms = Number0,
+              justification = Some("There was a problem")
+            ),
+            CustomsOfficeOfDeparture = CustomsOfficeOfDepartureType05(
+              referenceNumber = ie015.customsOfficeOfDeparture.referenceNumber
+            ),
+            HolderOfTheTransitProcedure = HolderOfTheTransitProcedureType23(
+              identificationNumber = ie015.holderOfTheTransitProcedure.identificationNumber,
+              TIRHolderIdentificationNumber = None,
+              name = None,
+              Address = None,
+              ContactPerson = None
+            ),
+            attributes = Map("@PhaseID" -> scalaxb.DataRecord[PhaseIDtype](NCTS6))
+          )
+      }
     }
   }
 
